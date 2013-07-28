@@ -12,9 +12,9 @@ typedef struct
 	int Width;
 	int Height;
 
-	int **Layout;
-	// TODO: Smaller variable sizes (uint8_t).
-	int ***Properties;
+	uint8_t **Layout;
+	uint8_t ***Properties;
+
 	bool Debug;
 } Level;
 

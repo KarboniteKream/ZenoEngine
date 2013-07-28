@@ -14,7 +14,7 @@ void loadFont(Font *font, const char* filename)
 	if(fontFile != NULL)
 	{
 		char textureFilename[256] = {'\0'};
-		uint8_t filenameLength, charHeight, nNums = 0;
+		uint8_t filenameLength, charHeight, nNums;
 		uint8_t flags[32];
 
 		fread(&filenameLength, sizeof(filenameLength), 1, fontFile);

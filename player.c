@@ -1,20 +1,42 @@
 #include "player.h"
 
+void initPlayer(Player *player)
+{
+	initTexture(&player->PlayerTexture);
+
+	player->MaxHealth = 0;
+	player->Health = 0;
+	player->SelectedSkill = 0;
+
+	player->X = 0;
+	player->Y = 0;
+
+	player->BoundingBox.X = 0;
+	player->BoundingBox.Y = 0;
+	player->BoundingBox.W = 0;
+	player->BoundingBox.H = 0;
+
+	player->Speed = 0;
+	player->Angle = 0;
+}
+
 void loadPlayer(Player *player)
 {
+	loadTexture(&player->PlayerTexture, "images/player.png");
+
 	player->MaxHealth = player->Health = 56;
 	player->SelectedSkill = 1;
 
 	player->X = 200.0f;
 	player->Y = 200.0f;
-	player->Speed = 300.0f;
-
-	loadTexture(&player->PlayerTexture, "images/player.png");
 
 	player->BoundingBox.X = 16;
 	player->BoundingBox.Y = 16;
 	player->BoundingBox.W = 32;
 	player->BoundingBox.H = 32;
+
+	player->Speed = 300.0f;
+	player->Angle = 0.0f;
 }
 
 void drawPlayer(Player *player)
@@ -28,7 +50,7 @@ void drawPlayer(Player *player)
 
 void movePlayer(Level *level, Player *player)
 {
-	const Uint8 *keyStates = SDL_GetKeyboardState(NULL);
+	const uint8_t *keyStates = SDL_GetKeyboardState(NULL);
 
 	// TODO: Camera should follow the player.
 	if(keyStates[SDL_SCANCODE_W] == 1)

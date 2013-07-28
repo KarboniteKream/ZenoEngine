@@ -13,17 +13,18 @@ typedef struct
 
 	int MaxHealth;
 	int Health;
-	int SelectedSkill;
+	uint8_t SelectedSkill;
 
 	GLfloat X;
 	GLfloat Y;
-	GLfloat Angle;
 	RectangleF BoundingBox;
 	GLfloat Speed;
+	GLfloat Angle;
 
 	// TODO: Implement aiming and shooting.
 } Player;
 
+void initPlayer(Player *player);
 void loadPlayer(Player *player);
 void drawPlayer(Player *player);
 void movePlayer(Level *level, Player *player);

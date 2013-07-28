@@ -16,8 +16,8 @@ void initLevel(Level *level)
 
 void loadLevel(Level *level, const char *filename)
 {
-	char levelFilename[256];
-	char textureFilename[256];
+	char levelFilename[256] = {'\0'};
+	char textureFilename[256] = {'\0'};
 
 	sprintf(levelFilename, "levels/%s.map", filename);
 	// FIXME: What about levels with same textures (regarding filename)?
@@ -46,17 +46,17 @@ void loadLevel(Level *level, const char *filename)
 		free(level->Properties);
 	}
 
-	level->Layout = (int **)malloc(level->Width * sizeof(int *));
-	level->Properties = (int ***)malloc(level->Width * sizeof(int **));
+	level->Layout = (uint8_t **)malloc(level->Width * sizeof(uint8_t *));
+	level->Properties = (uint8_t ***)malloc(level->Width * sizeof(uint8_t **));
 
 	for(int i = 0; i < level->Width; i++)
 	{
-		level->Layout[i] = (int *)malloc(level->Height * sizeof(int));
-		level->Properties[i] = (int **)malloc(level->Height * sizeof(int *));
+		level->Layout[i] = (uint8_t *)calloc(level->Height, sizeof(uint8_t));
+		level->Properties[i] = (uint8_t **)malloc(level->Height * sizeof(uint8_t *));
 
 		for(int j = 0; j < level->Height; j++)
 		{
-			level->Properties[i][j] = (int *)malloc(sizeof(int));
+			level->Properties[i][j] = (uint8_t *)calloc(1, sizeof(uint8_t));
 		}
 	}
 

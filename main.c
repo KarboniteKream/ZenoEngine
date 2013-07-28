@@ -8,6 +8,9 @@ void save_screenshot();
 void execute_command(Level *level, const char *command);
 
 // NOTE: The arguments are unused.
+// TODO: Add error checking to every I/O operation, etc.
+// TODO: Add error reporting.
+// TODO: Add error reporting with return values of functions (loadTexture()).
 int main(int argc, char **argv)
 {
 	// TODO: Add SDL_GetError() and glGetError() support.
@@ -16,6 +19,8 @@ int main(int argc, char **argv)
 		fprintf(stderr, "An error has occurred while initializing SDL.\n");
 		exit(1);
 	}
+
+	atexit(SDL_Quit);
 
 	// TODO: Support for borderless window.
 	// TODO: Fullscreen support.
@@ -63,17 +68,15 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	atexit(SDL_Quit);
-
 	SDL_Event event;
 
 	bool quit_game = false;
 	bool editor = false;
 	bool console = false;
 
-	char command[256] = {0};
-	int command_index = 0;
-	int editor_block = 0;
+	char command[256] = {'\0'};
+	unsigned int command_index = 0;
+	uint8_t editor_block = 0;
 
 	// NOTE: Should level be a global variable?
 	Level level;
@@ -81,13 +84,14 @@ int main(int argc, char **argv)
 	loadLevel(&level, "level1");
 
 	// TODO: Load assets from a file into array (e.g. array of textures) using IDs -> Engine.
-	Font *fonts = malloc(2 * sizeof(Font));
+	Font fonts[2];
 	initFont(&fonts[0]);
 	initFont(&fonts[1]);
 	loadFont(&fonts[0], "data/font2.dat");
 	loadFont(&fonts[1], "data/font4.dat");
 
 	Player player;
+	initPlayer(&player);
 	loadPlayer(&player);
 
 	Texture cursor_texture, minimap_texture, interface_texture, pistol_texture;
@@ -100,11 +104,11 @@ int main(int argc, char **argv)
 	loadTexture(&cursor_texture, "images/cursor.png");
 	loadTexture(&pistol_texture, "images/pistolSilencer.png");
 
-	int current_time = SDL_GetTicks();
+	unsigned int current_time = SDL_GetTicks();
 
 	while(quit_game == false)
 	{
-		int previous_time = current_time;
+		unsigned int previous_time = current_time;
 		current_time = SDL_GetTicks();
 		DELTA_TICKS = (current_time - previous_time) / 1000.0f;
 
@@ -149,21 +153,23 @@ int main(int argc, char **argv)
 						{
 							case SDLK_RETURN:
 								execute_command(&level, command);
-								// FIXME: Don't close the console, unless the command string is empty.
-								command_index = command[0] = 0;
+								// FIXME: Don't close the console, unless the command string is empty or the specified key is pressed.
+								command_index = 0;
+								command[0] = '\0';
 								console = false;
 								break;
 
 							case SDLK_BACKSPACE:
 								if(command_index > 0)
 								{
-									command[--command_index] = 0;
+									command[--command_index] = '\0';
 								}
 								break;
 
 							default:
+								// TODO: What about the Z and Y keys? Perhaps a setting in the options screen?
 								command[command_index++] = event.key.keysym.sym;
-								command[command_index] = 0;
+								command[command_index] = '\0';
 								break;
 						}
 					}
@@ -399,11 +405,11 @@ void save_screenshot()
 	glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 	for(int i = 0; i < SCREEN_HEIGHT; i++)
-    {
-        memcpy(screenshot + SCREEN_WIDTH * 4 * i, pixels + SCREEN_WIDTH * 4 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 4);
-    }
+	{
+		memcpy(screenshot + SCREEN_WIDTH * 4 * i, pixels + SCREEN_WIDTH * 4 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 4);
+	}
 
-    // TODO: Add automatic numbering.
+	// TODO: Add automatic numbering.
 	lodepng_encode32_file("screenshots/screenshot.png", screenshot, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	free(pixels);
@@ -429,6 +435,7 @@ void execute_command(Level *level, const char *command)
 			command_array[index] = strtok(NULL, " ");
 		}
 
+		// TODO: Add error reporting.
 		if(strcmp(command_array[0], "save") == 0)
 		{
 			if(length > 1)

@@ -23,10 +23,10 @@
 extern float DELTA_TICKS;
 
 extern GLuint BOUND_TEXTURE;
-extern int BLOCK_SIZE;
+extern uint8_t BLOCK_SIZE;
 
 extern GLfloat camera_x, camera_y;
-// NOTE: Should mouseX and mouseY be globals?
+// NOTE: Should mouse_x and mouse_y be globals?
 extern GLfloat mouse_x, mouse_y;
 
 typedef struct
