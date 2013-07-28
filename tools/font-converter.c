@@ -13,9 +13,9 @@ int main(int argc, char **argv)
 			uint8_t char_height, nnums = 0, flags[32] = {0};
 			uint16_t numbers[256];
 
-			fscanf(input, "%s\n%hhd", image_filename, &char_height);
+			fscanf(input, "%s\n%hhu", image_filename, &char_height);
 
-			while(fscanf(input, "%hd", &numbers[nnums]) != EOF)
+			while(fscanf(input, "%hu", &numbers[nnums]) != EOF)
 			{
 				if(numbers[nnums] > 255)
 				{
