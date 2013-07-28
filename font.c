@@ -13,14 +13,15 @@ void loadFont(Font *font, const char* filename)
 
 	if(fontFile != NULL)
 	{
-		char textureFilename[256];
-		uint8_t nNums = 0, charHeight;
+		char textureFilename[256] = {'\0'};
+		uint8_t filenameLength, charHeight, nNums = 0;
 		uint8_t flags[32];
 
-		fscanf(fontFile, "%s\n", textureFilename);
+		fread(&filenameLength, sizeof(filenameLength), 1, fontFile);
+		fread(textureFilename, sizeof(char), filenameLength, fontFile);
 		loadTexture(&font->FontTexture, textureFilename);
 
-		fread(&charHeight, sizeof(uint8_t), 1, fontFile);
+		fread(&charHeight, sizeof(charHeight), 1, fontFile);
 		fread(&nNums, sizeof(nNums), 1, fontFile);
 		fread(flags, sizeof(uint8_t), (nNums + 7) / 8, fontFile);
 
