@@ -13,7 +13,7 @@ typedef struct
 	int Height;
 
 	int **Layout;
-	// TODO: Replace property indices with macros.
+	// TODO: Smaller variable sizes (uint8_t).
 	int ***Properties;
 	bool Debug;
 } Level;

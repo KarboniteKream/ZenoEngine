@@ -66,6 +66,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	atexit(SDL_Quit);
+
 	SDL_Event event;
 
 	bool quit_game = false;
@@ -82,7 +84,7 @@ int main(int argc, char **argv)
 	loadLevel(&level, "level1");
 
 	// TODO: Load assets from a file into array (e.g. array of textures) using IDs -> Engine.
-	Font *fonts = (Font *)malloc(2 * sizeof(Font));
+	Font *fonts = malloc(2 * sizeof(Font));
 	initFont(&fonts[0]);
 	initFont(&fonts[1]);
 	loadFont(&fonts[0], "data/font2.dat");
@@ -92,6 +94,10 @@ int main(int argc, char **argv)
 	loadPlayer(&player);
 
 	Texture cursor_texture, minimap_texture, interface_texture, pistol_texture;
+	initTexture(&minimap_texture);
+	initTexture(&interface_texture);
+	initTexture(&cursor_texture);
+	initTexture(&pistol_texture);
 	loadTexture(&minimap_texture, "images/minimap.png");
 	loadTexture(&interface_texture, "images/interface.png");
 	loadTexture(&cursor_texture, "images/cursor.png");
@@ -152,16 +158,15 @@ int main(int argc, char **argv)
 								break;
 
 							case SDLK_BACKSPACE:
-								// TODO: Remove last character in the command string.
-								// NOTE: Should I just move the index?
-								command[command_index] = '\0';
+								if(command_index > 0)
+								{
+									command[--command_index] = 0;
+								}
 								break;
 
 							default:
-								// TODO: Add the character to the command string.
-								// NOTE: Should I just move the index?
 								command[command_index++] = event.key.keysym.sym;
-								command[command_index] = '\0';
+								command[command_index] = 0;
 								break;
 						}
 					}
@@ -410,45 +415,61 @@ void save_screenshot()
 
 void execute_command(Level *level, const char *command)
 {
-	char temp[strlen(command) + 1];
-	strcpy(temp, command);
-
-	char **command_array = (char **)malloc(sizeof(char *));
-	int index = 0;
-	command_array[index] = strtok(temp, " ");
-
-	while(command_array[index] != NULL)
+	if(strlen(command) > 0)
 	{
-		index++;
-		command_array = (char **)realloc(command_array, (index + 1) * sizeof(char *));
-		command_array[index] = strtok(NULL, " ");
-	}
+		char temp[strlen(command) + 1];
+		strcpy(temp, command);
 
-	// if(strcmp(command_array[0], "save") == 0)
-	// {
-	// 	if(strcmp(command_array[1], "level") == 0)
-	// 	{
-	// 		saveLevel(level, command_array[2]);
-	// 	}
-	// }
-	// else if(strcmp(command_array[0], "load") == 0)
-	// {
-	// 	if(strcmp(command_array[1], "level") == 0)
-	// 	{
-	// 		loadLevel(level, command_array[2]);
-	// 	}
-	// }
-	// else if(strcmp(command_array[0], "set") == 0)
-	// {
-	// 	// TODO: This should be removed some day.
-	// 	if(strcmp(command_array[1], "scale") == 0)
-	// 	{
-	// 		BLOCK_SIZE = atoi(command_array[2]);
-	// 		// TODO: Reload the level with the new textures.
-	// 	}
-	// }
-	// else if(strcmp(command_array[0], "debug") == 0)
-	// {
-	// 	level->Debug = !level->Debug;
-	// }
+		char **command_array = (char **)malloc(sizeof(char *));
+		int index = 0, length = 0;
+		command_array[index] = strtok(temp, " ");
+
+		while(command_array[index] != NULL)
+		{
+			index++;
+			length++;
+			command_array = (char **)realloc(command_array, (index + 1) * sizeof(char *));
+			command_array[index] = strtok(NULL, " ");
+		}
+
+		if(strcmp(command_array[0], "save") == 0)
+		{
+			if(length > 1)
+			{
+				if(length > 2 && strcmp(command_array[1], "level") == 0)
+				{
+					saveLevel(level, command_array[2]);
+				}
+			}
+		}
+		else if(strcmp(command_array[0], "load") == 0)
+		{
+			if(length > 1)
+			{
+				if(strcmp(command_array[1], "level") == 0)
+				{
+					loadLevel(level, command_array[2]);
+				}
+			}
+		}
+		else if(strcmp(command_array[0], "set") == 0)
+		{
+			if(length > 1)
+			{
+				// TODO: This should be removed some day.
+				if(strcmp(command_array[1], "scale") == 0)
+				{
+					BLOCK_SIZE = atoi(command_array[2]);
+					// TODO: Reload the level with the new textures.
+				}
+			}
+		}
+		else if(strcmp(command_array[0], "debug") == 0)
+		{
+			if(length > 1)
+			{
+				level->Debug = !level->Debug;
+			}
+		}
+	}
 }

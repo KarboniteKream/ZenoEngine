@@ -104,6 +104,8 @@ void loadLevel(Level *level, const char *filename)
 		level->TextureClips[i].W = BLOCK_SIZE;
 		level->TextureClips[i].H = BLOCK_SIZE;
 	}
+
+	level->Debug = false;
 }
 
 void saveLevel(Level *level, const char *filename)

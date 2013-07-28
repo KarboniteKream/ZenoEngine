@@ -15,6 +15,8 @@
 #define CAMERA_SPEED 600.0f
 #define EDITOR_EDGE 20.0f
 
+#define COLLIDABLE 0
+
 extern float DELTA_TICKS;
 
 extern GLuint BOUND_TEXTURE;
