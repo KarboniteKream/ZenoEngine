@@ -31,10 +31,10 @@ extern GLfloat mouse_x, mouse_y;
 
 typedef struct
 {
-	GLfloat X;
-	GLfloat Y;
-	GLfloat W;
-	GLfloat H;
-} RectangleF;
+	GLfloat x;
+	GLfloat y;
+	GLfloat w;
+	GLfloat h;
+} Rectangle;
 
 #endif

@@ -9,24 +9,25 @@
 
 typedef struct
 {
-	Texture PlayerTexture;
+	Texture texture;
 
-	int MaxHealth;
-	int Health;
-	uint8_t SelectedSkill;
+	int max_health;
+	int health;
+	uint8_t selected_skill;
 
-	GLfloat X;
-	GLfloat Y;
-	RectangleF BoundingBox;
-	GLfloat Speed;
-	GLfloat Angle;
+	GLfloat x;
+	GLfloat y;
+	Rectangle bounding_box;
+
+	GLfloat speed;
+	GLfloat angle;
 
 	// TODO: Implement aiming and shooting.
 } Player;
 
-void initPlayer(Player *player);
-void loadPlayer(Player *player);
-void drawPlayer(Player *player);
-void movePlayer(Level *level, Player *player);
+void init_player(Player *player);
+void load_player(Player *player);
+void draw_player(Player *player);
+void move_player(Level *level, Player *player);
 
 #endif

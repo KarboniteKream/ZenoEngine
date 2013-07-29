@@ -8,9 +8,8 @@ void save_screenshot();
 void execute_command(Level *level, const char *command);
 
 // NOTE: The arguments are unused.
-// TODO: Add error checking to every I/O operation, etc.
-// TODO: Add error reporting.
-// TODO: Add error reporting with return values of functions (loadTexture()).
+// TODO: Add error checking and reporting.
+// TODO: Add error reporting with return values of functions (load_texture()).
 int main(int argc, char **argv)
 {
 	// TODO: Add SDL_GetError() and glGetError() support.
@@ -80,29 +79,29 @@ int main(int argc, char **argv)
 
 	// NOTE: Should level be a global variable?
 	Level level;
-	initLevel(&level);
-	loadLevel(&level, "level1");
+	init_level(&level);
+	load_level(&level, "level1");
 
 	// TODO: Load assets from a file into array (e.g. array of textures) using IDs -> Engine.
 	Font fonts[2];
-	initFont(&fonts[0]);
-	initFont(&fonts[1]);
-	loadFont(&fonts[0], "data/font2.dat");
-	loadFont(&fonts[1], "data/font4.dat");
+	init_font(&fonts[0]);
+	init_font(&fonts[1]);
+	load_font(&fonts[0], "data/font2.dat");
+	load_font(&fonts[1], "data/font4.dat");
 
 	Player player;
-	initPlayer(&player);
-	loadPlayer(&player);
+	init_player(&player);
+	load_player(&player);
 
 	Texture cursor_texture, minimap_texture, interface_texture, pistol_texture;
-	initTexture(&minimap_texture);
-	initTexture(&interface_texture);
-	initTexture(&cursor_texture);
-	initTexture(&pistol_texture);
-	loadTexture(&minimap_texture, "images/minimap.png");
-	loadTexture(&interface_texture, "images/interface.png");
-	loadTexture(&cursor_texture, "images/cursor.png");
-	loadTexture(&pistol_texture, "images/pistolSilencer.png");
+	init_texture(&minimap_texture);
+	init_texture(&interface_texture);
+	init_texture(&cursor_texture);
+	init_texture(&pistol_texture);
+	load_texture(&minimap_texture, "images/minimap.png");
+	load_texture(&interface_texture, "images/interface.png");
+	load_texture(&cursor_texture, "images/cursor.png");
+	load_texture(&pistol_texture, "images/pistolSilencer.png");
 
 	unsigned int current_time = SDL_GetTicks();
 
@@ -196,7 +195,7 @@ int main(int argc, char **argv)
 				{
 					if(event.button.button == SDL_BUTTON_LEFT)
 					{
-						level.Layout[(int)((mouse_x + camera_x) / BLOCK_SIZE)][(int)((mouse_y + camera_y) / BLOCK_SIZE)] = editor_block;
+						level.layout[(int)((mouse_x + camera_x) / BLOCK_SIZE)][(int)((mouse_y + camera_y) / BLOCK_SIZE)] = editor_block;
 					}
 				}
 			}
@@ -208,26 +207,26 @@ int main(int argc, char **argv)
 					{
 						case SDLK_j:
 							// TODO: Move into a separate function?
-							player.Health -= 4;
-							if(player.Health < 0)
+							player.health -= 4;
+							if(player.health < 0)
 							{
-								player.Health = 0;
+								player.health = 0;
 							}
 
 							break;
 
 						case SDLK_k:
-							player.Health += 4;
-							if(player.Health > player.MaxHealth)
+							player.health += 4;
+							if(player.health > player.max_health)
 							{
-								player.Health = player.MaxHealth;
+								player.health = player.max_health;
 							}
 
 							break;
 
 						case SDLK_1: case SDLK_2:
 						case SDLK_3: case SDLK_4:
-							player.SelectedSkill = event.key.keysym.sym - 48;
+							player.selected_skill = event.key.keysym.sym - 48;
 							break;
 
 						default:
@@ -274,9 +273,9 @@ int main(int argc, char **argv)
 			{
 				camera_x += CAMERA_SPEED * DELTA_TICKS;
 
-				if(camera_x > (level.Width * BLOCK_SIZE - SCREEN_WIDTH))
+				if(camera_x > (level.width * BLOCK_SIZE - SCREEN_WIDTH))
 				{
-					camera_x = (level.Width * BLOCK_SIZE - SCREEN_WIDTH);
+					camera_x = (level.width * BLOCK_SIZE - SCREEN_WIDTH);
 				}
 			}
 			if(mouse_y < EDITOR_EDGE)
@@ -292,15 +291,15 @@ int main(int argc, char **argv)
 			{
 				camera_y += CAMERA_SPEED * DELTA_TICKS;
 
-				if(camera_y > (level.Height * BLOCK_SIZE - SCREEN_HEIGHT))
+				if(camera_y > (level.height * BLOCK_SIZE - SCREEN_HEIGHT))
 				{
-					camera_y = (level.Height * BLOCK_SIZE - SCREEN_HEIGHT);
+					camera_y = (level.height * BLOCK_SIZE - SCREEN_HEIGHT);
 				}
 			}
 		}
 		else
 		{
-			movePlayer(&level, &player);
+			move_player(&level, &player);
 		}
 
 		glMatrixMode(GL_MODELVIEW);
@@ -309,21 +308,21 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glTranslatef(-camera_x, -camera_y, 0.0f);
 
-		drawLevel(&level);
-		drawPlayer(&player);
+		draw_level(&level);
+		draw_player(&player);
 
 		glLoadIdentity();
 
-		drawTexture(&minimap_texture, SCREEN_WIDTH - 250.0f - 10.0f, 10.0f, NULL, 0.0f);
-		drawTexture(&interface_texture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
-		drawTexture(&pistol_texture, 16.0f + 64.0f + 2.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
+		draw_texture(&minimap_texture, SCREEN_WIDTH - 250.0f - 10.0f, 10.0f, NULL, 0.0f);
+		draw_texture(&interface_texture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
+		draw_texture(&pistol_texture, 16.0f + 64.0f + 2.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
 
 		// TODO: Replace immediate mode.
 		glBegin(GL_QUADS);
 			glColor3f(1.0f, 0.0f, 0.0f);
 			glVertex2f(16.0f + 4.0f, SCREEN_HEIGHT - 64.0f - 16.0f + 4.0f);
-			glVertex2f(16.0f + 4.0f + player.Health, SCREEN_HEIGHT - 64.0f - 16.0f + 4.0f);
-			glVertex2f(16.0f + 4.0f + player.Health, SCREEN_HEIGHT - 16.0f - 33.0f - 4.0f);
+			glVertex2f(16.0f + 4.0f + player.health, SCREEN_HEIGHT - 64.0f - 16.0f + 4.0f);
+			glVertex2f(16.0f + 4.0f + player.health, SCREEN_HEIGHT - 16.0f - 33.0f - 4.0f);
 			glVertex2f(16.0f + 4.0f, SCREEN_HEIGHT - 16.0f - 33.0f - 4.0f);
 			glColor3f(1.0f, 1.0f, 1.0f);
 		glEnd();
@@ -331,23 +330,23 @@ int main(int argc, char **argv)
 		glLineWidth(2.0f);
 		glBegin(GL_LINES);
 			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f + 32.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f - 32.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f + 1.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f + 1.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f - 32.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 1.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
+			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 1.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
 			glColor3f(1.0f, 1.0f, 1.0f);
 		glEnd();
 		glLineWidth(1.0f);
 
-		drawText(&fonts[0], 7.0f, 5.0f, NAME_VERSION);
+		draw_text(&fonts[0], 7.0f, 5.0f, NAME_VERSION);
 
 		if(editor == true)
 		{
-			drawText(&fonts[0], 171.0f, 5.0f, " - EDITOR");
+			draw_text(&fonts[0], 171.0f, 5.0f, " - EDITOR");
 
 			if(console == true)
 			{
@@ -373,16 +372,16 @@ int main(int argc, char **argv)
 				glEnd();
 				glLineWidth(1.0f);
 
-				drawText(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ");
-				drawText(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command);
+				draw_text(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ");
+				draw_text(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command);
 
 				// TODO: Command history.
 			}
 		}
 		else
 		{
-			drawText(&fonts[0], 171.0f, 5.0f, " - Press F1 for Editor");
-			drawTexture(&cursor_texture, mouse_x - 8.0f, mouse_y - 8.0f, NULL, 0.0f);
+			draw_text(&fonts[0], 171.0f, 5.0f, " - Press F1 for Editor");
+			draw_texture(&cursor_texture, mouse_x - 8.0f, mouse_y - 8.0f, NULL, 0.0f);
 		}
 
 
@@ -442,7 +441,7 @@ void execute_command(Level *level, const char *command)
 			{
 				if(length > 2 && strcmp(command_array[1], "level") == 0)
 				{
-					saveLevel(level, command_array[2]);
+					save_level(level, command_array[2]);
 				}
 			}
 		}
@@ -450,9 +449,9 @@ void execute_command(Level *level, const char *command)
 		{
 			if(length > 1)
 			{
-				if(strcmp(command_array[1], "level") == 0)
+				if(length > 2 && strcmp(command_array[1], "level") == 0)
 				{
-					loadLevel(level, command_array[2]);
+					load_level(level, command_array[2]);
 				}
 			}
 		}
@@ -461,7 +460,7 @@ void execute_command(Level *level, const char *command)
 			if(length > 1)
 			{
 				// TODO: This should be removed some day.
-				if(strcmp(command_array[1], "scale") == 0)
+				if(length > 2 && strcmp(command_array[1], "scale") == 0)
 				{
 					BLOCK_SIZE = atoi(command_array[2]);
 					// TODO: Reload the level with the new textures.
@@ -470,10 +469,7 @@ void execute_command(Level *level, const char *command)
 		}
 		else if(strcmp(command_array[0], "debug") == 0)
 		{
-			if(length > 1)
-			{
-				level->Debug = !level->Debug;
-			}
+			level->debug = !level->debug;
 		}
 	}
 }

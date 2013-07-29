@@ -1,132 +1,136 @@
 #include "level.h"
 
-void initLevel(Level *level)
+void init_level(Level *level)
 {
-	initTexture(&level->LevelTexture);
-	level->TextureClips = NULL;
+	init_texture(&level->texture);
+	level->texture_clips = NULL;
 
-	level->Width = 0;
-	level->Height = 0;
+	level->width = 0;
+	level->height = 0;
 
-	level->Layout = NULL;
-	level->Properties = NULL;
+	level->layout = NULL;
+	level->properties = NULL;
 
-	level->Debug = false;
+	level->debug = false;
 }
 
-void loadLevel(Level *level, const char *filename)
+void load_level(Level *level, const char *filename)
 {
-	char levelFilename[256] = {'\0'};
-	char textureFilename[256] = {'\0'};
+	char level_filename[256] = {'\0'};
+	char texture_filename[256] = {'\0'};
 
-	sprintf(levelFilename, "levels/%s.map", filename);
+	sprintf(level_filename, "levels/%s.map", filename);
 	// FIXME: What about levels with same textures (regarding filename)?
 	// NOTE: Should be resolved with moving metadata.
-	sprintf(textureFilename, "images/%s-%d.png", filename, BLOCK_SIZE);
+	sprintf(texture_filename, "images/%s-%d.png", filename, BLOCK_SIZE);
 
 	// Move metadata to .dat files.
-	level->Width = 60;
-	level->Height = 40;
+	level->width = 60;
+	level->height = 40;
 
-	if(level->Layout != NULL)
+	if(level->layout != NULL)
 	{
-		for(int i = 0; i < level->Width; i++)
+		for(int i = 0; i < level->width; i++)
 		{
-			for(int j = 0; j < level->Height; j++)
+			for(int j = 0; j < level->height; j++)
 			{
-				free(level->Properties[i][j]);
+				free(level->properties[i][j]);
 			}
 
-			free(level->Layout[i]);
-			free(level->Properties[i]);
+			free(level->layout[i]);
+			free(level->properties[i]);
 		}
 
-		free(level->TextureClips);
-		free(level->Layout);
-		free(level->Properties);
+		free(level->texture_clips);
+		free(level->layout);
+		free(level->properties);
 	}
 
-	level->Layout = (uint8_t **)malloc(level->Width * sizeof(uint8_t *));
-	level->Properties = (uint8_t ***)malloc(level->Width * sizeof(uint8_t **));
+	level->layout = (uint8_t **)malloc(level->width * sizeof(uint8_t *));
+	level->properties = (uint8_t ***)malloc(level->width * sizeof(uint8_t **));
 
-	for(int i = 0; i < level->Width; i++)
+	for(int i = 0; i < level->width; i++)
 	{
-		level->Layout[i] = (uint8_t *)calloc(level->Height, sizeof(uint8_t));
-		level->Properties[i] = (uint8_t **)malloc(level->Height * sizeof(uint8_t *));
+		level->layout[i] = (uint8_t *)calloc(level->height, sizeof(uint8_t));
+		level->properties[i] = (uint8_t **)malloc(level->height * sizeof(uint8_t *));
 
-		for(int j = 0; j < level->Height; j++)
+		for(int j = 0; j < level->height; j++)
 		{
-			level->Properties[i][j] = (uint8_t *)calloc(1, sizeof(uint8_t));
+			level->properties[i][j] = (uint8_t *)calloc(1, sizeof(uint8_t));
 		}
 	}
 
-	FILE *levelFile = fopen(levelFilename, "rb");
+	FILE *level_file = fopen(level_filename, "rb");
 
-	if(levelFile != NULL)
+	if(level_file != NULL)
 	{
 		int tile = 0;
 
-		for(int i = 0; i < level->Width; i++)
+		for(int i = 0; i < level->width; i++)
 		{
-			for(int j = 0; j < level->Height; j++)
+			for(int j = 0; j < level->height; j++)
 			{
-				fread(&tile, 1, 1, levelFile);
-				level->Layout[i][j] = (0xF0 & tile) >> 4;
-				level->Properties[i][j][0] = tile & 0x0F;
+				fread(&tile, 1, 1, level_file);
+				level->layout[i][j] = (0xF0 & tile) >> 4;
+				level->properties[i][j][0] = tile & 0x0F;
 			}
 		}
 
-		fclose(levelFile);
+		fclose(level_file);
 	}
 
-	loadTexture(&level->LevelTexture, textureFilename);
+	load_texture(&level->texture, texture_filename);
 
 	// FIXME: Move metadata to .dat files.
-	level->TextureClips = (RectangleF *)malloc(5 * sizeof(RectangleF));
+	level->texture_clips = (Rectangle *)malloc(5 * sizeof(Rectangle));
 
-	level->TextureClips[0].X = 0.0f;
-	level->TextureClips[0].Y = 0.0f;
+	level->texture_clips[0].x = 0.0f;
+	level->texture_clips[0].y = 0.0f;
 
-	level->TextureClips[1].X = BLOCK_SIZE;
-	level->TextureClips[1].Y = 0.0f;
+	level->texture_clips[1].x = BLOCK_SIZE;
+	level->texture_clips[1].y = 0.0f;
 
-	level->TextureClips[2].X = 0.0f;
-	level->TextureClips[2].Y = BLOCK_SIZE;
+	level->texture_clips[2].x = 0.0f;
+	level->texture_clips[2].y = BLOCK_SIZE;
 
-	level->TextureClips[3].X = BLOCK_SIZE;
-	level->TextureClips[3].Y = BLOCK_SIZE;
+	level->texture_clips[3].x = BLOCK_SIZE;
+	level->texture_clips[3].y = BLOCK_SIZE;
 
-	level->TextureClips[4].X = BLOCK_SIZE * 2;
-	level->TextureClips[4].Y = 0.0f;
+	level->texture_clips[4].x = BLOCK_SIZE * 2;
+	level->texture_clips[4].y = 0.0f;
 
 	for(int i = 0; i < 5; i++)
 	{
-		level->TextureClips[i].W = BLOCK_SIZE;
-		level->TextureClips[i].H = BLOCK_SIZE;
+		level->texture_clips[i].w = BLOCK_SIZE;
+		level->texture_clips[i].h = BLOCK_SIZE;
 	}
 
-	level->Debug = false;
+	level->debug = false;
 }
 
-void saveLevel(Level *level, const char *filename)
+void save_level(Level *level, const char *filename)
 {
 
 }
 
-void drawLevel(Level *level)
+void draw_level(Level *level)
 {
 	GLfloat x = 0.0f;
 	GLfloat y = 0.0f;
 
-	for(int i = 0; i < level->Width; i++)
+	for(int i = 0; i < level->width; i++)
 	{
-		for(int j = 0; j < level->Height; j++)
+		for(int j = 0; j < level->height; j++)
 		{
 			if((i >= camera_x / BLOCK_SIZE - 1) && (i < camera_x / BLOCK_SIZE + SCREEN_WIDTH / BLOCK_SIZE + 1) && (j >= camera_y / BLOCK_SIZE - 1) && (j < camera_y / BLOCK_SIZE + SCREEN_HEIGHT / BLOCK_SIZE + 1))
 			{
-				drawTexture(&level->LevelTexture, x, y, &level->TextureClips[level->Layout[i][j]], 0.0f);
+				draw_texture(&level->texture, x, y, &level->texture_clips[level->layout[i][j]], 0.0f);
 
-				// TODO: Debug.
+				// TODO: debug.
+				if(level->debug == true)
+				{
+
+				}
 			}
 
 			y += BLOCK_SIZE;

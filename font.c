@@ -1,69 +1,69 @@
 #include "font.h"
 
-void initFont(Font *font)
+void init_font(Font *font)
 {
-	initTexture(&font->FontTexture);
-	font->FontClips = NULL;
+	init_texture(&font->texture);
+	font->clips = NULL;
 }
 
-void loadFont(Font *font, const char* filename)
+void load_font(Font *font, const char* filename)
 {
 	// NOTE: Instead of calling this function multiple times, I can load the list of fonts from a file.
-	FILE *fontFile = fopen(filename, "rb");
+	FILE *font_file = fopen(filename, "rb");
 
-	if(fontFile != NULL)
+	if(font_file != NULL)
 	{
-		char textureFilename[256] = {'\0'};
-		uint8_t filenameLength, charHeight, nNums;
+		char texture_filename[256] = {'\0'};
+		uint8_t filename_length, char_height, nnums;
 		uint8_t flags[32];
 
-		fread(&filenameLength, sizeof(filenameLength), 1, fontFile);
-		fread(textureFilename, sizeof(char), filenameLength, fontFile);
-		loadTexture(&font->FontTexture, textureFilename);
+		fread(&filename_length, sizeof(filename_length), 1, font_file);
+		fread(texture_filename, sizeof(char), filename_length, font_file);
+		load_texture(&font->texture, texture_filename);
 
-		fread(&charHeight, sizeof(charHeight), 1, fontFile);
-		fread(&nNums, sizeof(nNums), 1, fontFile);
-		fread(flags, sizeof(uint8_t), (nNums + 7) / 8, fontFile);
+		fread(&char_height, sizeof(char_height), 1, font_file);
+		fread(&nnums, sizeof(nnums), 1, font_file);
+		fread(flags, sizeof(uint8_t), (nnums + 7) / 8, font_file);
 
-		if(font->FontClips != NULL)
+		if(font->clips != NULL)
 		{
-			free(font->FontClips);
+			free(font->clips);
 		}
 
-		font->FontClips = (RectangleF *)malloc(96 * sizeof(RectangleF));
+		font->clips = (Rectangle *)malloc(96 * sizeof(Rectangle));
 
-		for(int i = 0, j = 0; i < nNums; i++)
+		for(int i = 0, j = 0; i < nnums; i++)
 		{
 			int number = 0;
-			fread(&number, flags[i / 8] & (1 << (7 - i % 8)) ? sizeof(uint16_t) : sizeof(uint8_t), 1, fontFile);
+			fread(&number, flags[i / 8] & (1 << (7 - i % 8)) ? sizeof(uint16_t) : sizeof(uint8_t), 1, font_file);
 
 			if(i % 2 == 0)
 			{
-				font->FontClips[i / 2].X = number;
-				font->FontClips[i / 2].Y = j;
+				font->clips[i / 2].x = number;
+				font->clips[i / 2].y = j;
 			}
 			else
 			{
-				font->FontClips[i / 2].W = number;
-				font->FontClips[i / 2].H = charHeight;
+				font->clips[i / 2].w = number;
+				font->clips[i / 2].h = char_height;
 
 				// NOTE: Could this be simplified?
 				if(i % 24 == 23)
 				{
-					j += charHeight;
+					j += char_height;
 				}
 			}
 		}
 
-		fclose(fontFile);
+		fclose(font_file);
 	}
 }
 
-void drawText(Font *font, GLfloat x, GLfloat y, const char* text)
+void draw_text(Font *font, GLfloat x, GLfloat y, const char* text)
 {
 	for(unsigned int i = 0; i < strlen(text); i++)
 	{
-		drawTexture(&font->FontTexture, x, y, &font->FontClips[text[i] - 32], 0.0f);
-		x += font->FontClips[text[i] - 32].W;
+		draw_texture(&font->texture, x, y, &font->clips[text[i] - 32], 0.0f);
+		x += font->clips[text[i] - 32].w;
 	}
 }
