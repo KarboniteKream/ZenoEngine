@@ -6,17 +6,19 @@
 
 typedef struct
 {
-	GLuint texture_ID;
+	GLuint ID;
+	GLuint VBO;
+	GLuint IBO;
 
-	GLuint image_width;
-	GLuint image_height;
-	GLuint tex_width;
-	GLuint tex_height;
+	GLuint ImageWidth;
+	GLuint ImageHeight;
+	GLuint TexWidth;
+	GLuint TexHeight;
 } Texture;
 
-void init_texture(Texture *texture);
-void load_texture(Texture *texture, const char *filename);
-void draw_texture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle);
-GLuint next_POT(GLuint number);
+void initTexture(Texture *texture);
+void loadTexture(Texture *texture, const char *filename);
+void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle);
+GLuint nextPOT(GLuint number);
 
 #endif

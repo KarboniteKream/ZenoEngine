@@ -9,12 +9,12 @@
 // NOTE: Should this be a linked list?
 typedef struct
 {
-	Texture texture;
-	Rectangle *clips;
+	Texture FontTexture;
+	Rectangle *Clips;
 } Font;
 
-void init_font(Font *font);
-void load_font(Font *font, const char* filename);
-void draw_text(Font *font, GLfloat x, GLfloat y, const char* text);
+void initFont(Font *font);
+void loadFont(Font *font, const char* filename);
+void drawText(Font *font, GLfloat x, GLfloat y, const char* text);
 
 #endif

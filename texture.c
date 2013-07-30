@@ -1,57 +1,59 @@
 #include "texture.h"
 
-void init_texture(Texture *texture)
+void initTexture(Texture *texture)
 {
-	texture->texture_ID = 0;
+	texture->ID = 0;
+	texture->VBO = 0;
+	texture->IBO = 0;
 
-	texture->image_width = 0;
-	texture->image_height = 0;
-	texture->tex_width = 0;
-	texture->tex_height = 0;
+	texture->ImageWidth = 0;
+	texture->ImageHeight = 0;
+	texture->TexWidth = 0;
+	texture->TexHeight = 0;
 }
 
-void load_texture(Texture *texture, const char *filename)
+void loadTexture(Texture *texture, const char *filename)
 {
-	if(texture->texture_ID != 0)
+	if(texture->ID != 0)
 	{
-		glDeleteTextures(1, &texture->texture_ID);
-		texture->texture_ID = 0;
+		glDeleteTextures(1, &texture->ID);
+		texture->ID = 0;
 	}
 
 	unsigned char *image = NULL;
 
-	if(lodepng_decode32_file(&image, &texture->image_width, &texture->image_height, filename) > 0)
+	if(lodepng_decode32_file(&image, &texture->ImageWidth, &texture->ImageHeight, filename) > 0)
 	{
 		fprintf(stderr, "An error has occurred while loading texture '%s' using LodePNG.\n", filename);
 		exit(1);
 	}
 
-	texture->tex_width = next_POT(texture->image_width);
-	texture->tex_height = next_POT(texture->image_height);
+	texture->TexWidth = nextPOT(texture->ImageWidth);
+	texture->TexHeight = nextPOT(texture->ImageHeight);
 
-	glGenTextures(1, &texture->texture_ID);
-	glBindTexture(GL_TEXTURE_2D, texture->texture_ID);
+	glGenTextures(1, &texture->ID);
+	glBindTexture(GL_TEXTURE_2D, texture->ID);
 
-	if(texture->image_width != texture->tex_width || texture->image_height != texture->tex_height)
+	if(texture->ImageWidth != texture->TexWidth || texture->ImageHeight != texture->TexHeight)
 	{
-		unsigned char padded_image[texture->tex_width * texture->tex_height * 4];
+		unsigned char paddedImage[texture->TexWidth * texture->TexHeight * 4];
 
-		for(int i = 0; i < texture->tex_width; i++)
+		for(int i = 0; i < texture->TexWidth; i++)
 		{
-			for(int j = 0; j < texture->tex_height; j++)
+			for(int j = 0; j < texture->TexHeight; j++)
 			{
 				for(int k = 0; k < 4; k++)
 				{
-					padded_image[4 * texture->tex_width * j + 4 * i + k] = image[4 * texture->image_width * j + 4 * i + k];
+					paddedImage[4 * texture->TexWidth * j + 4 * i + k] = image[4 * texture->ImageWidth * j + 4 * i + k];
 				}
 			}
 		}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->tex_width, texture->tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &padded_image[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->TexWidth, texture->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &paddedImage[0]);
 	}
 	else
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->tex_width, texture->tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->TexWidth, texture->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -67,55 +69,55 @@ void load_texture(Texture *texture, const char *filename)
 }
 
 // NOTE: Should I rename clip to rectangle?
-void draw_texture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle)
+void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle)
 {
-	if(texture->texture_ID != 0)
+	if(texture->ID != 0)
 	{
-		GLfloat tex_width = texture->image_width;
-		GLfloat tex_height = texture->image_height;
+		GLfloat TexWidth = texture->ImageWidth;
+		GLfloat TexHeight = texture->ImageHeight;
 
-		GLfloat tex_left = 0.0f;
-		GLfloat tex_right = (GLfloat)texture->image_width / texture->tex_width;
-		GLfloat tex_top = 0.0f;
-		GLfloat tex_bottom = (GLfloat)texture->image_height / texture->tex_height;
+		GLfloat TexLeft = 0.0f;
+		GLfloat TexRight = (GLfloat)texture->ImageWidth / texture->TexWidth;
+		GLfloat TexTop = 0.0f;
+		GLfloat TexBottom = (GLfloat)texture->ImageHeight / texture->TexHeight;
 
 		if(clip != NULL)
 		{
-			tex_width = clip->w;
-			tex_height = clip->h;
+			TexWidth = clip->W;
+			TexHeight = clip->H;
 
-			tex_left = clip->x / texture->tex_width;
-			tex_right = (clip->x + tex_width) / texture->tex_width;
-			tex_top = clip->y / texture->tex_height;
-			tex_bottom = (clip->y + tex_height) / texture->tex_height;
+			TexLeft = clip->X / texture->TexWidth;
+			TexRight = (clip->X + TexWidth) / texture->TexWidth;
+			TexTop = clip->Y / texture->TexHeight;
+			TexBottom = (clip->Y + TexHeight) / texture->TexHeight;
 		}
 
 		glEnable(GL_TEXTURE_2D);
 
-		if(BOUND_TEXTURE != texture->texture_ID)
+		if(BOUND_TEXTURE != texture->ID)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture->texture_ID);
-			BOUND_TEXTURE = texture->texture_ID;
+			glBindTexture(GL_TEXTURE_2D, texture->ID);
+			BOUND_TEXTURE = texture->ID;
 		}
 
 		if(angle != 0.0f)
 		{
 			glPushMatrix();
 
-			glTranslatef(x + tex_width / 2, y + tex_height / 2, 0.0f);
+			glTranslatef(x + TexWidth / 2, y + TexHeight / 2, 0.0f);
 			glRotatef(angle, 0.0f, 0.0f, 1.0f);
-			glTranslatef(-(x + tex_width / 2), -(y + tex_height / 2), 0.0f);
+			glTranslatef(-(x + TexWidth / 2), -(y + TexHeight / 2), 0.0f);
 		}
 
 		glBegin(GL_QUADS);
-			glTexCoord2f(tex_left, tex_top);
+			glTexCoord2f(TexLeft, TexTop);
 			glVertex2f(x, y);
-			glTexCoord2f(tex_right, tex_top);
-			glVertex2f(x + tex_width, y);
-			glTexCoord2f(tex_right, tex_bottom);
-			glVertex2f(x + tex_width, y + tex_height);
-			glTexCoord2f(tex_left, tex_bottom);
-			glVertex2f(x, y + tex_height);
+			glTexCoord2f(TexRight, TexTop);
+			glVertex2f(x + TexWidth, y);
+			glTexCoord2f(TexRight, TexBottom);
+			glVertex2f(x + TexWidth, y + TexHeight);
+			glTexCoord2f(TexLeft, TexBottom);
+			glVertex2f(x, y + TexHeight);
 		glEnd();
 
 		if(angle != 0.0f)
@@ -127,7 +129,7 @@ void draw_texture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLflo
 	}
 }
 
-GLuint next_POT(GLuint number)
+GLuint nextPOT(GLuint number)
 {
 	if(number != 0)
 	{

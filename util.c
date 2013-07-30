@@ -1,49 +1,49 @@
 #include "util.h"
 
-void draw_rectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
+void drawRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 {
-	Coordinate vertex_data[4];
+	Coordinate vertexData[4];
 
-	vertex_data[0].x = x1;
-	vertex_data[0].y = y1;
-	vertex_data[1].x = x2;
-	vertex_data[1].y = y1;
-	vertex_data[2].x = x2;
-	vertex_data[2].y = y2;
-	vertex_data[3].x = x1;
-	vertex_data[3].y = y2;
+	vertexData[0].X = x1;
+	vertexData[0].Y = y1;
+	vertexData[1].X = x2;
+	vertexData[1].Y = y1;
+	vertexData[2].X = x2;
+	vertexData[2].Y = y2;
+	vertexData[3].X = x1;
+	vertexData[3].Y = y2;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, vertex_data);
+		glVertexPointer(2, GL_FLOAT, 0, vertexData);
 		glDrawArrays(GL_QUADS, 0, 4);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void draw_empty_rectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat line_width)
+void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat lineWidth)
 {
-	glLineWidth(line_width);
+	glLineWidth(lineWidth);
 
-	Coordinate vertex_data[8];
+	Coordinate vertexData[8];
 
-	vertex_data[0].x = x1;
-	vertex_data[0].y = y1;
-	vertex_data[1].x = x2;
-	vertex_data[1].y = y1;
-	vertex_data[2].x = x2 - 1.0f;
-	vertex_data[2].y = y1;
-	vertex_data[3].x = x2 - 1.0f;
-	vertex_data[3].y = y2;
-	vertex_data[4].x = x2 - 1.0f;
-	vertex_data[4].y = y2 - 1.0f;
-	vertex_data[5].x = x1;
-	vertex_data[5].y = y2 - 1.0f;
-	vertex_data[6].x = x1 + 1.0f;
-	vertex_data[6].y = y2 - 1.0f;
-	vertex_data[7].x = x1 + 1.0f;
-	vertex_data[7].y = y1;
+	vertexData[0].X = x1;
+	vertexData[0].Y = y1;
+	vertexData[1].X = x2;
+	vertexData[1].Y = y1;
+	vertexData[2].X = x2 - 1.0f;
+	vertexData[2].Y = y1;
+	vertexData[3].X = x2 - 1.0f;
+	vertexData[3].Y = y2;
+	vertexData[4].X = x2 - 1.0f;
+	vertexData[4].Y = y2 - 1.0f;
+	vertexData[5].X = x1;
+	vertexData[5].Y = y2 - 1.0f;
+	vertexData[6].X = x1 + 1.0f;
+	vertexData[6].Y = y2 - 1.0f;
+	vertexData[7].X = x1 + 1.0f;
+	vertexData[7].Y = y1;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, vertex_data);
+		glVertexPointer(2, GL_FLOAT, 0, vertexData);
 		glDrawArrays(GL_LINES, 0, 8);
 	glDisableClientState(GL_VERTEX_ARRAY);
 

@@ -1,118 +1,118 @@
 #include "player.h"
 
-void init_player(Player *player)
+void initPlayer(Player *player)
 {
-	init_texture(&player->texture);
+	initTexture(&player->PlayerTexture);
 
-	player->max_health = 0;
-	player->health = 0;
-	player->selected_skill = 0;
+	player->MaxHealth = 0;
+	player->Health = 0;
+	player->SelectedSkill = 0;
 
-	player->x = 0;
-	player->y = 0;
+	player->X = 0;
+	player->Y = 0;
 
-	player->bounding_box.x = 0;
-	player->bounding_box.y = 0;
-	player->bounding_box.w = 0;
-	player->bounding_box.h = 0;
+	player->BoundingBox.X = 0;
+	player->BoundingBox.Y = 0;
+	player->BoundingBox.W = 0;
+	player->BoundingBox.H = 0;
 
-	player->speed = 0;
-	player->angle = 0;
+	player->Speed = 0;
+	player->Angle = 0;
 }
 
-void load_player(Player *player)
+void loadPlayer(Player *player)
 {
-	load_texture(&player->texture, "images/player.png");
+	loadTexture(&player->PlayerTexture, "images/player.png");
 
-	player->max_health = player->health = 56;
-	player->selected_skill = 1;
+	player->MaxHealth = player->Health = 56;
+	player->SelectedSkill = 1;
 
-	player->x = 200.0f;
-	player->y = 200.0f;
+	player->X = 200.0f;
+	player->Y = 200.0f;
 
-	player->bounding_box.x = 16;
-	player->bounding_box.y = 16;
-	player->bounding_box.w = 32;
-	player->bounding_box.h = 32;
+	player->BoundingBox.X = 16;
+	player->BoundingBox.Y = 16;
+	player->BoundingBox.W = 32;
+	player->BoundingBox.H = 32;
 
-	player->speed = 300.0f;
-	player->angle = 0.0f;
+	player->Speed = 300.0f;
+	player->Angle = 0.0f;
 }
 
-void draw_player(Player *player)
+void drawPlayer(Player *player)
 {
-	GLfloat diff_x = mouse_x - player->x - player->texture.image_width / 2 + camera_x;
-	GLfloat diff_y = mouse_y - player->y - player->texture.image_height / 2 + camera_y;
-	player->angle = 1.57079632679 + atan2(diff_y, diff_x);
+	GLfloat diffX = mouseX - player->X - player->PlayerTexture.ImageWidth / 2 + cameraX;
+	GLfloat diffY = mouseY - player->Y - player->PlayerTexture.ImageHeight / 2 + cameraY;
+	player->Angle = 1.57079632679 + atan2(diffY, diffX);
 
-	draw_texture(&player->texture, player->x, player->y, NULL, player->angle * 57.2957795);
+	drawTexture(&player->PlayerTexture, player->X, player->Y, NULL, player->Angle * 57.2957795);
 }
 
-void move_player(Level *level, Player *player)
+void movePlayer(Level *level, Player *player)
 {
-	const uint8_t *key_states = SDL_GetKeyboardState(NULL);
+	const uint8_t *keyStates = SDL_GetKeyboardState(NULL);
 
 	// TODO: Camera should follow the player.
-	if(key_states[SDL_SCANCODE_W] == 1)
+	if(keyStates[SDL_SCANCODE_W] == 1)
 	{
-		player->y -= player->speed * DELTA_TICKS;
+		player->Y -= player->Speed * DELTA_TICKS;
 
 		// NOTE: This is necessary only if the level is not surrounded by walls.
-		if(player->y < -player->bounding_box.y)
+		if(player->Y < -player->BoundingBox.Y)
 		{
-			player->y = -player->bounding_box.y;
+			player->Y = -player->BoundingBox.Y;
 		}
 
 		// FIXME: If the player's bounding box is bigger than a tile, this collision doesn't work.
-		if(level->properties[(int)((player->x + player->bounding_box.x) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-			level->properties[(int)((player->x + player->bounding_box.x + player->bounding_box.w) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y) / BLOCK_SIZE)][COLLIDABLE] == 1)
+		if(level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
+			level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1)
 		{
-			player->y = (int)((player->y + player->bounding_box.y) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->bounding_box.y;
+			player->Y = (int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->BoundingBox.Y;
 		}
 	}
-	else if(key_states[SDL_SCANCODE_S] == 1)
+	else if(keyStates[SDL_SCANCODE_S] == 1)
 	{
-		player->y += player->speed * DELTA_TICKS;
+		player->Y += player->Speed * DELTA_TICKS;
 
-		if(player->y >= level->height * BLOCK_SIZE - player->texture.image_height + player->bounding_box.y - 0.25)
+		if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.ImageHeight + player->BoundingBox.Y - 0.25)
 		{
-			player->y = level->height * BLOCK_SIZE - player->texture.image_height + player->bounding_box.y - 0.25;
+			player->Y = level->Height * BLOCK_SIZE - player->PlayerTexture.ImageHeight + player->BoundingBox.Y - 0.25;
 		}
 
-		if(level->properties[(int)((player->x + player->bounding_box.x) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y + player->bounding_box.h) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-			level->properties[(int)((player->x + player->bounding_box.x + player->bounding_box.w) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y + player->bounding_box.h) / BLOCK_SIZE)][COLLIDABLE] == 1)
+		if(level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
+			level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1)
 		{
-			player->y = (int)((player->y + player->bounding_box.y + player->bounding_box.h) / BLOCK_SIZE) * BLOCK_SIZE - player->bounding_box.y - player->bounding_box.h - 0.25;
+			player->Y = (int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE) * BLOCK_SIZE - player->BoundingBox.Y - player->BoundingBox.H - 0.25;
 		}
 	}
-	if(key_states[SDL_SCANCODE_A] == 1)
+	if(keyStates[SDL_SCANCODE_A] == 1)
 	{
-		player->x -= player->speed * DELTA_TICKS;
+		player->X -= player->Speed * DELTA_TICKS;
 
-		if(player->x < -player->bounding_box.x)
+		if(player->X < -player->BoundingBox.X)
 		{
-			player->x = -player->bounding_box.x;
+			player->X = -player->BoundingBox.X;
 		}
 
-		if(level->properties[(int)((player->x + player->bounding_box.x) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-			level->properties[(int)((player->x + player->bounding_box.x) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y + player->bounding_box.h) / BLOCK_SIZE)][COLLIDABLE] == 1)
+		if(level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
+			level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1)
 		{
-			player->x = (int)((player->x + player->bounding_box.x) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->bounding_box.x;
+			player->X = (int)((player->X + player->BoundingBox.X) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->BoundingBox.X;
 		}
 	}
-	else if(key_states[SDL_SCANCODE_D] == 1)
+	else if(keyStates[SDL_SCANCODE_D] == 1)
 	{
-		player->x += player->speed * DELTA_TICKS;
+		player->X += player->Speed * DELTA_TICKS;
 
-		if(player->x >= level->width * BLOCK_SIZE - player->texture.image_width + player->bounding_box.x - 0.25)
+		if(player->X >= level->Width * BLOCK_SIZE - player->PlayerTexture.ImageWidth + player->BoundingBox.X - 0.25)
 		{
-			player->x = level->width * BLOCK_SIZE - player->texture.image_width + player->bounding_box.x - 0.25;
+			player->X = level->Width * BLOCK_SIZE - player->PlayerTexture.ImageWidth + player->BoundingBox.X - 0.25;
 		}
 
-		if(level->properties[(int)((player->x + player->bounding_box.x + player->bounding_box.w) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-			level->properties[(int)((player->x + player->bounding_box.x + player->bounding_box.w) / BLOCK_SIZE)][(int)((player->y + player->bounding_box.y + player->bounding_box.h) / BLOCK_SIZE)][COLLIDABLE] == 1)
+		if(level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
+			level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1)
 		{
-			player->x = (int)((player->x + player->bounding_box.x + player->bounding_box.w) / BLOCK_SIZE) * BLOCK_SIZE - player->bounding_box.x - player->bounding_box.w - 0.25;
+			player->X = (int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE) * BLOCK_SIZE - player->BoundingBox.X - player->BoundingBox.W - 0.25;
 		}
 	}
 }

@@ -6,21 +6,21 @@
 
 typedef struct
 {
-	Texture texture;
-	Rectangle *texture_clips;
+	Texture LevelTexture;
+	Rectangle *TexClips;
 
-	int width;
-	int height;
+	int Width;
+	int Height;
 
-	uint8_t **layout;
-	uint8_t ***properties;
+	uint8_t **Layout;
+	uint8_t ***Properties;
 
-	bool debug;
+	bool Debug;
 } Level;
 
-void init_level(Level *level);
-void load_level(Level *level, const char *filename);
-void save_level(Level *level, const char *filename);
-void draw_level(Level *level);
+void initLevel(Level *level);
+void loadLevel(Level *level, const char *filename);
+void saveLevel(Level *level, const char *filename);
+void drawLevel(Level *level);
 
 #endif

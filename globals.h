@@ -9,8 +9,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
-#include "util.h"
-
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
@@ -27,8 +25,34 @@ extern float DELTA_TICKS;
 extern GLuint BOUND_TEXTURE;
 extern uint8_t BLOCK_SIZE;
 
-extern GLfloat camera_x, camera_y;
-// NOTE: Should mouse_x and mouse_y be globals?
-extern GLfloat mouse_x, mouse_y;
+extern GLfloat cameraX, cameraY;
+// NOTE: Should mouseX and mouseY be globals?
+extern GLfloat mouseX, mouseY;
+
+typedef struct
+{
+	GLfloat X;
+	GLfloat Y;
+	GLfloat W;
+	GLfloat H;
+} Rectangle;
+
+typedef struct
+{
+	GLfloat X;
+	GLfloat Y;
+} Coordinate;
+
+typedef struct
+{
+	GLfloat X;
+	GLfloat Y;
+} TextureCoordinate;
+
+typedef struct
+{
+	Coordinate coord;
+	TextureCoordinate tex_coord;
+} VertexData;
 
 #endif

@@ -17,7 +17,7 @@ main.o: main.c globals.h texture.h level.h player.h font.h
 util.o: util.c globals.h
 	$(CC) $(CFLAGS) -c util.c
 
-globals.o: globals.c globals.h util.h
+globals.o: globals.c globals.h
 	$(CC) $(CFLAGS) -c globals.c
 
 texture.o: texture.c texture.h globals.h lodepng.h
