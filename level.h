@@ -1,6 +1,8 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#define GL_GLEXT_PROTOTYPES
+
 #include "globals.h"
 #include "texture.h"
 
@@ -21,6 +23,8 @@ typedef struct
 void initLevel(Level *level);
 void loadLevel(Level *level, const char *filename);
 void saveLevel(Level *level, const char *filename);
+void generateLevelVBO(Level *level);
 void drawLevel(Level *level);
+void drawLevelVBO(Level *level);
 
 #endif

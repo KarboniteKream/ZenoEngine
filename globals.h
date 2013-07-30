@@ -9,11 +9,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
-
 // NOTE: Should this rather be read from a file?
 #define NAME_VERSION "Zeno Engine 0.2.7c"
+
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
 
 #define CAMERA_SPEED 600.0f
 #define EDITOR_EDGE 20.0f
@@ -47,12 +47,8 @@ typedef struct
 {
 	GLfloat X;
 	GLfloat Y;
-} TextureCoordinate;
-
-typedef struct
-{
-	Coordinate coord;
-	TextureCoordinate tex_coord;
+	GLfloat TX;
+	GLfloat TY;
 } VertexData;
 
 #endif

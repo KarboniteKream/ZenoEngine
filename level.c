@@ -106,11 +106,62 @@ void loadLevel(Level *level, const char *filename)
 	}
 
 	level->Debug = false;
+
+	generateLevelVBO(level);
 }
 
 void saveLevel(Level *level, const char *filename)
 {
 
+}
+
+void generateLevelVBO(Level *level)
+{
+	VertexData vertexData[4 * level->Width * level->Height];
+	GLuint indexData[4 * level->Width * level->Height];
+
+	for(int i = 0; i < 4 * level->Width * level->Height; i++)
+	{
+		indexData[i] = i;
+	}
+
+	GLfloat x = 0.0f;
+	GLfloat y = 0.0f;
+
+	for(int i = 0; i < level->Width; i++)
+	{
+		for(int j = 0; j < level->Height; j++)
+		{
+			int index = (level->Height * i + j) * 4;
+
+			vertexData[index].X = x;
+			vertexData[index].Y = y;
+			vertexData[index].TX = level->TexClips[level->Layout[i][j]].X / level->LevelTexture.TexWidth;
+			vertexData[index].TY = level->TexClips[level->Layout[i][j]].Y / level->LevelTexture.TexHeight;
+
+			vertexData[index + 1].X = x + level->TexClips[level->Layout[i][j]].W;
+			vertexData[index + 1].Y = y;
+			vertexData[index + 1].TX = (level->TexClips[level->Layout[i][j]].X + level->TexClips[level->Layout[i][j]].W) / level->LevelTexture.TexWidth;
+			vertexData[index + 1].TY = level->TexClips[level->Layout[i][j]].Y / level->LevelTexture.TexHeight;
+
+			vertexData[index + 2].X = x + level->TexClips[level->Layout[i][j]].W;
+			vertexData[index + 2].Y = y + level->TexClips[level->Layout[i][j]].H;
+			vertexData[index + 2].TX = (level->TexClips[level->Layout[i][j]].X + level->TexClips[level->Layout[i][j]].W) / level->LevelTexture.TexWidth;
+			vertexData[index + 2].TY = (level->TexClips[level->Layout[i][j]].Y + level->TexClips[level->Layout[i][j]].H) / level->LevelTexture.TexHeight;
+
+			vertexData[index + 3].X = x;
+			vertexData[index + 3].Y = y + level->TexClips[level->Layout[i][j]].H;
+			vertexData[index + 3].TX = level->TexClips[level->Layout[i][j]].X / level->LevelTexture.TexWidth;
+			vertexData[index + 3].TY = (level->TexClips[level->Layout[i][j]].Y + level->TexClips[level->Layout[i][j]].H) / level->LevelTexture.TexHeight;
+
+			y += BLOCK_SIZE;
+		}
+
+		y = 0.0f;
+		x += BLOCK_SIZE;
+	}
+
+	initStaticVBO(&level->LevelTexture, vertexData, indexData, level->Width * level->Height);
 }
 
 void drawLevel(Level *level)
@@ -139,4 +190,35 @@ void drawLevel(Level *level)
 		y = 0.0f;
 		x += BLOCK_SIZE;
 	}
+}
+
+void drawLevelVBO(Level *level)
+{
+	// TODO: Move to texture.c.
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glEnable(GL_TEXTURE_2D);
+
+	if(BOUND_TEXTURE != level->LevelTexture.ID)
+	{
+		glBindTexture(GL_TEXTURE_2D, level->LevelTexture.ID);
+		BOUND_TEXTURE = level->LevelTexture.ID;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, level->LevelTexture.VBO);
+
+	glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, TX));
+	glVertexPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, level->LevelTexture.IBO);
+	glDrawElements(GL_QUADS, 4 * level->Width * level->Height, GL_UNSIGNED_INT, NULL);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glDisable(GL_TEXTURE_2D);
+
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }

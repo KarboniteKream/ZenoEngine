@@ -307,7 +307,8 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glTranslatef(-cameraX, -cameraY, 0.0f);
 
-		drawLevel(&level);
+		drawLevelVBO(&level);
+
 		drawPlayer(&player);
 
 		glLoadIdentity();
@@ -316,7 +317,6 @@ int main(int argc, char **argv)
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
 		drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f);
 
-		// TODO: Replace immediate mode.
 		glColor3f(1.0f, 0.0f, 0.0f);
 		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f);
 		glColor3f(1.0f, 1.0f, 1.0f);
