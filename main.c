@@ -313,34 +313,18 @@ int main(int argc, char **argv)
 
 		glLoadIdentity();
 
-		draw_texture(&minimap_texture, SCREEN_WIDTH - 250.0f - 10.0f, 10.0f, NULL, 0.0f);
+		draw_texture(&minimap_texture, SCREEN_WIDTH - minimap_texture.image_width - 10.0f, 10.0f, NULL, 0.0f);
 		draw_texture(&interface_texture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
-		draw_texture(&pistol_texture, 16.0f + 64.0f + 2.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
+		draw_texture(&pistol_texture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f);
 
 		// TODO: Replace immediate mode.
-		glBegin(GL_QUADS);
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex2f(16.0f + 4.0f, SCREEN_HEIGHT - 64.0f - 16.0f + 4.0f);
-			glVertex2f(16.0f + 4.0f + player.health, SCREEN_HEIGHT - 64.0f - 16.0f + 4.0f);
-			glVertex2f(16.0f + 4.0f + player.health, SCREEN_HEIGHT - 16.0f - 33.0f - 4.0f);
-			glVertex2f(16.0f + 4.0f, SCREEN_HEIGHT - 16.0f - 33.0f - 4.0f);
-			glColor3f(1.0f, 1.0f, 1.0f);
-		glEnd();
+		glColor3f(1.0f, 0.0f, 0.0f);
+		draw_rectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.health, SCREEN_HEIGHT - 53.0f);
+		glColor3f(1.0f, 1.0f, 1.0f);
 
-		glLineWidth(2.0f);
-		glBegin(GL_LINES);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f - 32.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f - 1.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 1.0f, SCREEN_HEIGHT - 16.0f - 1.0f);
-			glVertex2f(16.0f + 64.0f + 2.0f + 64.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 1.0f, SCREEN_HEIGHT - 16.0f - 32.0f + 1.0f);
-			glColor3f(1.0f, 1.0f, 1.0f);
-		glEnd();
-		glLineWidth(1.0f);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		draw_empty_rectangle(146.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.selected_skill - 1.0f) * 32.0f + player.selected_skill * 2.0f + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f);
+		glColor3f(1.0f, 1.0f, 1.0f);
 
 		draw_text(&fonts[0], 7.0f, 5.0f, NAME_VERSION);
 
@@ -350,27 +334,10 @@ int main(int argc, char **argv)
 
 			if(console == true)
 			{
-				glBegin(GL_QUADS);
-					glVertex2f(15.0f, SCREEN_HEIGHT - 60.0f);
-					glVertex2f(SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 60.0f);
-					glVertex2f(SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f);
-					glVertex2f(15.0f, SCREEN_HEIGHT - 15.0f);
-				glEnd();
-
-				glLineWidth(2.0f);
-				glBegin(GL_LINES);
-					glColor3f(0.0f, 0.0f, 0.0f);
-					glVertex2f(15.0f, SCREEN_HEIGHT - 60.0f);
-					glVertex2f(SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 60.0f);
-					glVertex2f(SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 60.0f);
-					glVertex2f(SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f);
-					glVertex2f(SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f);
-					glVertex2f(15.0f, SCREEN_HEIGHT - 15.0f);
-					glVertex2f(15.0f, SCREEN_HEIGHT - 15.0f);
-					glVertex2f(15.0f, SCREEN_HEIGHT - 60.0f);
-					glColor3f(1.0f, 1.0f, 1.0f);
-				glEnd();
-				glLineWidth(1.0f);
+				draw_rectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f);
+				glColor3f(0.0f, 0.0f, 0.0f);
+				draw_empty_rectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f);
+				glColor3f(1.0f, 1.0f, 1.0f);
 
 				draw_text(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ");
 				draw_text(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command);

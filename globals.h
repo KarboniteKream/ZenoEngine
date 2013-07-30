@@ -9,6 +9,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
+#include "util.h"
+
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
@@ -28,13 +30,5 @@ extern uint8_t BLOCK_SIZE;
 extern GLfloat camera_x, camera_y;
 // NOTE: Should mouse_x and mouse_y be globals?
 extern GLfloat mouse_x, mouse_y;
-
-typedef struct
-{
-	GLfloat x;
-	GLfloat y;
-	GLfloat w;
-	GLfloat h;
-} Rectangle;
 
 #endif

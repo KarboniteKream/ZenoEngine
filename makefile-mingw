@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -std=c99 -Wall
 LDFLAGS = -mwindows -lmingw32 -lSDL2main -lSDL2 -lOpenGL32 -lm -s
 
-OBJECTS = main.o globals.o texture.o level.o player.o font.o lodepng.o
+OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o lodepng.o
 
 .PHONY: tools
 
@@ -14,7 +14,10 @@ zeno: $(OBJECTS)
 main.o: main.c globals.h texture.h level.h player.h font.h
 	$(CC) $(CFLAGS) -c main.c
 
-globals.o: globals.c globals.h
+util.o: util.c globals.h
+	$(CC) $(CFLAGS) -c util.c
+
+globals.o: globals.c globals.h util.h
 	$(CC) $(CFLAGS) -c globals.c
 
 texture.o: texture.c texture.h globals.h lodepng.h
