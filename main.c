@@ -32,17 +32,22 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	SDL_SetWindowIcon(window, SDL_LoadBMP("resources/icon.bmp"));
-	SDL_GLContext context = SDL_GL_CreateContext(window);
-
-	if(context == NULL)
+	if(SDL_GL_CreateContext(window) == NULL)
 	{
 		fprintf(stderr, "An error has occurred while creating the OpenGL context.\n");
 		exit(1);
 	}
 
+	glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+	glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
+	glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+	glBufferSubData = (PFNGLBUFFERSUBDATAPROC)SDL_GL_GetProcAddress("glBufferSubData");
+
 	SDL_GL_SetSwapInterval(1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	SDL_SetWindowIcon(window, SDL_LoadBMP("resources/icon.bmp"));
 	SDL_ShowCursor(SDL_DISABLE);
 
 	glMatrixMode(GL_PROJECTION);
@@ -168,8 +173,11 @@ int main(int argc, char **argv)
 
 							default:
 								// TODO: What about the Z and Y keys? Perhaps a setting in the options screen?
-								command[commandIndex++] = event.key.keysym.sym;
-								command[commandIndex] = '\0';
+								if(commandIndex < 255)
+								{
+									command[commandIndex++] = event.key.keysym.sym;
+									command[commandIndex] = '\0';
+								}
 								break;
 						}
 					}
@@ -354,7 +362,7 @@ int main(int argc, char **argv)
 		SDL_GL_SwapWindow(window);
 	}
 
-	SDL_GL_DeleteContext(context);
+	// SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 
 	SDL_Quit();

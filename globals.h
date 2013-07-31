@@ -10,7 +10,7 @@
 #include <SDL2/SDL_opengl.h>
 
 // NOTE: Should this rather be read from a file?
-#define NAME_VERSION "Zeno Engine 0.2.7c"
+#define NAME_VERSION "Zeno Engine 0.2.7w"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
@@ -50,5 +50,11 @@ typedef struct
 	GLfloat TX;
 	GLfloat TY;
 } VertexData;
+
+extern PFNGLBINDBUFFERPROC glBindBuffer;
+extern PFNGLGENBUFFERSPROC glGenBuffers;
+extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+extern PFNGLBUFFERDATAPROC glBufferData;
+extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
 #endif

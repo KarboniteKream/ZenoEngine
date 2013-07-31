@@ -1,8 +1,6 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#define GL_GLEXT_PROTOTYPES
-
 #include "globals.h"
 #include "texture.h"
 

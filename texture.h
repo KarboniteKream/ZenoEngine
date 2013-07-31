@@ -1,8 +1,6 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#define GL_GLEXT_PROTOTYPES
-
 #include "globals.h"
 #include "lodepng.h"
 
