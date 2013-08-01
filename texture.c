@@ -77,7 +77,7 @@ void loadTexture(Texture *texture, const char *filename)
 
 	if(texture->ImageWidth != texture->TexWidth || texture->ImageHeight != texture->TexHeight)
 	{
-		unsigned char *paddedImage = (unsigned char *)calloc(texture->TexWidth * texture->TexHeight * 4, sizeof(char));
+		unsigned char *paddedImage = (unsigned char *)calloc(texture->TexWidth * texture->TexHeight * 4, sizeof(unsigned char));
 
 		for(int i = 0; i < texture->TexWidth; i++)
 		{
