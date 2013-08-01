@@ -4,6 +4,8 @@ void initFont(Font *font)
 {
 	initTexture(&font->FontTexture);
 	font->Clips = NULL;
+
+	font->Height = 0;
 }
 
 void loadFont(Font *font, const char* filename)
@@ -14,14 +16,14 @@ void loadFont(Font *font, const char* filename)
 	if(fontFile != NULL)
 	{
 		char textureFilename[256] = {'\0'};
-		uint8_t filenameLength, charHeight, num;
+		uint8_t filenameLength, num;
 		uint8_t flags[32];
 
 		fread(&filenameLength, sizeof(filenameLength), 1, fontFile);
 		fread(textureFilename, sizeof(char), filenameLength, fontFile);
 		loadTexture(&font->FontTexture, textureFilename);
 
-		fread(&charHeight, sizeof(charHeight), 1, fontFile);
+		fread(&font->Height, sizeof(font->Height), 1, fontFile);
 		fread(&num, sizeof(num), 1, fontFile);
 		fread(flags, sizeof(uint8_t), (num + 7) / 8, fontFile);
 
@@ -45,12 +47,12 @@ void loadFont(Font *font, const char* filename)
 			else
 			{
 				font->Clips[i / 2].W = number;
-				font->Clips[i / 2].H = charHeight;
+				font->Clips[i / 2].H = font->Height;
 
 				// NOTE: Could this be simplified?
 				if(i % 24 == 23)
 				{
-					j += charHeight;
+					j += font->Height;
 				}
 			}
 		}
@@ -61,9 +63,23 @@ void loadFont(Font *font, const char* filename)
 
 void drawText(Font *font, GLfloat x, GLfloat y, const char* text)
 {
+	GLfloat startX = x;
+
 	for(unsigned int i = 0; i < strlen(text); i++)
 	{
-		drawTexture(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 0.0f);
-		x += font->Clips[text[i] - 32].W;
+		if(text[i] == '\n')
+		{
+			x = startX;
+			y += font->Height;
+		}
+		else if(text[i] == '\t')
+		{
+			x += 4 * font->Clips[0].W;
+		}
+		else
+		{
+			drawTexture(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 0.0f);
+			x += font->Clips[text[i] - 32].W;
+		}
 	}
 }

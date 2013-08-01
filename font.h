@@ -11,6 +11,8 @@ typedef struct
 {
 	Texture FontTexture;
 	Rectangle *Clips;
+
+	uint8_t Height;
 } Font;
 
 void initFont(Font *font);

@@ -77,7 +77,7 @@ void loadTexture(Texture *texture, const char *filename)
 
 	if(texture->ImageWidth != texture->TexWidth || texture->ImageHeight != texture->TexHeight)
 	{
-		unsigned char paddedImage[texture->TexWidth * texture->TexHeight * 4];
+		unsigned char *paddedImage = (unsigned char *)calloc(texture->TexWidth * texture->TexHeight * 4, sizeof(char));
 
 		for(int i = 0; i < texture->TexWidth; i++)
 		{
@@ -91,6 +91,7 @@ void loadTexture(Texture *texture, const char *filename)
 		}
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->TexWidth, texture->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &paddedImage[0]);
+		free(paddedImage);
 	}
 	else
 	{
