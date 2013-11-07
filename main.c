@@ -40,11 +40,11 @@ int main(int argc, char **argv)
 
 	loadExtensions();
 
-	SDL_GL_SetSwapInterval(1);
+	//SDL_GL_SetSwapInterval(1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	SDL_SetWindowIcon(window, SDL_LoadBMP("resources/icon.bmp"));
-	SDL_ShowCursor(SDL_DISABLE);
+	SDL_ShowCursor(SDL_ENABLE);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -97,15 +97,13 @@ int main(int argc, char **argv)
 	initPlayer(&player);
 	loadPlayer(&player);
 
-	Texture cursorTexture, minimapTexture, interfaceTexture, pistolTexture;
+	Texture minimapTexture, interfaceTexture, pistolTexture;
 	initTexture(&minimapTexture);
 	initVBO(&minimapTexture, 4);
 	initTexture(&interfaceTexture);
-	initTexture(&cursorTexture);
 	initTexture(&pistolTexture);
 	loadTexture(&minimapTexture, "images/minimap.png");
 	loadTexture(&interfaceTexture, "images/interface.png");
-	loadTexture(&cursorTexture, "images/cursor.png");
 	loadTexture(&pistolTexture, "images/pistolSilencer.png");
 
 	Texture background, chPlayer;
@@ -147,7 +145,7 @@ int main(int argc, char **argv)
 					case SDLK_F1:
 						editor = !editor;
 						// TODO: Exiting out of the editor should close the console.
-						SDL_ShowCursor(!SDL_ShowCursor(-1));
+						//SDL_ShowCursor(!SDL_ShowCursor(-1));
 						break;
 
 					case SDLK_F12:
@@ -329,17 +327,18 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glTranslatef(-cameraX, -cameraY, 0.0f);
 
-		// drawLevelVBO(&level);
-		drawTexture(&background, 0, 0, NULL, 0.0f, 4.0f);
-		drawPlayer(&player);
+		//drawLevelVBO(&level);
+		drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f);
+		//drawPlayer(&player);
+		drawTexture(&chPlayer, 175.0f, 138.0f, NULL, 0.0f, 4.0f);
 
 		// drawRectangle(10.0f, 50.0f, 100.0f, 150.0f, 1.0f, 1.0f, 1.0f);
 
 		glLoadIdentity();
 
-		drawTextureVBO(&minimapTexture, SCREEN_WIDTH - minimapTexture.Width - 10.0f, 10.0f, NULL, 0.0f);
+		//drawTextureVBO(&minimapTexture, SCREEN_WIDTH - minimapTexture.Width - 10.0f, 10.0f, NULL, 0.0f);
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
-		drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
+		//drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
 
 		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f, 1.0f, 0.0f, 0.0f);
 		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
@@ -362,7 +361,7 @@ int main(int argc, char **argv)
 		else
 		{
 			sprintf(engineInformation, "%s - Press F1 for Editor\nFPS: %.1f", NAME_VERSION, fps);
-			drawTexture(&cursorTexture, mouseX - 8.0f, mouseY - 8.0f, NULL, 0.0f, 1.0f);
+			//drawTexture(&cursorTexture, mouseX - 8.0f, mouseY - 8.0f, NULL, 0.0f, 1.0f);
 		}
 
 		drawText(&fonts[0], 7.0f, 5.0f, engineInformation);
@@ -382,18 +381,18 @@ int main(int argc, char **argv)
 
 void saveScreenshot()
 {
-	unsigned char *pixels = (unsigned char *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
-	unsigned char *screenshot = (unsigned char *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+	SDL_Surface *screenshot = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0x0000FF, 0x00FF00, 0xFF0000, 0);
 
-	glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	unsigned char *pixels = (unsigned char *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 3);
+	glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
 	for(int i = 0; i < SCREEN_HEIGHT; i++)
 	{
-		memcpy(screenshot + SCREEN_WIDTH * 4 * i, pixels + SCREEN_WIDTH * 4 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 4);
+		memcpy(screenshot->pixels + SCREEN_WIDTH * 3 * i, pixels + SCREEN_WIDTH * 3 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 3);
 	}
 
 	// TODO: Add automatic numbering.
-	lodepng_encode32_file("screenshots/screenshot.png", screenshot, SCREEN_WIDTH, SCREEN_HEIGHT);
+	IMG_SavePNG(screenshot, "screenshots/screenshot.png");
 
 	free(pixels);
 	free(screenshot);

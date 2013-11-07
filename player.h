@@ -17,7 +17,7 @@ typedef struct
 
 	GLfloat X;
 	GLfloat Y;
-	Rectangle BoundingBox;
+	RectangleF BoundingBox;
 
 	GLfloat Speed;
 	GLfloat Angle;

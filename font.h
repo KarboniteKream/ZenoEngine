@@ -10,7 +10,7 @@
 typedef struct
 {
 	Texture FontTexture;
-	Rectangle *Clips;
+	RectangleF *Clips;
 
 	uint8_t Height;
 } Font;

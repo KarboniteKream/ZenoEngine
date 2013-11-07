@@ -7,7 +7,7 @@
 typedef struct
 {
 	Texture LevelTexture;
-	Rectangle *TexClips;
+	RectangleF *TexClips;
 
 	int Width;
 	int Height;

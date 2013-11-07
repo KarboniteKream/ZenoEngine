@@ -36,7 +36,7 @@ typedef struct
 	GLfloat Y;
 	GLfloat W;
 	GLfloat H;
-} Rectangle;
+} RectangleF;
 
 typedef struct
 {

@@ -84,7 +84,7 @@ void loadLevel(Level *level, const char *filename)
 	loadTexture(&level->LevelTexture, textureFilename);
 
 	// FIXME: Move metadata to .dat files.
-	level->TexClips = (Rectangle *)malloc(5 * sizeof(Rectangle));
+	level->TexClips = (RectangleF *)malloc(5 * sizeof(RectangleF));
 
 	level->TexClips[0].X = 0.0f;
 	level->TexClips[0].Y = 0.0f;

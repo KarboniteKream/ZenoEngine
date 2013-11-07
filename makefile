@@ -1,8 +1,8 @@
 CC = clang
 CFLAGS = -std=c99 -Wall
-LDFLAGS = -lSDL2 -lGL -lm -s
+LDFLAGS = -lSDL2 -lSDL2_image -lGL -lm -s
 
-OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o lodepng.o
+OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o
 
 .PHONY: tools
 
@@ -20,7 +20,7 @@ util.o: util.c globals.h
 globals.o: globals.c globals.h
 	$(CC) $(CFLAGS) -c globals.c
 
-texture.o: texture.c texture.h globals.h lodepng.h
+texture.o: texture.c texture.h globals.h
 	$(CC) $(CFLAGS) -c texture.c
 
 level.o: level.c level.h globals.h texture.h
@@ -31,9 +31,6 @@ player.o: player.c player.h globals.h texture.h level.h
 
 font.o: font.c font.h globals.h texture.h
 	$(CC) $(CFLAGS) -c font.c
-
-lodepng.o: lodepng.c lodepng.h
-	$(CC) $(CFLAGS) -DLODEPNG_NO_COMPILE_ANCILLARY_CHUNKS -DLODEPNG_NO_COMPILE_ERROR_TEXT -c lodepng.c
 
 tools:
 	@$(MAKE) -C tools --no-print-directory

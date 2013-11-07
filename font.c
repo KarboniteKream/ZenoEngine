@@ -32,7 +32,7 @@ void loadFont(Font *font, const char* filename)
 			free(font->Clips);
 		}
 
-		font->Clips = (Rectangle *)malloc(96 * sizeof(Rectangle));
+		font->Clips = (RectangleF *)calloc(96, sizeof(RectangleF));
 
 		for(int i = 0, j = 0; i < num; i++)
 		{

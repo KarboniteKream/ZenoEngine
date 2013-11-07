@@ -42,13 +42,16 @@ void loadTexture(Texture *texture, const char *filename)
 		texture->VBO = 0;
 	}
 
-	unsigned char *image = NULL;
+	SDL_Surface *image = IMG_Load(filename);
 
-	if(lodepng_decode32_file(&image, &texture->Width, &texture->Height, filename) > 0)
+	if(image == NULL)
 	{
-		fprintf(stderr, "An error has occurred while loading texture '%s' using LodePNG.\n", filename);
+		fprintf(stderr, "An error has occurred while loading texture '%s' using SDL_image.\n", filename);
 		exit(1);
 	}
+
+	texture->Width = image->w;
+	texture->Height = image->h;
 
 	texture->TexWidth = nextPOT(texture->Width);
 	texture->TexHeight = nextPOT(texture->Height);
@@ -58,25 +61,19 @@ void loadTexture(Texture *texture, const char *filename)
 
 	if(texture->Width != texture->TexWidth || texture->Height != texture->TexHeight)
 	{
-		unsigned char *paddedImage = (unsigned char *)calloc(texture->TexWidth * texture->TexHeight * 4, sizeof(unsigned char));
+		SDL_Surface *paddedImage = SDL_CreateRGBSurface(0, texture->TexWidth, texture->TexHeight, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
-		for(int i = 0; i < texture->TexWidth; i++)
-		{
-			for(int j = 0; j < texture->TexHeight; j++)
-			{
-				for(int k = 0; k < 4; k++)
-				{
-					paddedImage[4 * texture->TexWidth * j + 4 * i + k] = image[4 * texture->Width * j + 4 * i + k];
-				}
-			}
-		}
+		SDL_SetSurfaceAlphaMod(image, 255);
+		SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
+		SDL_BlitSurface(image, NULL, paddedImage, NULL);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->TexWidth, texture->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &paddedImage[0]);
-		free(paddedImage);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->TexWidth, texture->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, paddedImage->pixels);
+
+		SDL_FreeSurface(paddedImage);
 	}
 	else
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->TexWidth, texture->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->Width, texture->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -93,7 +90,7 @@ void loadTexture(Texture *texture, const char *filename)
 
 // NOTE: Should I rename clip to rectangle?
 // NOTE: Should clips be moved into texture itself?
-void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle, GLfloat scale)
+void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale)
 {
 	if(texture->ID != 0)
 	{
@@ -147,7 +144,7 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloa
 			glVertex2f(x, y + texHeight);
 		glEnd();
 
-		glScalef(1.0f, 1.0f, 1.0f);
+		glScalef(1.0f / scale, 1.0f / scale, 1.0f / scale);
 
 		if(angle != 0.0f)
 		{
@@ -158,7 +155,7 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloa
 	}
 }
 
-void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle)
+void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle)
 {
 	if(texture->ID != 0)
 	{
