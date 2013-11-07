@@ -12,11 +12,11 @@ int main(int argc, char **argv)
 		if(input != NULL && output != NULL)
 		{
 			char filename[256];
-			uint8_t filenameLength, num = 0, flags[32] = {0};
+			uint8_t num = 0, flags[32] = {0};
 			uint16_t charHeight, numbers[256];
 
 			fscanf(input, "%s\n%hu", filename, &charHeight);
-			filenameLength = strlen(filename);
+			uint8_t filenameLength = strlen(filename);
 
 			while(fscanf(input, "%hu", &numbers[num]) != EOF)
 			{

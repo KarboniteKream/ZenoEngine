@@ -1,10 +1,13 @@
 CC = gcc
-FLAGS = -std=c99 -Wall -s -O3
+FLAGS = -std=c99 -Wall -s
 
-all: font-converter
+all: font-converter transpose-level
 
 font-converter: font-converter.c
 	$(CC) $(FLAGS) font-converter.c -o font-converter.exe
 
+transpose-level: transpose-level.c
+	$(CC) $(FLAGS) transpose-level.c -o transpose-level.exe
+
 clean:
-	@rm -rf *.o font-converter.exe
+	@rm -rf *.o font-converter.exe transpose-level.exe

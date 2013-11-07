@@ -4,48 +4,31 @@ void initTexture(Texture *texture)
 {
 	texture->ID = 0;
 	texture->VBO = 0;
-	texture->IBO = 0;
 
-	texture->ImageWidth = 0;
-	texture->ImageHeight = 0;
+	texture->Width = 0;
+	texture->Height = 0;
 	texture->TexWidth = 0;
 	texture->TexHeight = 0;
 }
 
-void initVBO(Texture *texture)
+void initVBO(Texture *texture, GLuint num)
 {
-	VertexData vertexData[4];
-	GLuint indexData[4];
-
-	for(int i = 0; i < 4; i++)
-	{
-		indexData[i] = i;
-	}
+	VertexData vertexData[num];
 
 	glGenBuffers(1, &texture->VBO);
+
 	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(VertexData), vertexData, GL_DYNAMIC_DRAW);
-
-	glGenBuffers(1, &texture->IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture->IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
-
+	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), vertexData, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint *indexData, GLuint num)
+void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint num)
 {
 	glGenBuffers(1, &texture->VBO);
+
 	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
 	glBufferData(GL_ARRAY_BUFFER, 4 * num * sizeof(VertexData), vertexData, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &texture->IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture->IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * num * sizeof(GLuint), indexData, GL_STATIC_DRAW);
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void loadTexture(Texture *texture, const char *filename)
@@ -54,28 +37,26 @@ void loadTexture(Texture *texture, const char *filename)
 	{
 		glDeleteTextures(1, &texture->ID);
 		glDeleteBuffers(1, &texture->VBO);
-		glDeleteBuffers(1, &texture->IBO);
 
 		texture->ID = 0;
 		texture->VBO = 0;
-		texture->IBO = 0;
 	}
 
 	unsigned char *image = NULL;
 
-	if(lodepng_decode32_file(&image, &texture->ImageWidth, &texture->ImageHeight, filename) > 0)
+	if(lodepng_decode32_file(&image, &texture->Width, &texture->Height, filename) > 0)
 	{
 		fprintf(stderr, "An error has occurred while loading texture '%s' using LodePNG.\n", filename);
 		exit(1);
 	}
 
-	texture->TexWidth = nextPOT(texture->ImageWidth);
-	texture->TexHeight = nextPOT(texture->ImageHeight);
+	texture->TexWidth = nextPOT(texture->Width);
+	texture->TexHeight = nextPOT(texture->Height);
 
 	glGenTextures(1, &texture->ID);
 	glBindTexture(GL_TEXTURE_2D, texture->ID);
 
-	if(texture->ImageWidth != texture->TexWidth || texture->ImageHeight != texture->TexHeight)
+	if(texture->Width != texture->TexWidth || texture->Height != texture->TexHeight)
 	{
 		unsigned char *paddedImage = (unsigned char *)calloc(texture->TexWidth * texture->TexHeight * 4, sizeof(unsigned char));
 
@@ -85,7 +66,7 @@ void loadTexture(Texture *texture, const char *filename)
 			{
 				for(int k = 0; k < 4; k++)
 				{
-					paddedImage[4 * texture->TexWidth * j + 4 * i + k] = image[4 * texture->ImageWidth * j + 4 * i + k];
+					paddedImage[4 * texture->TexWidth * j + 4 * i + k] = image[4 * texture->Width * j + 4 * i + k];
 				}
 			}
 		}
@@ -111,17 +92,18 @@ void loadTexture(Texture *texture, const char *filename)
 }
 
 // NOTE: Should I rename clip to rectangle?
-void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle)
+// NOTE: Should clips be moved into texture itself?
+void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloat angle, GLfloat scale)
 {
 	if(texture->ID != 0)
 	{
-		GLfloat texWidth = texture->ImageWidth;
-		GLfloat texHeight = texture->ImageHeight;
+		GLfloat texWidth = texture->Width;
+		GLfloat texHeight = texture->Height;
 
 		GLfloat texLeft = 0.0f;
-		GLfloat texRight = (GLfloat)texture->ImageWidth / texture->TexWidth;
+		GLfloat texRight = (GLfloat)texture->Width / texture->TexWidth;
 		GLfloat texTop = 0.0f;
-		GLfloat texBottom = (GLfloat)texture->ImageHeight / texture->TexHeight;
+		GLfloat texBottom = (GLfloat)texture->Height / texture->TexHeight;
 
 		if(clip != NULL)
 		{
@@ -152,6 +134,8 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloa
 			glTranslatef(-(x + texWidth / 2), -(y + texHeight / 2), 0.0f);
 		}
 
+		glScalef(scale, scale, scale);
+
 		glBegin(GL_QUADS);
 			glTexCoord2f(texLeft, texTop);
 			glVertex2f(x, y);
@@ -162,6 +146,8 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLfloa
 			glTexCoord2f(texLeft, texBottom);
 			glVertex2f(x, y + texHeight);
 		glEnd();
+
+		glScalef(1.0f, 1.0f, 1.0f);
 
 		if(angle != 0.0f)
 		{
@@ -176,13 +162,13 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLf
 {
 	if(texture->ID != 0)
 	{
-		GLfloat texWidth = texture->ImageWidth;
-		GLfloat texHeight = texture->ImageHeight;
+		GLfloat texWidth = texture->Width;
+		GLfloat texHeight = texture->Height;
 
 		GLfloat texLeft = 0.0f;
-		GLfloat texRight = (GLfloat)texture->ImageWidth / texture->TexWidth;
+		GLfloat texRight = (GLfloat)texture->Width / texture->TexWidth;
 		GLfloat texTop = 0.0f;
-		GLfloat texBottom = (GLfloat)texture->ImageHeight / texture->TexHeight;
+		GLfloat texBottom = (GLfloat)texture->Height / texture->TexHeight;
 
 		if(clip != NULL)
 		{
@@ -199,23 +185,26 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLf
 
 		vertexData[0].X = x;
 		vertexData[0].Y = y;
-		vertexData[0].TX = texLeft;
-		vertexData[0].TY = texTop;
+		vertexData[0].S = texLeft;
+		vertexData[0].T = texTop;
 
 		vertexData[1].X = x + texWidth;
 		vertexData[1].Y = y;
-		vertexData[1].TX = texRight;
-		vertexData[1].TY = texTop;
+		vertexData[1].S = texRight;
+		vertexData[1].T = texTop;
 
 		vertexData[2].X = x + texWidth;
 		vertexData[2].Y = y + texHeight;
-		vertexData[2].TX = texRight;
-		vertexData[2].TY = texBottom;
+		vertexData[2].S = texRight;
+		vertexData[2].T = texBottom;
 
 		vertexData[3].X = x;
 		vertexData[3].Y = y + texHeight;
-		vertexData[3].TX = texLeft;
-		vertexData[3].TY = texBottom;
+		vertexData[3].S = texLeft;
+		vertexData[3].T = texBottom;
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		glEnable(GL_TEXTURE_2D);
 
@@ -227,16 +216,15 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, Rectangle *clip, GLf
 
 		glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(VertexData), vertexData);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, TX));
+		glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
 		glVertexPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texture->IBO);
-		glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, NULL);
-
+		glDrawArrays(GL_QUADS, 0, 4);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glDisable(GL_TEXTURE_2D);
+
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
 	}
 }
 

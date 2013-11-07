@@ -48,8 +48,8 @@ typedef struct
 {
 	GLfloat X;
 	GLfloat Y;
-	GLfloat TX;
-	GLfloat TY;
+	GLfloat S;
+	GLfloat T;
 } VertexData;
 
 extern PFNGLBINDBUFFERPROC glBindBuffer;
@@ -60,13 +60,18 @@ extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
 extern PFNGLUSEPROGRAMPROC glUseProgram;
 extern PFNGLCREATEPROGRAMPROC glCreateProgram;
+extern PFNGLDELETEPROGRAMPROC glDeleteProgram;
 extern PFNGLCREATESHADERPROC glCreateShader;
 extern PFNGLSHADERSOURCEPROC glShaderSource;
 extern PFNGLCOMPILESHADERPROC glCompileShader;
 extern PFNGLATTACHSHADERPROC glAttachShader;
 extern PFNGLLINKPROGRAMPROC glLinkProgram;
 extern PFNGLGETSHADERIVPROC glGetShaderiv;
+extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+extern PFNGLUNIFORM4FPROC glUniform4f;
 
 extern GLuint shaderProgram;
+extern GLint colorLocation;
 
 #endif

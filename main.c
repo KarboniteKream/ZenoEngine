@@ -5,7 +5,6 @@
 #include "player.h"
 #include "font.h"
 
-void loadExtensions();
 void saveScreenshot();
 void executeCommand(Level *level, const char *command);
 
@@ -41,7 +40,7 @@ int main(int argc, char **argv)
 
 	loadExtensions();
 
-	// SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	SDL_SetWindowIcon(window, SDL_LoadBMP("resources/icon.bmp"));
@@ -69,6 +68,8 @@ int main(int argc, char **argv)
 		fprintf(stderr, "An error has occurred while initializing OpenGL.\n");
 		exit(1);
 	}
+
+	// SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Tis' an error.", window);
 
 	SDL_Event event;
 
@@ -98,6 +99,7 @@ int main(int argc, char **argv)
 
 	Texture cursorTexture, minimapTexture, interfaceTexture, pistolTexture;
 	initTexture(&minimapTexture);
+	initVBO(&minimapTexture, 4);
 	initTexture(&interfaceTexture);
 	initTexture(&cursorTexture);
 	initTexture(&pistolTexture);
@@ -106,6 +108,12 @@ int main(int argc, char **argv)
 	loadTexture(&cursorTexture, "images/cursor.png");
 	loadTexture(&pistolTexture, "images/pistolSilencer.png");
 
+	Texture background, chPlayer;
+	initTexture(&background);
+	initTexture(&chPlayer);
+	loadTexture(&background, "images/background.png");
+	loadTexture(&chPlayer, "images/chPlayer.png");
+
 	unsigned int startTime = SDL_GetTicks();
 	unsigned int currentTime = SDL_GetTicks();
 
@@ -113,32 +121,8 @@ int main(int argc, char **argv)
 	float fps = 0.0f;
 	char engineInformation[256];
 
-	glUseProgram(shaderProgram);
-	shaderProgram = glCreateProgram();
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	const GLchar *vertexShaderSource[] = {"void main() { gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; gl_FrontColor = gl_Color; }"};
-	glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-	GLint okVertex = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &okVertex);
-	if(okVertex != GL_TRUE)
-	{
-		printf("honkV");
-	}
-	glAttachShader(shaderProgram, vertexShader);
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	// vec4(1.0 - gl_Color.r, 1.0 - gl_Color.g, 1.0 - gl_Color.b, 1.0)
-	const GLchar *fragmentShaderSource[] = {"void main() { gl_FragColor = gl_Color; }"};
-	glShaderSource(fragmentShader, 1, fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	GLint okFragment = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &okFragment);
-	if(okFragment != GL_TRUE)
-	{
-		printf("honkF");
-	}
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
+	loadShader(&shaderProgram, "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
+	colorLocation = glGetUniformLocation(shaderProgram, "Color");
 
 	while(quitGame == false)
 	{
@@ -233,7 +217,8 @@ int main(int argc, char **argv)
 				{
 					if(event.button.button == SDL_BUTTON_LEFT)
 					{
-						level.Layout[(int)((mouseX + cameraX) / BLOCK_SIZE)][(int)((mouseY + cameraY) / BLOCK_SIZE)] = editorBlock;
+						// NOTE: Should I rebuild VBO only when exiting editor mode?
+						setLevelLayout(&level, (int)((mouseX + cameraX) / BLOCK_SIZE), (int)((mouseY + cameraY) / BLOCK_SIZE), editorBlock);
 					}
 				}
 			}
@@ -344,31 +329,20 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glTranslatef(-cameraX, -cameraY, 0.0f);
 
-		drawLevelVBO(&level);
+		// drawLevelVBO(&level);
+		drawTexture(&background, 0, 0, NULL, 0.0f, 4.0f);
 		drawPlayer(&player);
 
-		glUseProgram(shaderProgram);
-		glBegin(GL_QUADS);
-			glVertex2f(10, 10);
-			glVertex2f(100, 10);
-			glVertex2f(100, 100);
-			glVertex2f(10, 100);
-		glEnd();
-		glUseProgram(0);
+		// drawRectangle(10.0f, 50.0f, 100.0f, 150.0f, 1.0f, 1.0f, 1.0f);
 
 		glLoadIdentity();
 
-		drawTexture(&minimapTexture, SCREEN_WIDTH - minimapTexture.ImageWidth - 10.0f, 10.0f, NULL, 0.0f);
-		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f);
-		drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f);
+		drawTextureVBO(&minimapTexture, SCREEN_WIDTH - minimapTexture.Width - 10.0f, 10.0f, NULL, 0.0f);
+		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
+		drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
 
-		glColor3f(1.0f, 0.0f, 0.0f);
-		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f);
-		glColor3f(1.0f, 1.0f, 1.0f);
-
-		glColor3f(0.0f, 1.0f, 0.0f);
-		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1.0f) * 32.0f + player.SelectedSkill * 2.0f + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f);
-		glColor3f(1.0f, 1.0f, 1.0f);
+		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f, 1.0f, 0.0f, 0.0f);
+		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
 		if(editor == true)
 		{
@@ -376,10 +350,8 @@ int main(int argc, char **argv)
 
 			if(console == true)
 			{
-				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f);
-				glColor3f(0.0f, 0.0f, 0.0f);
-				drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f);
-				glColor3f(1.0f, 1.0f, 1.0f);
+				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 1.0f, 1.0f, 1.0f);
+				drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
 				drawText(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ");
 				drawText(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command);
@@ -390,7 +362,7 @@ int main(int argc, char **argv)
 		else
 		{
 			sprintf(engineInformation, "%s - Press F1 for Editor\nFPS: %.1f", NAME_VERSION, fps);
-			drawTexture(&cursorTexture, mouseX - 8.0f, mouseY - 8.0f, NULL, 0.0f);
+			drawTexture(&cursorTexture, mouseX - 8.0f, mouseY - 8.0f, NULL, 0.0f, 1.0f);
 		}
 
 		drawText(&fonts[0], 7.0f, 5.0f, engineInformation);
@@ -406,24 +378,6 @@ int main(int argc, char **argv)
 	SDL_Quit();
 
 	return 0;
-}
-
-void loadExtensions()
-{
-	glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
-	glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
-	glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
-	glBufferSubData = (PFNGLBUFFERSUBDATAPROC)SDL_GL_GetProcAddress("glBufferSubData");
-
-	glUseProgram = (PFNGLUSEPROGRAMPROC)SDL_GL_GetProcAddress("glUseProgram");
-	glCreateProgram = (PFNGLCREATEPROGRAMPROC)SDL_GL_GetProcAddress("glCreateProgram");
-	glCreateShader = (PFNGLCREATESHADERPROC)SDL_GL_GetProcAddress("glCreateShader");
-	glShaderSource = (PFNGLSHADERSOURCEPROC)SDL_GL_GetProcAddress("glShaderSource");
-	glCompileShader = (PFNGLCOMPILESHADERPROC)SDL_GL_GetProcAddress("glCompileShader");
-	glAttachShader = (PFNGLATTACHSHADERPROC)SDL_GL_GetProcAddress("glAttachShader");
-	glLinkProgram = (PFNGLLINKPROGRAMPROC)SDL_GL_GetProcAddress("glLinkProgram");
-	glGetShaderiv = (PFNGLGETSHADERIVPROC)SDL_GL_GetProcAddress("glGetShaderiv");
 }
 
 void saveScreenshot()
@@ -452,7 +406,6 @@ void executeCommand(Level *level, const char *command)
 		char temp[strlen(command) + 1];
 		strcpy(temp, command);
 
-		// TODO: Free commandArray.
 		char **commandArray = (char **)malloc(sizeof(char *));
 		int index = 0, length = 0;
 		commandArray[index] = strtok(temp, " ");
@@ -502,5 +455,7 @@ void executeCommand(Level *level, const char *command)
 		{
 			level->Debug = !level->Debug;
 		}
+
+		free(commandArray);
 	}
 }

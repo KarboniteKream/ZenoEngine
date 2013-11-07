@@ -11,7 +11,7 @@ all: zeno tools
 zeno: $(OBJECTS)
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o ZenoEngine
 
-main.o: main.c globals.h texture.h level.h player.h font.h
+main.o: main.c util.h globals.h texture.h level.h player.h font.h
 	$(CC) $(CFLAGS) -c main.c
 
 util.o: util.c globals.h

@@ -41,11 +41,11 @@ void loadPlayer(Player *player)
 
 void drawPlayer(Player *player)
 {
-	GLfloat diffX = mouseX - player->X - player->PlayerTexture.ImageWidth / 2 + cameraX;
-	GLfloat diffY = mouseY - player->Y - player->PlayerTexture.ImageHeight / 2 + cameraY;
+	GLfloat diffX = mouseX - player->X - player->PlayerTexture.Width / 2 + cameraX;
+	GLfloat diffY = mouseY - player->Y - player->PlayerTexture.Height / 2 + cameraY;
 	player->Angle = 1.57079632679 + atan2(diffY, diffX);
 
-	drawTexture(&player->PlayerTexture, player->X, player->Y, NULL, player->Angle * 57.2957795);
+	drawTexture(&player->PlayerTexture, player->X, player->Y, NULL, player->Angle * 57.2957795, 1.0f);
 }
 
 void movePlayer(Level *level, Player *player)
@@ -74,9 +74,9 @@ void movePlayer(Level *level, Player *player)
 	{
 		player->Y += player->Speed * DELTA_TICKS;
 
-		if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.ImageHeight + player->BoundingBox.Y - 0.25)
+		if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.Height + player->BoundingBox.Y - 0.25)
 		{
-			player->Y = level->Height * BLOCK_SIZE - player->PlayerTexture.ImageHeight + player->BoundingBox.Y - 0.25;
+			player->Y = level->Height * BLOCK_SIZE - player->PlayerTexture.Height + player->BoundingBox.Y - 0.25;
 		}
 
 		if(level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
@@ -104,9 +104,9 @@ void movePlayer(Level *level, Player *player)
 	{
 		player->X += player->Speed * DELTA_TICKS;
 
-		if(player->X >= level->Width * BLOCK_SIZE - player->PlayerTexture.ImageWidth + player->BoundingBox.X - 0.25)
+		if(player->X >= level->Width * BLOCK_SIZE - player->PlayerTexture.Width + player->BoundingBox.X - 0.25)
 		{
-			player->X = level->Width * BLOCK_SIZE - player->PlayerTexture.ImageWidth + player->BoundingBox.X - 0.25;
+			player->X = level->Width * BLOCK_SIZE - player->PlayerTexture.Width + player->BoundingBox.X - 0.25;
 		}
 
 		if(level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||

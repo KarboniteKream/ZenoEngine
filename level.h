@@ -24,5 +24,6 @@ void saveLevel(Level *level, const char *filename);
 void generateLevelVBO(Level *level);
 void drawLevel(Level *level);
 void drawLevelVBO(Level *level);
+void setLevelLayout(Level *level, int x, int y, int block);
 
 #endif

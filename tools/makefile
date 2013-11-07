@@ -1,10 +1,13 @@
 CC = clang
 FLAGS = -std=c99 -Wall -s
 
-tools: font-converter
+tools: font-converter transpose-level
 
 font-converter: font-converter.c
 	$(CC) $(FLAGS) font-converter.c -o font-converter
 
+transpose-level: transpose-level.c
+	$(CC) $(FLAGS) transpose-level.c -o transpose-level
+
 clean:
-	@rm -rf *.o font-converter
+	@rm -rf *.o font-converter transpose-level

@@ -78,7 +78,7 @@ void drawText(Font *font, GLfloat x, GLfloat y, const char* text)
 		}
 		else
 		{
-			drawTexture(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 0.0f);
+			drawTexture(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 0.0f, 1.0f);
 			x += font->Clips[text[i] - 32].W;
 		}
 	}
