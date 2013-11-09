@@ -4,6 +4,7 @@
 #include "level.h"
 #include "player.h"
 #include "font.h"
+#include "animation.h"
 
 void saveScreenshot();
 void executeCommand(Level *level, const char *command);
@@ -69,8 +70,6 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	// SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Tis' an error.", window);
-
 	SDL_Event event;
 
 	bool quitGame = false;
@@ -95,22 +94,18 @@ int main(int argc, char **argv)
 
 	Player player;
 	initPlayer(&player);
-	loadPlayer(&player);
+	loadPlayer(&player, "images/player.png");
 
-	Texture minimapTexture, interfaceTexture, pistolTexture;
+	Texture minimapTexture, interfaceTexture;
 	initTexture(&minimapTexture);
 	initVBO(&minimapTexture, 4);
 	initTexture(&interfaceTexture);
-	initTexture(&pistolTexture);
 	loadTexture(&minimapTexture, "images/minimap.png");
 	loadTexture(&interfaceTexture, "images/interface.png");
-	loadTexture(&pistolTexture, "images/pistolSilencer.png");
 
-	Texture background, chPlayer;
+	Texture background;
 	initTexture(&background);
-	initTexture(&chPlayer);
 	loadTexture(&background, "images/background.png");
-	loadTexture(&chPlayer, "images/chPlayer.png");
 
 	unsigned int startTime = SDL_GetTicks();
 	unsigned int currentTime = SDL_GetTicks();
@@ -121,6 +116,8 @@ int main(int argc, char **argv)
 
 	loadShader(&shaderProgram, "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
 	colorLocation = glGetUniformLocation(shaderProgram, "Color");
+
+	// SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Tis' an error.", window);
 
 	while(quitGame == false)
 	{
@@ -329,8 +326,7 @@ int main(int argc, char **argv)
 
 		//drawLevelVBO(&level);
 		drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f);
-		//drawPlayer(&player);
-		drawTexture(&chPlayer, 175.0f, 138.0f, NULL, 0.0f, 4.0f);
+		drawPlayer(&player);
 
 		// drawRectangle(10.0f, 50.0f, 100.0f, 150.0f, 1.0f, 1.0f, 1.0f);
 
@@ -340,8 +336,9 @@ int main(int argc, char **argv)
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
 		//drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
 
-		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f, 1.0f, 0.0f, 0.0f);
-		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
+		// FIXME: Reset shader color.
+		//drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f, 1.0f, 0.0f, 0.0f);
+		//drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
 		if(editor == true)
 		{
@@ -349,8 +346,8 @@ int main(int argc, char **argv)
 
 			if(console == true)
 			{
-				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 1.0f, 1.0f, 1.0f);
-				drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
+				//drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 1.0f, 1.0f, 1.0f);
+				//drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
 				drawText(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ");
 				drawText(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command);
@@ -361,13 +358,13 @@ int main(int argc, char **argv)
 		else
 		{
 			sprintf(engineInformation, "%s - Press F1 for Editor\nFPS: %.1f", NAME_VERSION, fps);
-			//drawTexture(&cursorTexture, mouseX - 8.0f, mouseY - 8.0f, NULL, 0.0f, 1.0f);
 		}
 
 		drawText(&fonts[0], 7.0f, 5.0f, engineInformation);
 
 		SDL_GL_SwapWindow(window);
 
+		// FIXME: Show current FPS instead of average FPS.
 		frames++;
 		fps = (frames / (float)(SDL_GetTicks() - startTime)) * 1000;
 	}

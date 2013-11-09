@@ -10,13 +10,13 @@
 #include <SDL2/SDL_opengl.h>
 
 // NOTE: Should this rather be read from a file?
-#define NAME_VERSION "Zeno Engine 0.2.7w"
+#define NAME_VERSION "Zeno Engine 0.13.11.09"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
 #define CAMERA_SPEED 600.0f
-#define EDITOR_EDGE 20.0f
+#define EDITOR_EDGE 25.0f
 
 #define COLLIDABLE 0
 

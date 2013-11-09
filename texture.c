@@ -94,23 +94,28 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 {
 	if(texture->ID != 0)
 	{
-		GLfloat texWidth = texture->Width;
-		GLfloat texHeight = texture->Height;
+		GLfloat texWidth, texHeight;
+		GLfloat texLeft, texRight, texTop, texBottom;
 
-		GLfloat texLeft = 0.0f;
-		GLfloat texRight = (GLfloat)texture->Width / texture->TexWidth;
-		GLfloat texTop = 0.0f;
-		GLfloat texBottom = (GLfloat)texture->Height / texture->TexHeight;
-
-		if(clip != NULL)
+		if(clip == NULL)
 		{
-			texWidth = clip->W;
-			texHeight = clip->H;
+			texWidth = texture->Width * scale;
+			texHeight = texture->Height * scale;
 
-			texLeft = clip->X / texture->TexWidth;
-			texRight = (clip->X + texWidth) / texture->TexWidth;
-			texTop = clip->Y / texture->TexHeight;
-			texBottom = (clip->Y + texHeight) / texture->TexHeight;
+			texLeft = 0.0f;
+			texRight = (GLfloat)texture->Width / texture->TexWidth;
+			texTop = 0.0f;
+			texBottom = (GLfloat)texture->Height / texture->TexHeight;
+		}
+		else
+		{
+			texWidth = clip->W * scale;
+			texHeight = clip->H * scale;
+
+			texLeft = (clip->X * scale) / (texture->TexWidth * scale);
+			texRight = ((clip->X * scale) + texWidth) / (texture->TexWidth * scale);
+			texTop = (clip->Y * scale) / (texture->TexHeight * scale);
+			texBottom = ((clip->Y * scale) + texHeight) / (texture->TexHeight * scale);
 		}
 
 		// TODO: Call this only once per frame.
@@ -131,8 +136,6 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 			glTranslatef(-(x + texWidth / 2), -(y + texHeight / 2), 0.0f);
 		}
 
-		glScalef(scale, scale, scale);
-
 		glBegin(GL_QUADS);
 			glTexCoord2f(texLeft, texTop);
 			glVertex2f(x, y);
@@ -144,8 +147,6 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 			glVertex2f(x, y + texHeight);
 		glEnd();
 
-		glScalef(1.0f / scale, 1.0f / scale, 1.0f / scale);
-
 		if(angle != 0.0f)
 		{
 			glPopMatrix();
@@ -155,22 +156,27 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 	}
 }
 
-void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle)
+void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale)
 {
 	if(texture->ID != 0)
 	{
-		GLfloat texWidth = texture->Width;
-		GLfloat texHeight = texture->Height;
+		GLfloat texWidth, texHeight;
+		GLfloat texLeft, texRight, texTop, texBottom;
 
-		GLfloat texLeft = 0.0f;
-		GLfloat texRight = (GLfloat)texture->Width / texture->TexWidth;
-		GLfloat texTop = 0.0f;
-		GLfloat texBottom = (GLfloat)texture->Height / texture->TexHeight;
-
-		if(clip != NULL)
+		if(clip == NULL)
 		{
-			texWidth = clip->W;
-			texHeight = clip->H;
+			texWidth = texture->Width * scale;
+			texHeight = texture->Height * scale;
+
+			texLeft = 0.0f;
+			texRight = (GLfloat)texture->Width / texture->TexWidth;
+			texTop = 0.0f;
+			texBottom = (GLfloat)texture->Height / texture->TexHeight;
+		}
+		else
+		{
+			texWidth = clip->W * scale;
+			texHeight = clip->H * scale;
 
 			texLeft = clip->X / texture->TexWidth;
 			texRight = (clip->X + texWidth) / texture->TexWidth;
