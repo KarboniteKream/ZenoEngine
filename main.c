@@ -64,6 +64,8 @@ int main(int argc, char **argv)
 
 	glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+
 	if(glGetError() != GL_NO_ERROR)
 	{
 		fprintf(stderr, "An error has occurred while initializing OpenGL.\n");
@@ -336,9 +338,8 @@ int main(int argc, char **argv)
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
 		//drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
 
-		// FIXME: Reset shader color.
-		//drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f, 1.0f, 0.0f, 0.0f);
-		//drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
+		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f, 1.0f, 0.0f, 0.0f);
+		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
 		if(editor == true)
 		{
@@ -346,8 +347,8 @@ int main(int argc, char **argv)
 
 			if(console == true)
 			{
-				//drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 1.0f, 1.0f, 1.0f);
-				//drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
+				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 1.0f, 1.0f, 1.0f);
+				drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
 				drawText(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ");
 				drawText(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command);
