@@ -218,23 +218,23 @@ void setLevelLayout(Level *level, int x, int y, int block)
 	{
 		case 0:
 			level->Properties[x][y][0] = 0;
-			break;
+		break;
 
 		case 1:
 			level->Properties[x][y][0] = 0;
-			break;
+		break;
 
 		case 2:
 			level->Properties[x][y][0] = 0;
-			break;
+		break;
 
 		case 3:
 			level->Properties[x][y][0] = 2;
-			break;
+		break;
 
 		case 4:
 			level->Properties[x][y][0] = 1;
-			break;
+		break;
 	}
 
 	VertexData vertexData[4];

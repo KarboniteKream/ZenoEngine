@@ -23,18 +23,24 @@ typedef struct
 
 	RectangleF BoundingBox;
 
+	bool IsMoving;
+	bool IsStopping;
 	GLfloat Speed;
-	GLfloat JumpSpeed;
+	GLfloat CurrentSpeed;
 
 	bool IsJumping;
-	bool IsMoving;
+	GLfloat JumpSpeed;
+	GLfloat CurrentJumpSpeed;
 
-	// TODO: Implement aiming and shooting.
+	bool *KeyStates;
+	// TODO: Store control scheme in an array.
+	// TODO: Add enumerators.
 } Player;
 
 void initPlayer(Player *player);
 void loadPlayer(Player *player, const char *dataFile);
 void drawPlayer(Player *player);
-void movePlayer(Level *level, Player *player);
+void handlePlayerEvent(Player *player, SDL_Event *event);
+void updatePlayer(Player *player, Level *level);
 
 #endif

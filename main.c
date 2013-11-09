@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
 	loadExtensions();
 
-	//SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	SDL_SetWindowIcon(window, SDL_LoadBMP("resources/icon.bmp"));
@@ -109,8 +109,8 @@ int main(int argc, char **argv)
 	initTexture(&background);
 	loadTexture(&background, "images/background.png");
 
-	unsigned int startTime = SDL_GetTicks();
-	unsigned int currentTime = SDL_GetTicks();
+	Uint32 startTime = SDL_GetTicks();
+	Uint32 currentTime = SDL_GetTicks();
 
 	int frames = 0;
 	float fps = 0.0f;
@@ -123,11 +123,11 @@ int main(int argc, char **argv)
 
 	while(quitGame == false)
 	{
-		unsigned int previousTime = currentTime;
+		Uint32 previousTime = currentTime;
 		currentTime = SDL_GetTicks();
 		DELTA_TICKS = (currentTime - previousTime) / 1000.0f;
 
-		while(SDL_PollEvent(&event))
+		while(SDL_PollEvent(&event) != 0)
 		{
 			if(event.type == SDL_QUIT)
 			{
@@ -139,17 +139,17 @@ int main(int argc, char **argv)
 				{
 					case SDLK_ESCAPE:
 						quitGame = true;
-						break;
+					break;
 
 					case SDLK_F1:
 						editor = !editor;
 						// TODO: Exiting out of the editor should close the console.
 						//SDL_ShowCursor(!SDL_ShowCursor(-1));
-						break;
+					break;
 
 					case SDLK_F12:
 						saveScreenshot();
-						break;
+					break;
 				}
 			}
 			else if(event.type == SDL_MOUSEMOTION)
@@ -172,23 +172,24 @@ int main(int argc, char **argv)
 								commandIndex = 0;
 								command[0] = '\0';
 								console = false;
-								break;
+							break;
 
 							case SDLK_BACKSPACE:
 								if(commandIndex > 0)
 								{
 									command[--commandIndex] = '\0';
 								}
-								break;
+							break;
 
 							default:
 								// TODO: What about the Z and Y keys? Perhaps a setting in the options screen?
 								if(commandIndex < 255)
 								{
+									// TODO: Replace with SDL_StartTextInput().
 									command[commandIndex++] = event.key.keysym.sym;
 									command[commandIndex] = '\0';
 								}
-								break;
+							break;
 						}
 					}
 					else
@@ -197,16 +198,16 @@ int main(int argc, char **argv)
 						{
 							case SDLK_RETURN:
 								console = true;
-								break;
+							break;
 
 							case SDLK_1: case SDLK_2:
 							case SDLK_3: case SDLK_4:
 							case SDLK_5:
 								editorBlock = event.key.keysym.sym - 48 - 1;
-								break;
+							break;
 
 							default:
-								break;
+							break;
 						}
 					}
 				}
@@ -221,58 +222,7 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				if(event.type == SDL_KEYDOWN)
-				{
-					switch(event.key.keysym.sym)
-					{
-						case SDLK_j:
-							// TODO: Move into a separate function?
-							player.Health -= 4;
-							if(player.Health < 0)
-							{
-								player.Health = 0;
-							}
-							break;
-
-						case SDLK_k:
-							player.Health += 4;
-							if(player.Health > player.MaxHealth)
-							{
-								player.Health = player.MaxHealth;
-							}
-							break;
-
-						case SDLK_1: case SDLK_2:
-						case SDLK_3: case SDLK_4:
-							player.SelectedSkill = event.key.keysym.sym - 48;
-							break;
-
-						default:
-							break;
-					}
-				}
-				else if(event.type == SDL_MOUSEBUTTONDOWN)
-				{
-					if(event.button.button == SDL_BUTTON_LEFT)
-					{
-						// TODO: Player shoots.
-					}
-					else if(event.button.button == SDL_BUTTON_RIGHT)
-					{
-						// TODO: Player starts aiming.
-					}
-				}
-				else if(event.type == SDL_MOUSEBUTTONUP)
-				{
-					if(event.button.button == SDL_BUTTON_LEFT)
-					{
-
-					}
-					else if(event.button.button == SDL_BUTTON_RIGHT)
-					{
-						// TODO: Player stops aiming.
-					}
-				}
+				handlePlayerEvent(&player, &event);
 			}
 		}
 
@@ -317,7 +267,7 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			movePlayer(&level, &player);
+			updatePlayer(&player, &level);
 		}
 
 		glMatrixMode(GL_MODELVIEW);
