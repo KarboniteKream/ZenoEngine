@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
 	// TODO: Support for borderless window.
 	// TODO: Fullscreen support.
-	SDL_Window *window = SDL_CreateWindow(NAME_VERSION, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	SDL_Window *window = SDL_CreateWindow("Zeno Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
 	if(window == NULL)
 	{
