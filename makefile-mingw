@@ -6,7 +6,7 @@ OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o
 
 .PHONY: tools
 
-all: zeno
+all: zeno tools
 
 zeno: $(OBJECTS)
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o ZenoEngine.exe
