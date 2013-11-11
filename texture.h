@@ -2,7 +2,6 @@
 #define TEXTURE_H
 
 #include "globals.h"
-#include <SDL2/SDL_image.h>
 
 typedef struct
 {

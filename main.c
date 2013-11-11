@@ -6,7 +6,6 @@
 #include "font.h"
 #include "animation.h"
 
-void saveScreenshot();
 void executeCommand(Level *level, const char *command);
 
 // NOTE: The arguments are unused.
@@ -78,8 +77,17 @@ int main(int argc, char **argv)
 	bool editor = false;
 	bool console = false;
 
+	bool log = false;
+	int logIndex = 0;
+	char **logString = (char **)malloc(256 * sizeof(char *));
+
+	for(int i = 0; i < 256; i++)
+	{
+		logString[i] = (char *)calloc(256, sizeof(char));
+	}
+
 	char command[256] = {'\0'};
-	unsigned int commandIndex = 0;
+	int commandIndex = 0;
 	uint8_t editorBlock = 0;
 
 	// NOTE: Should level be a global variable?
@@ -120,6 +128,7 @@ int main(int argc, char **argv)
 	colorLocation = glGetUniformLocation(shaderProgram, "Color");
 
 	// SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Tis' an error.", window);
+	printLog(logString, &logIndex, "YAY NO ERROR!");
 
 	while(quitGame == false)
 	{
@@ -147,8 +156,13 @@ int main(int argc, char **argv)
 						//SDL_ShowCursor(!SDL_ShowCursor(-1));
 					break;
 
+					case SDLK_F2:
+						log = !log;
+					break;
+
 					case SDLK_F12:
 						saveScreenshot();
+						printLog(logString, &logIndex, "Screenshot saved successfully.");
 					break;
 				}
 			}
@@ -220,6 +234,20 @@ int main(int argc, char **argv)
 					}
 				}
 			}
+			else if(log == true)
+			{
+				if(event.type == SDL_KEYDOWN)
+				{
+					switch(event.key.keysym.sym)
+					{
+						case SDLK_UP:
+						break;
+
+						case SDLK_DOWN:
+						break;
+					}
+				}
+			}
 			else
 			{
 				handlePlayerEvent(&player, &event);
@@ -280,38 +308,47 @@ int main(int argc, char **argv)
 		drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f);
 		drawPlayer(&player);
 
-		// drawRectangle(10.0f, 50.0f, 100.0f, 150.0f, 1.0f, 1.0f, 1.0f);
-
 		glLoadIdentity();
 
 		//drawTextureVBO(&minimapTexture, SCREEN_WIDTH - minimapTexture.Width - 10.0f, 10.0f, NULL, 0.0f);
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
 		//drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
 
-		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, 20.0f + player.Health, SCREEN_HEIGHT - 53.0f, 1.0f, 0.0f, 0.0f);
+		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 1.0f, 0.0f, 0.0f, 1.0f);
 		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
 		if(editor == true)
 		{
-			sprintf(engineInformation, "%s - EDITOR\nFPS: %.1f", NAME_VERSION, fps);
+			sprintf(engineInformation, "%s (EDITOR)\nFPS: %.1f", NAME_VERSION, fps);
 
 			if(console == true)
 			{
-				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 1.0f, 1.0f, 1.0f);
+				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f - 15.0f, SCREEN_HEIGHT - 15.0f - (SCREEN_HEIGHT - 60.0f), 1.0f, 1.0f, 1.0f, 1.0f);
 				drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
-				drawText(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ");
-				drawText(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command);
+				drawText(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
+				drawText(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
 
 				// TODO: Command history.
 			}
 		}
+		else if(log == true)
+		{
+			sprintf(engineInformation, "");
+
+			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 100.0f, 0.0f, 0.0f, 0.0f, 0.75f);
+
+			for(int i = logIndex - 1; i >= 0 && 25.0f * i >= 0.0f; i--)
+			{
+				drawText(&fonts[0], 7.0f, 25.0f * i, logString[i], 1.0f, 1.0f, 1.0f);
+			}
+		}
 		else
 		{
-			sprintf(engineInformation, "%s - Press F1 for Editor\nFPS: %.1f", NAME_VERSION, fps);
+			sprintf(engineInformation, "%s (F1 - Editor, F2 - Log)\nFPS: %.1f", NAME_VERSION, fps);
 		}
 
-		drawText(&fonts[0], 7.0f, 5.0f, engineInformation);
+		drawText(&fonts[0], 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
 
 		SDL_GL_SwapWindow(window);
 
@@ -325,25 +362,6 @@ int main(int argc, char **argv)
 	SDL_Quit();
 
 	return 0;
-}
-
-void saveScreenshot()
-{
-	SDL_Surface *screenshot = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0x0000FF, 0x00FF00, 0xFF0000, 0);
-
-	unsigned char *pixels = (unsigned char *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 3);
-	glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-
-	for(int i = 0; i < SCREEN_HEIGHT; i++)
-	{
-		memcpy(screenshot->pixels + SCREEN_WIDTH * 3 * i, pixels + SCREEN_WIDTH * 3 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 3);
-	}
-
-	// TODO: Add automatic numbering.
-	IMG_SavePNG(screenshot, "screenshots/screenshot.png");
-
-	free(pixels);
-	free(screenshot);
 }
 
 void executeCommand(Level *level, const char *command)

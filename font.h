@@ -17,6 +17,6 @@ typedef struct
 
 void initFont(Font *font);
 void loadFont(Font *font, const char* filename);
-void drawText(Font *font, GLfloat x, GLfloat y, const char* text);
+void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b);
 
 #endif

@@ -22,31 +22,32 @@ void loadExtensions()
 	glUniform4f = (PFNGLUNIFORM4FPROC)SDL_GL_GetProcAddress("glUniform4f");
 }
 
-// FIXME: Change x2 and y2 to w and h.
-void drawRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat r, GLfloat g, GLfloat b)
+void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
 	glUseProgram(shaderProgram);
-	glUniform4f(colorLocation, r, g, b, 1.0f);
+	glUniform4f(colorLocation, r, g, b, a);
 
 	Coordinate vertexData[4];
 
-	vertexData[0].X = x1;
-	vertexData[0].Y = y1;
-	vertexData[1].X = x2;
-	vertexData[1].Y = y1;
-	vertexData[2].X = x2;
-	vertexData[2].Y = y2;
-	vertexData[3].X = x1;
-	vertexData[3].Y = y2;
+	vertexData[0].X = x;
+	vertexData[0].Y = y;
+	vertexData[1].X = x + w;
+	vertexData[1].Y = y;
+	vertexData[2].X = x + w;
+	vertexData[2].Y = y + h;
+	vertexData[3].X = x;
+	vertexData[3].Y = y + h;
 
 	glVertexPointer(2, GL_FLOAT, 0, vertexData);
 	glDrawArrays(GL_QUADS, 0, 4);
 
+	glUniform4f(colorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
 	glUseProgram(0);
 }
 
 void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat lineWidth, GLfloat r, GLfloat g, GLfloat b)
 {
+	// FIXME
 	glPushAttrib(GL_CURRENT_BIT);
 	glLineWidth(lineWidth);
 
@@ -92,6 +93,25 @@ void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat 
 	glDrawArrays(GL_LINES, 0, 8);
 
 	glPopAttrib();
+}
+
+void saveScreenshot()
+{
+	SDL_Surface *screenshot = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0x0000FF, 0x00FF00, 0xFF0000, 0);
+
+	unsigned char *pixels = (unsigned char *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 3);
+	glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+	for(int i = 0; i < SCREEN_HEIGHT; i++)
+	{
+		memcpy(screenshot->pixels + SCREEN_WIDTH * 3 * i, pixels + SCREEN_WIDTH * 3 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 3);
+	}
+
+	// TODO: Add automatic numbering.
+	IMG_SavePNG(screenshot, "screenshots/screenshot.png");
+
+	free(pixels);
+	free(screenshot);
 }
 
 void loadShader(GLuint *shaderProgram, const char *vertexFilename, const char *fragmentFilename)
@@ -173,4 +193,9 @@ void printShaderLog(GLuint shader)
 	{
 		printf("%s", infoLog);
 	}
+}
+
+void printLog(char **logString, int *logIndex, const char *text)
+{
+	strcpy(logString[(*logIndex)++], text);
 }

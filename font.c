@@ -61,8 +61,11 @@ void loadFont(Font *font, const char* filename)
 	}
 }
 
-void drawText(Font *font, GLfloat x, GLfloat y, const char* text)
+void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b)
 {
+	glPushAttrib(GL_CURRENT_BIT);
+	glColor4f(r, g, b, 1.0f);
+
 	GLfloat startX = x;
 
 	for(unsigned int i = 0; i < strlen(text); i++)
@@ -82,4 +85,6 @@ void drawText(Font *font, GLfloat x, GLfloat y, const char* text)
 			x += font->Clips[text[i] - 32].W;
 		}
 	}
+
+	glPopAttrib();
 }
