@@ -64,6 +64,10 @@ void loadPlayer(Player *player, const char *dataFile)
 	player->CurrentJumpSpeed = 0.0f;
 
 	player->KeyStates = (bool *)malloc(4 * sizeof(bool));
+	for(int i = 0; i < 4; i++)
+	{
+		player->KeyStates[i] = false;
+	}
 }
 
 void drawPlayer(Player *player)
