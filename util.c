@@ -31,10 +31,13 @@ void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloa
 
 	vertexData[0].X = x;
 	vertexData[0].Y = y;
+
 	vertexData[1].X = x + w;
 	vertexData[1].Y = y;
+
 	vertexData[2].X = x + w;
 	vertexData[2].Y = y + h;
+
 	vertexData[3].X = x;
 	vertexData[3].Y = y + h;
 
@@ -47,19 +50,12 @@ void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloa
 
 void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat lineWidth, GLfloat r, GLfloat g, GLfloat b)
 {
-	// FIXME
-	glPushAttrib(GL_CURRENT_BIT);
+	glUseProgram(shaderProgram);
+	glUniform4f(colorLocation, r, g, b, 1.0f);
+
 	glLineWidth(lineWidth);
 
 	Coordinate vertexData[8];
-	GLfloat colorData[8][3];
-
-	for(int i = 0; i < 8; i++)
-	{
-		colorData[i][0] = r;
-		colorData[i][1] = g;
-		colorData[i][2] = b;
-	}
 
 	vertexData[0].X = x1;
 	vertexData[0].Y = y1;
@@ -85,14 +81,13 @@ void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat 
 	vertexData[7].X = x1 + 1.0f;
 	vertexData[7].Y = y1;
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
 	glVertexPointer(2, GL_FLOAT, 0, vertexData);
-	glColorPointer(3, GL_FLOAT, 0, colorData);
 	glDrawArrays(GL_LINES, 0, 8);
 
-	glPopAttrib();
+	glLineWidth(1.0f);
+
+	glUniform4f(colorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUseProgram(0);
 }
 
 void saveScreenshot()
