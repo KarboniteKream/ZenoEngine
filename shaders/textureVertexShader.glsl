@@ -1,3 +1,5 @@
+#version 120
+
 attribute vec2 TexturePosition;
 
 attribute vec2 TexCoord;
