@@ -84,7 +84,7 @@ void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLf
 		}
 		else
 		{
-			drawTextureVBO(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 0.0f, 1.0f);
+			drawTextureVBO(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 1.0f);
 			x += font->Clips[text[i] - 32].W;
 		}
 	}

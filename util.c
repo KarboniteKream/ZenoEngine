@@ -85,7 +85,7 @@ void loadExtensions()
 	glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
 	glVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC)SDL_GL_GetProcAddress("glVertexAttribPointerARB");
 
-	printLog(0, "Extensions loaded successfully.", "");
+	printLog(0, "Extensions loaded successfully.", NULL);
 }
 
 void executeCommand(Level *level, const char *command)
@@ -178,11 +178,11 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 
 	if(vsFile == NULL)
 	{
-		printLog(1, "Unable to open vertex shader", vsFilename);
+		printLog(1, "Unable to open vertex shader: ", vsFilename);
 	}
 	else if(fsFile == NULL)
 	{
-
+		printLog(1, "Unable to open fragment shader: ", fsFilename);
 	}
 	else
 	{
@@ -204,9 +204,6 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		fread(vsSource[0], sizeof(GLchar), vsLength, vsFile);
 		fread(fsSource[0], sizeof(GLchar), fsLength, fsFile);
 
-		glUseProgram(*shaderProgram);
-		*shaderProgram = glCreateProgram();
-
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, 1, (const GLchar **)vsSource, NULL);
 		glCompileShader(vertexShader);
@@ -220,28 +217,28 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
-			printf("Unable to compile vertex shader '%s'\n", vsFilename);
+			printLog(1, "Unable to compile vertex shader: ", vsFilename);
 			printShaderLog(vertexShader);
 		}
 
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
-			printf("Unable to compile fragment shader '%s'\n", fsFilename);
+			printLog(1, "Unable to compile fragment shader: ", fsFilename);
 			printShaderLog(fragmentShader);
 		}
 
-		if(compileStatus == GL_FALSE)
+		if(compileStatus == GL_TRUE)
 		{
-			glDeleteProgram(*shaderProgram);
-			return;
+			glUseProgram(*shaderProgram);
+			*shaderProgram = glCreateProgram();
+
+			glAttachShader(*shaderProgram, vertexShader);
+			glAttachShader(*shaderProgram, fragmentShader);
+
+			// TODO: Check for error when linking.
+			glLinkProgram(*shaderProgram);
 		}
-
-		glAttachShader(*shaderProgram, vertexShader);
-		glAttachShader(*shaderProgram, fragmentShader);
-
-		// TODO: Check for error when linking.
-		glLinkProgram(*shaderProgram);
 	}
 
 	fclose(vsFile);
@@ -259,8 +256,7 @@ void printShaderLog(GLuint shader)
 
 	if(infoLogLength > 0)
 	{
-		printf("%s", infoLog);
-		printLog(1, "TEST", infoLog);
+		printLog(1, infoLog, NULL);
 	}
 }
 

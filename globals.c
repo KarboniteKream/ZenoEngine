@@ -44,18 +44,25 @@ char **logs = NULL;
 
 void printLog(int type, const char *summary, const char *details)
 {
+	// NOTE: Should details be just another message, but smaller, or with a different color?
 	char message[256];
 
+	// TODO: Replace "OK" and "ERROR" with colors.
 	switch(type)
 	{
 		case 0:
-			// TODO: Replace "OK" and "ERROR" with colors.
-			sprintf(message, "OK: %s%s", summary, details == NULL ? "" : details);
+			sprintf(message, "OK: %s%s", summary, (details == NULL) ? "" : details);
 		break;
 
 		case 1:
-			sprintf(message, "ERROR: %s%s", summary, details == NULL ? "" : details);
+			sprintf(message, "ERROR: %s%s", summary, (details == NULL) ? "" : details);
 		break;
 	}
+
 	strcpy(logs[logIndex++], message);
+
+	if(type != 0)
+	{
+		printf("%s\n", message);
+	}
 }

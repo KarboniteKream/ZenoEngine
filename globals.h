@@ -75,6 +75,7 @@ extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
 extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
 extern PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB;
 
+// TODO: Move to a separate struct/file.
 extern GLuint shaderProgram;
 extern GLint colorLocation;
 

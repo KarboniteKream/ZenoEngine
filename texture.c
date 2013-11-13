@@ -5,6 +5,8 @@ void initTexture(Texture *texture)
 	texture->ID = 0;
 	texture->VBO = 0;
 
+	texture->ShaderProgram = 0;
+
 	texture->Width = 0;
 	texture->Height = 0;
 	texture->TexWidth = 0;
@@ -46,6 +48,7 @@ void loadTexture(Texture *texture, const char *filename)
 
 	if(image == NULL)
 	{
+		// TODO: Replace with printLog() and load a placeholder texture instead.
 		fprintf(stderr, "An error has occurred while loading texture '%s' using SDL_image.\n", filename);
 		exit(1);
 	}
@@ -86,6 +89,11 @@ void loadTexture(Texture *texture, const char *filename)
 		fprintf(stderr, "An error has occurred while loading texture '%s' using OpenGL.\n", filename);
 		exit(1);
 	}
+}
+
+void loadTextureShader(Texture *texture, GLuint shaderProgram)
+{
+	texture->ShaderProgram = shaderProgram;
 }
 
 // NOTE: Should I rename clip to rectangle?
@@ -156,7 +164,7 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 	}
 }
 
-void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale)
+void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat scale)
 {
 	if(texture->ID != 0)
 	{
