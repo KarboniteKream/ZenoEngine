@@ -1,3 +1,5 @@
+#version 120
+
 uniform sampler2D TextureUnit;
 uniform vec4 TextureColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
