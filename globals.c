@@ -38,7 +38,6 @@ GLint colorLocation = 0;
 GLuint texShader = 0;
 GLint texPos = 0;
 GLint texCoords = 0;
-GLint texUnit = 0;
 GLint texColor = 0;
 
 int logIndex = 0;

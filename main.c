@@ -63,8 +63,6 @@ int main(int argc, char **argv)
 
 	glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-
 	if(glGetError() != GL_NO_ERROR)
 	{
 		fprintf(stderr, "An error has occurred while initializing OpenGL.\n");
@@ -104,11 +102,8 @@ int main(int argc, char **argv)
 	initPlayer(&player);
 	loadPlayer(&player, "images/player.png");
 
-	Texture minimapTexture, interfaceTexture;
-	initTexture(&minimapTexture);
-	initVBO(&minimapTexture, 4);
+	Texture interfaceTexture;
 	initTexture(&interfaceTexture);
-	loadTexture(&minimapTexture, "images/minimap.png");
 	loadTexture(&interfaceTexture, "images/interface.png");
 
 	Texture background;
@@ -120,7 +115,7 @@ int main(int argc, char **argv)
 
 	int frames = 0;
 	float fps = 0.0f;
-	char engineInformation[256];
+	char engineInformation[256] = {'\0'};
 
 	loadShader(&shaderProgram, "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
 	colorLocation = glGetUniformLocation(shaderProgram, "Color");
@@ -131,7 +126,6 @@ int main(int argc, char **argv)
 	loadShader(&texShader, "shaders/texVertex.glsl", "shaders/texFrag.glsl");
 	texPos = glGetAttribLocation(texShader, "TexturePosition");
 	texCoords = glGetAttribLocation(texShader, "TexCoord");
-	texUnit = glGetUniformLocation(texShader, "TextureUnit");
 	texColor = glGetUniformLocation(texShader, "TextureColor");
 
 	while(quitGame == false)
@@ -155,13 +149,13 @@ int main(int argc, char **argv)
 					break;
 
 					case SDLK_F1:
-						editor = !editor;
-						// TODO: Exiting out of the editor should close the console.
-						//SDL_ShowCursor(!SDL_ShowCursor(-1));
+						log = !log;
 					break;
 
 					case SDLK_F2:
-						log = !log;
+						editor = !editor;
+						// TODO: Exiting out of the editor should close the console.
+						//SDL_ShowCursor(!SDL_ShowCursor(-1));
 					break;
 
 					case SDLK_F12:
@@ -308,23 +302,22 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glTranslatef(-cameraX, -cameraY, 0.0f);
 
-		//drawLevelVBO(&level);
+		drawLevelVBO(&level);
 		drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f);
 		drawPlayer(&player);
 
 		glLoadIdentity();
 
-		drawTextureVBO(&minimapTexture, SCREEN_WIDTH - minimapTexture.Width - 10.0f, 10.0f, NULL, 0.0f, 1.0f);
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
-		//drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
 
 		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 1.0f, 0.0f, 0.0f, 1.0f);
 		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
+		sprintf(engineInformation, "%s (F1 - Log, F2 - Editor)\nFPS: %.1f", NAME_VERSION, fps);
+		drawText(&fonts[0], 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
+
 		if(editor == true)
 		{
-			sprintf(engineInformation, "%s (EDITOR)\nFPS: %.1f", NAME_VERSION, fps);
-
 			if(console == true)
 			{
 				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f - 15.0f, SCREEN_HEIGHT - 15.0f - (SCREEN_HEIGHT - 60.0f), 1.0f, 1.0f, 1.0f, 1.0f);
@@ -336,23 +329,15 @@ int main(int argc, char **argv)
 				// TODO: Command history.
 			}
 		}
-		else if(log == true)
+		if(log == true)
 		{
-			sprintf(engineInformation, "");
-
-			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 100.0f, 0.0f, 0.0f, 0.0f, 0.75f);
+			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 100.0f, 0.0f, 0.0f, 0.0f, 0.9f);
 
 			for(int i = logIndex - 1; i >= 0 && 25.0f * i >= 0.0f; i--)
 			{
-				drawText(&fonts[0], 7.0f, 25.0f * i, logString[i], 1.0f, 1.0f, 1.0f);
+				drawText(&fonts[0], 7.0f, 25.0f * i, logString[i], 1.0f, 0.0f, 1.0f);
 			}
 		}
-		else
-		{
-			sprintf(engineInformation, "%s (F1 - Editor, F2 - Log)\nFPS: %.1f", NAME_VERSION, fps);
-		}
-
-		drawText(&fonts[0], 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
 
 		SDL_GL_SwapWindow(window);
 

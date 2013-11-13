@@ -33,6 +33,8 @@ void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloa
 	glUseProgram(shaderProgram);
 	glUniform4f(colorLocation, r, g, b, a);
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+
 	Coordinate vertexData[4];
 
 	vertexData[0].X = x;
@@ -49,6 +51,8 @@ void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloa
 
 	glVertexPointer(2, GL_FLOAT, 0, vertexData);
 	glDrawArrays(GL_QUADS, 0, 4);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glUseProgram(0);
 }
@@ -86,8 +90,12 @@ void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat 
 	vertexData[7].X = x1 + 1.0f;
 	vertexData[7].Y = y1;
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+
 	glVertexPointer(2, GL_FLOAT, 0, vertexData);
 	glDrawArrays(GL_LINES, 0, 8);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glLineWidth(1.0f);
 

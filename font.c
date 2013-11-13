@@ -57,14 +57,17 @@ void loadFont(Font *font, const char* filename)
 			}
 		}
 
+		initVBO(&font->FontTexture, 4);
+
 		fclose(fontFile);
 	}
 }
 
 void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b)
 {
-	glPushAttrib(GL_CURRENT_BIT);
-	glColor4f(r, g, b, 1.0f);
+	glUseProgram(texShader);
+	glUniform4f(texColor, r, g, b, 1.0f);
+	glUseProgram(0);
 
 	GLfloat startX = x;
 
@@ -81,10 +84,8 @@ void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLf
 		}
 		else
 		{
-			drawTexture(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 0.0f, 1.0f);
+			drawTextureVBO(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 0.0f, 1.0f);
 			x += font->Clips[text[i] - 32].W;
 		}
 	}
-
-	glPopAttrib();
 }

@@ -83,7 +83,6 @@ extern GLint colorLocation;
 extern GLuint texShader;
 extern GLint texPos;
 extern GLint texCoords;
-extern GLint texUnit;
 extern GLint texColor;
 
 extern int logIndex;
