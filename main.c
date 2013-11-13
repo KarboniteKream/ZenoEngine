@@ -7,28 +7,20 @@
 #include "animation.h"
 
 // NOTE: The arguments are unused.
-// TODO: Add error checking and reporting.
+// TODO: Add proper error checking and reporting.
 // TODO: Add error reporting with return values of functions (loadTexture()).
 int main(int argc, char **argv)
 {
 	logs = (char **)malloc(256 * sizeof(char *));
 	for(int i = 0; i < 256; i++)
 	{
+		// FIXME: Variable size.
+		// TODO: Message type (for coloring).
 		logs[i] = (char *)calloc(256, sizeof(char));
 	}
 
 	SDL_Window *window = NULL;
 	initWindow(&window, "Zeno Engine");
-
-	SDL_Event event;
-
-	bool quitGame = false;
-	bool editor = false;
-	bool console = false;
-
-	char command[256] = {'\0'};
-	int commandIndex = 0;
-	uint8_t editorBlock = 0;
 
 	// NOTE: Should level be a global variable?
 	Level level;
@@ -36,11 +28,11 @@ int main(int argc, char **argv)
 	loadLevel(&level, "level1");
 
 	// TODO: Load assets from a file into array (e.g. array of textures) using IDs -> Engine.
-	Font fonts[2];
-	initFont(&fonts[0]);
-	initFont(&fonts[1]);
-	loadFont(&fonts[0], "data/font2.dat");
-	loadFont(&fonts[1], "data/font4.dat");
+	Font font2, font4;
+	initFont(&font2);
+	initFont(&font4);
+	loadFont(&font2, "data/font2.dat");
+	loadFont(&font4, "data/font4.dat");
 
 	Player player;
 	initPlayer(&player);
@@ -54,20 +46,30 @@ int main(int argc, char **argv)
 	initTexture(&background);
 	loadTexture(&background, "images/background.png");
 
-	Uint32 startTime = SDL_GetTicks();
-	Uint32 currentTime = SDL_GetTicks();
+	loadShader(&shaderProgram, "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
+	colorLocation = glGetUniformLocation(shaderProgram, "Color");
+
+	loadShader(&texShader, "shaders/textureVertexShader.glsl", "shaders/textureFragmentShader.glsl");
+	texPos = glGetAttribLocation(texShader, "TexturePosition");
+	texCoords = glGetAttribLocation(texShader, "TexCoord");
+	texColor = glGetUniformLocation(texShader, "TextureColor");
+
+	SDL_Event event;
+
+	bool quitGame = false;
+	bool editor = false;
+	bool console = false;
+
+	char command[256] = {'\0'};
+	int commandIndex = 0;
+	uint8_t editorBlock = 0;
 
 	int frames = 0;
 	float fps = 0.0f;
 	char engineInformation[256] = {'\0'};
 
-	loadShader(&shaderProgram, "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
-	colorLocation = glGetUniformLocation(shaderProgram, "Color");
-
-	loadShader(&texShader, "shaders/texVertex.glsl", "shaders/texFrag.glsl");
-	texPos = glGetAttribLocation(texShader, "TexturePosition");
-	texCoords = glGetAttribLocation(texShader, "TexCoord");
-	texColor = glGetUniformLocation(texShader, "TextureColor");
+	Uint32 startTime = SDL_GetTicks();
+	Uint32 currentTime = SDL_GetTicks();
 
 	while(quitGame == false)
 	{
@@ -137,9 +139,12 @@ int main(int argc, char **argv)
 								// TODO: What about the Z and Y keys? Perhaps a setting in the options screen?
 								if(commandIndex < 255)
 								{
-									// TODO: Replace with SDL_StartTextInput().
-									command[commandIndex++] = event.key.keysym.sym;
-									command[commandIndex] = '\0';
+									// TODO: Replace with SDL_StartTextInput()
+									if((event.key.keysym.sym >= 'a' && event.key.keysym.sym <= 'z') || event.key.keysym.sym == ' ')
+									{
+										command[commandIndex++] = event.key.keysym.sym;
+										command[commandIndex] = '\0';
+									}
 								}
 							break;
 						}
@@ -254,7 +259,7 @@ int main(int argc, char **argv)
 		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
 		sprintf(engineInformation, "%s (F1 - Log, F2 - Editor)\nFPS: %.1f", NAME_VERSION, fps);
-		drawText(&fonts[0], 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
+		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
 
 		if(editor == true)
 		{
@@ -263,8 +268,8 @@ int main(int argc, char **argv)
 				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f - 15.0f, SCREEN_HEIGHT - 15.0f - (SCREEN_HEIGHT - 60.0f), 1.0f, 1.0f, 1.0f, 1.0f);
 				drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
-				drawText(&fonts[1], 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
-				drawText(&fonts[1], 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
+				drawText(&font4, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
+				drawText(&font4, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
 
 				// TODO: Command history.
 			}
@@ -275,7 +280,7 @@ int main(int argc, char **argv)
 
 			for(int i = logIndex - 1; i >= 0 && 25.0f * i >= 0.0f; i--)
 			{
-				drawText(&fonts[0], 7.0f, 25.0f * i, logs[i], 1.0f, 0.0f, 1.0f);
+				drawText(&font2, 7.0f, 22.0f * i, logs[i], 1.0f, 0.0f, 1.0f);
 			}
 		}
 
