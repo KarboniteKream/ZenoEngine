@@ -2,7 +2,8 @@
 
 void loadExtensions()
 {
-	glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	// TODO: Check for supported extensions.
+	glBindBufferARB = (PFNGLBINDBUFFERARBPROC)SDL_GL_GetProcAddress("glBindBufferARB");
 	glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
 	glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
 	glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
@@ -19,7 +20,12 @@ void loadExtensions()
 	glGetShaderiv = (PFNGLGETSHADERIVPROC)SDL_GL_GetProcAddress("glGetShaderiv");
 	glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)SDL_GL_GetProcAddress("glGetShaderInfoLog");
 	glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)SDL_GL_GetProcAddress("glGetUniformLocation");
+	glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)SDL_GL_GetProcAddress("glGetAttribLocation");
 	glUniform4f = (PFNGLUNIFORM4FPROC)SDL_GL_GetProcAddress("glUniform4f");
+
+	glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glEnableVertexAttribArray");
+	glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
+	glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)SDL_GL_GetProcAddress("glVertexAttribPointer");
 }
 
 void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloat g, GLfloat b, GLfloat a)
@@ -44,7 +50,6 @@ void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloa
 	glVertexPointer(2, GL_FLOAT, 0, vertexData);
 	glDrawArrays(GL_QUADS, 0, 4);
 
-	glUniform4f(colorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
 	glUseProgram(0);
 }
 
@@ -86,7 +91,6 @@ void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat 
 
 	glLineWidth(1.0f);
 
-	glUniform4f(colorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
 	glUseProgram(0);
 }
 
@@ -187,10 +191,11 @@ void printShaderLog(GLuint shader)
 	if(infoLogLength > 0)
 	{
 		printf("%s", infoLog);
+		printLog(logString, infoLog);
 	}
 }
 
-void printLog(char **logString, int *logIndex, const char *text)
+void printLog(char **logString, const char *text)
 {
-	strcpy(logString[(*logIndex)++], text);
+	strcpy(logString[logIndex++], text);
 }

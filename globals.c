@@ -8,7 +8,7 @@ uint8_t BLOCK_SIZE = 48;
 GLfloat cameraX = 0.0f, cameraY = 0.0f;
 GLfloat mouseX = 0.0f, mouseY = 0.0f;
 
-PFNGLBINDBUFFERPROC glBindBuffer = NULL;
+PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
 PFNGLGENBUFFERSPROC glGenBuffers = NULL;
 PFNGLDELETEBUFFERSPROC glDeleteBuffers = NULL;
 PFNGLBUFFERDATAPROC glBufferData = NULL;
@@ -25,7 +25,21 @@ PFNGLLINKPROGRAMPROC glLinkProgram = NULL;
 PFNGLGETSHADERIVPROC glGetShaderiv = NULL;
 PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog = NULL;
 PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation = NULL;
+PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation = NULL;
 PFNGLUNIFORM4FPROC glUniform4f = NULL;
+
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray = NULL;
+PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray = NULL;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer = NULL;
 
 GLuint shaderProgram = 0;
 GLint colorLocation = 0;
+
+GLuint texShader = 0;
+GLint texPos = 0;
+GLint texCoords = 0;
+GLint texUnit = 0;
+GLint texColor = 0;
+
+int logIndex = 0;
+char **logString = NULL;

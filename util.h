@@ -9,6 +9,6 @@ void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat 
 void saveScreenshot();
 void loadShader(GLuint *shaderProgram, const char *vertexShaderFilename, const char *fragmentShaderFilename);
 void printShaderLog(GLuint shader);
-void printLog(char **logString, int *logIndex, const char *text);
+void printLog(char **logString, const char *text);
 
 #endif

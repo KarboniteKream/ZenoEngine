@@ -53,7 +53,7 @@ typedef struct
 	GLfloat T;
 } VertexData;
 
-extern PFNGLBINDBUFFERPROC glBindBuffer;
+extern PFNGLBINDBUFFERARBPROC glBindBufferARB;
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 extern PFNGLBUFFERDATAPROC glBufferData;
@@ -70,9 +70,23 @@ extern PFNGLLINKPROGRAMPROC glLinkProgram;
 extern PFNGLGETSHADERIVPROC glGetShaderiv;
 extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
 extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+extern PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
 extern PFNGLUNIFORM4FPROC glUniform4f;
+
+extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+extern PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
 
 extern GLuint shaderProgram;
 extern GLint colorLocation;
+
+extern GLuint texShader;
+extern GLint texPos;
+extern GLint texCoords;
+extern GLint texUnit;
+extern GLint texColor;
+
+extern int logIndex;
+extern char **logString;
 
 #endif

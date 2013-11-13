@@ -17,18 +17,18 @@ void initVBO(Texture *texture, GLuint num)
 
 	glGenBuffers(1, &texture->VBO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
+	glBindBufferARB(GL_ARRAY_BUFFER, texture->VBO);
 	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), vertexData, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBufferARB(GL_ARRAY_BUFFER, 0);
 }
 
 void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint num)
 {
 	glGenBuffers(1, &texture->VBO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
+	glBindBufferARB(GL_ARRAY_BUFFER, texture->VBO);
 	glBufferData(GL_ARRAY_BUFFER, 4 * num * sizeof(VertexData), vertexData, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBufferARB(GL_ARRAY_BUFFER, 0);
 }
 
 void loadTexture(Texture *texture, const char *filename)
@@ -178,10 +178,10 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GL
 			texWidth = clip->W * scale;
 			texHeight = clip->H * scale;
 
-			texLeft = clip->X / texture->TexWidth;
-			texRight = (clip->X + texWidth) / texture->TexWidth;
-			texTop = clip->Y / texture->TexHeight;
-			texBottom = (clip->Y + texHeight) / texture->TexHeight;
+			texLeft = (clip->X * scale) / (texture->TexWidth * scale);
+			texRight = ((clip->X * scale) + texWidth) / (texture->TexWidth * scale);
+			texTop = (clip->Y * scale) / (texture->TexHeight * scale);
+			texBottom = ((clip->Y * scale) + texHeight) / (texture->TexHeight * scale);
 		}
 
 		VertexData vertexData[4];
@@ -206,28 +206,28 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GL
 		vertexData[3].S = texLeft;
 		vertexData[3].T = texBottom;
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-		glEnable(GL_TEXTURE_2D);
-
 		if(BOUND_TEXTURE != texture->ID)
 		{
 			glBindTexture(GL_TEXTURE_2D, texture->ID);
 			BOUND_TEXTURE = texture->ID;
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
+		glUseProgram(texShader);
+
+		glEnableVertexAttribArray(texPos);
+		glEnableVertexAttribArray(texCoords);
+
+		glBindBufferARB(GL_ARRAY_BUFFER, texture->VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(VertexData), vertexData);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
-		glVertexPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
+		glVertexAttribPointer(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
+		glVertexAttribPointer(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
 		glDrawArrays(GL_QUADS, 0, 4);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER, 0);
 
-		glDisable(GL_TEXTURE_2D);
+		glDisableVertexAttribArray(texCoords);
+		glDisableVertexAttribArray(texPos);
 
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
+		glUseProgram(0);
 	}
 }
 

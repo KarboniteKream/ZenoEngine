@@ -78,9 +78,7 @@ int main(int argc, char **argv)
 	bool console = false;
 
 	bool log = false;
-	int logIndex = 0;
-	char **logString = (char **)malloc(256 * sizeof(char *));
-
+	logString = (char **)malloc(256 * sizeof(char *));
 	for(int i = 0; i < 256; i++)
 	{
 		logString[i] = (char *)calloc(256, sizeof(char));
@@ -128,7 +126,13 @@ int main(int argc, char **argv)
 	colorLocation = glGetUniformLocation(shaderProgram, "Color");
 
 	// SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Tis' an error.", window);
-	printLog(logString, &logIndex, "YAY NO ERROR!");
+	printLog(logString, "YAY NO ERROR!");
+
+	loadShader(&texShader, "shaders/texVertex.glsl", "shaders/texFrag.glsl");
+	texPos = glGetAttribLocation(texShader, "TexturePosition");
+	texCoords = glGetAttribLocation(texShader, "TexCoord");
+	texUnit = glGetUniformLocation(texShader, "TextureUnit");
+	texColor = glGetUniformLocation(texShader, "TextureColor");
 
 	while(quitGame == false)
 	{
@@ -162,7 +166,7 @@ int main(int argc, char **argv)
 
 					case SDLK_F12:
 						saveScreenshot();
-						printLog(logString, &logIndex, "Screenshot saved successfully.");
+						printLog(logString, "Screenshot saved successfully.");
 					break;
 				}
 			}
@@ -310,7 +314,7 @@ int main(int argc, char **argv)
 
 		glLoadIdentity();
 
-		//drawTextureVBO(&minimapTexture, SCREEN_WIDTH - minimapTexture.Width - 10.0f, 10.0f, NULL, 0.0f);
+		drawTextureVBO(&minimapTexture, SCREEN_WIDTH - minimapTexture.Width - 10.0f, 10.0f, NULL, 0.0f, 1.0f);
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
 		//drawTexture(&pistolTexture, 82.0f, SCREEN_HEIGHT - 80.0f, NULL, 0.0f, 1.0f);
 
