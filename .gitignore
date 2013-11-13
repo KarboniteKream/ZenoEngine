@@ -3,3 +3,5 @@ ZenoEngine
 *.exe
 *.db
 *.dll
+font-converter
+transpose-level
