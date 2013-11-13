@@ -10,8 +10,7 @@
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
 
-// NOTE: Should this rather be read from a file?
-#define NAME_VERSION "Zeno Engine 0.13.11.09"
+#define NAME_VERSION "Zeno Engine 0.13.11.13"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
@@ -22,8 +21,8 @@
 #define COLLIDABLE 0
 
 extern float DELTA_TICKS;
-
 extern GLuint BOUND_TEXTURE;
+
 extern uint8_t BLOCK_SIZE;
 
 extern GLfloat cameraX, cameraY;
@@ -54,7 +53,7 @@ typedef struct
 } VertexData;
 
 extern PFNGLBINDBUFFERARBPROC glBindBufferARB;
-extern PFNGLGENBUFFERSPROC glGenBuffers;
+extern PFNGLGENBUFFERSARBPROC glGenBuffersARB;
 extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 extern PFNGLBUFFERDATAPROC glBufferData;
 extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
@@ -72,10 +71,9 @@ extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
 extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
 extern PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
 extern PFNGLUNIFORM4FPROC glUniform4f;
-
 extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
 extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
-extern PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+extern PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB;
 
 extern GLuint shaderProgram;
 extern GLint colorLocation;
@@ -86,6 +84,8 @@ extern GLint texCoords;
 extern GLint texColor;
 
 extern int logIndex;
-extern char **logString;
+extern char **logs;
+
+void printLog(int type, const char *error, const char *details);
 
 #endif

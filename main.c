@@ -6,81 +6,25 @@
 #include "font.h"
 #include "animation.h"
 
-void executeCommand(Level *level, const char *command);
-
 // NOTE: The arguments are unused.
 // TODO: Add error checking and reporting.
 // TODO: Add error reporting with return values of functions (loadTexture()).
 int main(int argc, char **argv)
 {
-	// TODO: Add SDL_GetError() and glGetError() support.
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) == -1)
+	logs = (char **)malloc(256 * sizeof(char *));
+	for(int i = 0; i < 256; i++)
 	{
-		fprintf(stderr, "An error has occurred while initializing SDL.\n");
-		exit(1);
+		logs[i] = (char *)calloc(256, sizeof(char));
 	}
 
-	atexit(SDL_Quit);
-
-	// TODO: Support for borderless window.
-	// TODO: Fullscreen support.
-	SDL_Window *window = SDL_CreateWindow("Zeno Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-
-	if(window == NULL)
-	{
-		fprintf(stderr, "An error has occurred while creating the SDL window.\n");
-		exit(1);
-	}
-
-	if(SDL_GL_CreateContext(window) == NULL)
-	{
-		fprintf(stderr, "An error has occurred while creating the OpenGL context.\n");
-		exit(1);
-	}
-
-	loadExtensions();
-
-	SDL_GL_SetSwapInterval(1);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	SDL_SetWindowIcon(window, SDL_LoadBMP("resources/icon.bmp"));
-	SDL_ShowCursor(SDL_ENABLE);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	glOrtho(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 1.0f, -1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glDisable(GL_ALPHA_TEST);
-
-	glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
-
-	if(glGetError() != GL_NO_ERROR)
-	{
-		fprintf(stderr, "An error has occurred while initializing OpenGL.\n");
-		exit(1);
-	}
+	SDL_Window *window = NULL;
+	initWindow(&window, "Zeno Engine");
 
 	SDL_Event event;
 
 	bool quitGame = false;
 	bool editor = false;
 	bool console = false;
-
-	bool log = false;
-	logString = (char **)malloc(256 * sizeof(char *));
-	for(int i = 0; i < 256; i++)
-	{
-		logString[i] = (char *)calloc(256, sizeof(char));
-	}
 
 	char command[256] = {'\0'};
 	int commandIndex = 0;
@@ -120,9 +64,6 @@ int main(int argc, char **argv)
 	loadShader(&shaderProgram, "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
 	colorLocation = glGetUniformLocation(shaderProgram, "Color");
 
-	// SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Tis' an error.", window);
-	printLog(logString, "YAY NO ERROR!");
-
 	loadShader(&texShader, "shaders/texVertex.glsl", "shaders/texFrag.glsl");
 	texPos = glGetAttribLocation(texShader, "TexturePosition");
 	texCoords = glGetAttribLocation(texShader, "TexCoord");
@@ -149,7 +90,7 @@ int main(int argc, char **argv)
 					break;
 
 					case SDLK_F1:
-						log = !log;
+						console = !console;
 					break;
 
 					case SDLK_F2:
@@ -160,7 +101,6 @@ int main(int argc, char **argv)
 
 					case SDLK_F12:
 						saveScreenshot();
-						printLog(logString, "Screenshot saved successfully.");
 					break;
 				}
 			}
@@ -232,7 +172,7 @@ int main(int argc, char **argv)
 					}
 				}
 			}
-			else if(log == true)
+			else if(console == true)
 			{
 				if(event.type == SDL_KEYDOWN)
 				{
@@ -329,13 +269,13 @@ int main(int argc, char **argv)
 				// TODO: Command history.
 			}
 		}
-		if(log == true)
+		if(console == true)
 		{
-			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 100.0f, 0.0f, 0.0f, 0.0f, 0.9f);
+			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 400.0f, 0.0f, 0.0f, 0.0f, 0.9f);
 
 			for(int i = logIndex - 1; i >= 0 && 25.0f * i >= 0.0f; i--)
 			{
-				drawText(&fonts[0], 7.0f, 25.0f * i, logString[i], 1.0f, 0.0f, 1.0f);
+				drawText(&fonts[0], 7.0f, 25.0f * i, logs[i], 1.0f, 0.0f, 1.0f);
 			}
 		}
 
@@ -351,65 +291,4 @@ int main(int argc, char **argv)
 	SDL_Quit();
 
 	return 0;
-}
-
-void executeCommand(Level *level, const char *command)
-{
-	if(strlen(command) > 0)
-	{
-		char temp[strlen(command) + 1];
-		strcpy(temp, command);
-
-		char **commandArray = (char **)malloc(sizeof(char *));
-		int index = 0, length = 0;
-		commandArray[index] = strtok(temp, " ");
-
-		while(commandArray[index] != NULL)
-		{
-			index++;
-			length++;
-			commandArray = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
-			commandArray[index] = strtok(NULL, " ");
-		}
-
-		// TODO: Add error reporting.
-		if(strcmp(commandArray[0], "save") == 0)
-		{
-			if(length > 1)
-			{
-				if(length > 2 && strcmp(commandArray[1], "level") == 0)
-				{
-					saveLevel(level, commandArray[2]);
-				}
-			}
-		}
-		else if(strcmp(commandArray[0], "load") == 0)
-		{
-			if(length > 1)
-			{
-				if(length > 2 && strcmp(commandArray[1], "level") == 0)
-				{
-					loadLevel(level, commandArray[2]);
-				}
-			}
-		}
-		else if(strcmp(commandArray[0], "set") == 0)
-		{
-			if(length > 1)
-			{
-				// TODO: This should be removed some day.
-				if(length > 2 && strcmp(commandArray[1], "scale") == 0)
-				{
-					BLOCK_SIZE = atoi(commandArray[2]);
-					// TODO: Reload the level with the new textures.
-				}
-			}
-		}
-		else if(strcmp(commandArray[0], "debug") == 0)
-		{
-			level->Debug = !level->Debug;
-		}
-
-		free(commandArray);
-	}
 }

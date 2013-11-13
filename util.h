@@ -2,13 +2,17 @@
 #define UTIL_H
 
 #include "globals.h"
+#include "level.h"
 
+void initWindow(SDL_Window **window, const char *windowTitle);
 void loadExtensions();
-void drawRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat r, GLfloat g, GLfloat b, GLfloat a);
-void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat lineWidth, GLfloat r, GLfloat g, GLfloat b);
+void executeCommand(Level *level, const char *command);
 void saveScreenshot();
+
 void loadShader(GLuint *shaderProgram, const char *vertexShaderFilename, const char *fragmentShaderFilename);
 void printShaderLog(GLuint shader);
-void printLog(char **logString, const char *text);
+
+void drawRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat r, GLfloat g, GLfloat b, GLfloat a);
+void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat lineWidth, GLfloat r, GLfloat g, GLfloat b);
 
 #endif
