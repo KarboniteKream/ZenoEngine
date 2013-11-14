@@ -17,20 +17,20 @@ void initVBO(Texture *texture, GLuint num)
 {
 	VertexData vertexData[num];
 
-	glGenBuffersARB(1, &texture->VBO);
+	glGenBuffers(1, &texture->VBO);
 
-	glBindBufferARB(GL_ARRAY_BUFFER, texture->VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
 	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), vertexData, GL_DYNAMIC_DRAW);
-	glBindBufferARB(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint num)
 {
-	glGenBuffersARB(1, &texture->VBO);
+	glGenBuffers(1, &texture->VBO);
 
-	glBindBufferARB(GL_ARRAY_BUFFER, texture->VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
 	glBufferData(GL_ARRAY_BUFFER, 4 * num * sizeof(VertexData), vertexData, GL_STATIC_DRAW);
-	glBindBufferARB(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void loadTexture(Texture *texture, const char *filename)
@@ -225,12 +225,12 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GL
 		glEnableVertexAttribArray(texPos);
 		glEnableVertexAttribArray(texCoords);
 
-		glBindBufferARB(GL_ARRAY_BUFFER, texture->VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(VertexData), vertexData);
-		glVertexAttribPointerARB(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
-		glVertexAttribPointerARB(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
+		glVertexAttribPointer(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
+		glVertexAttribPointer(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
 		glDrawArrays(GL_QUADS, 0, 4);
-		glBindBufferARB(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glDisableVertexAttribArray(texCoords);
 		glDisableVertexAttribArray(texPos);

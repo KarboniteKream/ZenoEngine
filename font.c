@@ -57,18 +57,17 @@ void loadFont(Font *font, const char* filename)
 			}
 		}
 
-		initVBO(&font->FontTexture, 4);
-
 		fclose(fontFile);
+
+		glGenBuffers(1, &font->FontTexture.VBO);
 	}
 }
 
 void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b)
 {
-	glUseProgram(texShader);
-	glUniform4f(texColor, r, g, b, 1.0f);
-	glUseProgram(0);
+	VertexData *vertexData = (VertexData *)malloc(4 * strlen(text) * sizeof(VertexData));
 
+	int num = 0;
 	GLfloat startX = x;
 
 	for(unsigned int i = 0; i < strlen(text); i++)
@@ -82,10 +81,60 @@ void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLf
 		{
 			x += 4 * font->Clips[0].W;
 		}
+		else if(text[i] == ' ')
+		{
+			x += font->Clips[0].W;
+		}
 		else
 		{
-			drawTextureVBO(&font->FontTexture, x, y, &font->Clips[text[i] - 32], 1.0f);
+			vertexData[num].X = x;
+			vertexData[num].Y = y;
+			vertexData[num].S = font->Clips[text[i] - 32].X / font->FontTexture.TexWidth;
+			vertexData[num].T = font->Clips[text[i] - 32].Y / font->FontTexture.TexHeight;
+
+			vertexData[num + 1].X = x + font->Clips[text[i] - 32].W;
+			vertexData[num + 1].Y = y;
+			vertexData[num + 1].S = (font->Clips[text[i] - 32].X + font->Clips[text[i] - 32].W) / font->FontTexture.TexWidth;
+			vertexData[num + 1].T = font->Clips[text[i] - 32].Y / font->FontTexture.TexHeight;
+
+			vertexData[num + 2].X = x + font->Clips[text[i] - 32].W;
+			vertexData[num + 2].Y = y + font->Clips[text[i] - 32].H;
+			vertexData[num + 2].S = (font->Clips[text[i] - 32].X + font->Clips[text[i] - 32].W) / font->FontTexture.TexWidth;
+			vertexData[num + 2].T = (font->Clips[text[i] - 32].Y + font->Clips[text[i] - 32].H) / font->FontTexture.TexHeight;
+
+			vertexData[num + 3].X = x;
+			vertexData[num + 3].Y = y + font->Clips[text[i] - 32].H;
+			vertexData[num + 3].S = font->Clips[text[i] - 32].X / font->FontTexture.TexWidth;
+			vertexData[num + 3].T = (font->Clips[text[i] - 32].Y + font->Clips[text[i] - 32].H) / font->FontTexture.TexHeight;
+
 			x += font->Clips[text[i] - 32].W;
+			num += 4;
 		}
 	}
+
+	if(BOUND_TEXTURE != font->FontTexture.ID)
+	{
+		glBindTexture(GL_TEXTURE_2D, font->FontTexture.ID);
+		BOUND_TEXTURE = font->FontTexture.ID;
+	}
+
+	glUseProgram(texShader);
+	glUniform4f(texColor, r, g, b, 1.0f);
+
+	glEnableVertexAttribArray(texPos);
+	glEnableVertexAttribArray(texCoords);
+
+	glBindBuffer(GL_ARRAY_BUFFER, font->FontTexture.VBO);
+	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), vertexData, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
+	glVertexAttribPointer(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
+	glDrawArrays(GL_QUADS, 0, num);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDisableVertexAttribArray(texCoords);
+	glDisableVertexAttribArray(texPos);
+
+	glUseProgram(0);
+
+	free(vertexData);
 }

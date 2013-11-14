@@ -11,14 +11,6 @@
 // TODO: Add error reporting with return values of functions (loadTexture()).
 int main(int argc, char **argv)
 {
-	logs = (char **)malloc(256 * sizeof(char *));
-	for(int i = 0; i < 256; i++)
-	{
-		// FIXME: Variable size.
-		// TODO: Message type (for coloring).
-		logs[i] = (char *)calloc(256, sizeof(char));
-	}
-
 	SDL_Window *window = NULL;
 	initWindow(&window, "Zeno Engine");
 
@@ -64,11 +56,10 @@ int main(int argc, char **argv)
 	int commandIndex = 0;
 	uint8_t editorBlock = 0;
 
-	int frames = 0;
-	float fps = 0.0f;
+	int frames = 0, fps = 60;
 	char engineInformation[256] = {'\0'};
 
-	Uint32 startTime = SDL_GetTicks();
+	Uint32 fpsTimer = SDL_GetTicks();
 	Uint32 currentTime = SDL_GetTicks();
 
 	while(quitGame == false)
@@ -97,7 +88,6 @@ int main(int argc, char **argv)
 
 					case SDLK_F2:
 						editor = !editor;
-						// TODO: Exiting out of the editor should close the console.
 						//SDL_ShowCursor(!SDL_ShowCursor(-1));
 					break;
 
@@ -247,7 +237,7 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glTranslatef(-cameraX, -cameraY, 0.0f);
 
-		drawLevelVBO(&level);
+		//drawLevelVBO(&level);
 		drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f);
 		drawPlayer(&player);
 
@@ -258,11 +248,12 @@ int main(int argc, char **argv)
 		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 1.0f, 0.0f, 0.0f, 1.0f);
 		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
-		sprintf(engineInformation, "%s (F1 - Log, F2 - Editor)\nFPS: %.1f", NAME_VERSION, fps);
+		sprintf(engineInformation, "%s (F1 - Log, F2 - Editor)\nFPS: %d", NAME_VERSION, fps);
 		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
 
 		if(editor == true)
 		{
+			// TODO: Move console to the logger.
 			if(console == true)
 			{
 				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f - 15.0f, SCREEN_HEIGHT - 15.0f - (SCREEN_HEIGHT - 60.0f), 1.0f, 1.0f, 1.0f, 1.0f);
@@ -286,13 +277,17 @@ int main(int argc, char **argv)
 
 		SDL_GL_SwapWindow(window);
 
-		// FIXME: Show current FPS instead of average FPS.
 		frames++;
-		fps = (frames / (float)(SDL_GetTicks() - startTime)) * 1000;
+
+		if(SDL_GetTicks() - fpsTimer >= 1000)
+		{
+			fps = frames;
+			frames = 0;
+			fpsTimer = SDL_GetTicks();
+		}
 	}
 
 	SDL_DestroyWindow(window);
-
 	SDL_Quit();
 
 	return 0;

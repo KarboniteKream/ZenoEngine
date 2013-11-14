@@ -18,11 +18,13 @@
 #define CAMERA_SPEED 600.0f
 #define EDITOR_EDGE 25.0f
 
+// TODO: Remove.
 #define COLLIDABLE 0
 
 extern float DELTA_TICKS;
 extern GLuint BOUND_TEXTURE;
 
+// TODO: Remove.
 extern uint8_t BLOCK_SIZE;
 
 extern GLfloat cameraX, cameraY;
@@ -52,28 +54,32 @@ typedef struct
 	GLfloat T;
 } VertexData;
 
-extern PFNGLBINDBUFFERARBPROC glBindBufferARB;
-extern PFNGLGENBUFFERSARBPROC glGenBuffersARB;
-extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
-extern PFNGLBUFFERDATAPROC glBufferData;
-extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
+PFNGLBINDBUFFERPROC glBindBuffer;
+PFNGLGENBUFFERSPROC glGenBuffers;
+PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+PFNGLBUFFERDATAPROC glBufferData;
+PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
-extern PFNGLUSEPROGRAMPROC glUseProgram;
-extern PFNGLCREATEPROGRAMPROC glCreateProgram;
-extern PFNGLDELETEPROGRAMPROC glDeleteProgram;
-extern PFNGLCREATESHADERPROC glCreateShader;
-extern PFNGLSHADERSOURCEPROC glShaderSource;
-extern PFNGLCOMPILESHADERPROC glCompileShader;
-extern PFNGLATTACHSHADERPROC glAttachShader;
-extern PFNGLLINKPROGRAMPROC glLinkProgram;
-extern PFNGLGETSHADERIVPROC glGetShaderiv;
-extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
-extern PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
-extern PFNGLUNIFORM4FPROC glUniform4f;
-extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
-extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
-extern PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB;
+PFNGLUSEPROGRAMPROC glUseProgram;
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+PFNGLDELETEPROGRAMPROC glDeleteProgram;
+PFNGLCREATESHADERPROC glCreateShader;
+PFNGLSHADERSOURCEPROC glShaderSource;
+PFNGLCOMPILESHADERPROC glCompileShader;
+PFNGLATTACHSHADERPROC glAttachShader;
+PFNGLLINKPROGRAMPROC glLinkProgram;
+PFNGLGETSHADERIVPROC glGetShaderiv;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+PFNGLGETPROGRAMIVPROC glGetProgramiv;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
+PFNGLUNIFORM4FPROC glUniform4f;
+PFNGLUNIFORM1IPROC glUniform1i;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+PFNGLISSHADERPROC glIsShader;
 
 // TODO: Move to a separate struct/file.
 extern GLuint shaderProgram;
@@ -85,7 +91,7 @@ extern GLint texCoords;
 extern GLint texColor;
 
 extern int logIndex;
-extern char **logs;
+char *logs[256];
 
 void printLog(int type, const char *error, const char *details);
 

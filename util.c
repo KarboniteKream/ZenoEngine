@@ -28,7 +28,7 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 
 	loadExtensions();
 
-	SDL_GL_SetSwapInterval(1);
+	//SDL_GL_SetSwapInterval(1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	SDL_SetWindowIcon(*window, SDL_LoadBMP("resources/icon.bmp"));
@@ -62,8 +62,8 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 void loadExtensions()
 {
 	// TODO: Check for supported extensions.
-	glBindBufferARB = (PFNGLBINDBUFFERARBPROC)SDL_GL_GetProcAddress("glBindBufferARB");
-	glGenBuffersARB = (PFNGLGENBUFFERSARBPROC)SDL_GL_GetProcAddress("glGenBuffersARB");
+	glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
 	glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
 	glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
 	glBufferSubData = (PFNGLBUFFERSUBDATAPROC)SDL_GL_GetProcAddress("glBufferSubData");
@@ -78,12 +78,16 @@ void loadExtensions()
 	glLinkProgram = (PFNGLLINKPROGRAMPROC)SDL_GL_GetProcAddress("glLinkProgram");
 	glGetShaderiv = (PFNGLGETSHADERIVPROC)SDL_GL_GetProcAddress("glGetShaderiv");
 	glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)SDL_GL_GetProcAddress("glGetShaderInfoLog");
+	glGetProgramiv = (PFNGLGETPROGRAMIVPROC)SDL_GL_GetProcAddress("glGetProgramiv");
+	glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)SDL_GL_GetProcAddress("glGetProgramInfoLog");
 	glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)SDL_GL_GetProcAddress("glGetUniformLocation");
 	glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)SDL_GL_GetProcAddress("glGetAttribLocation");
 	glUniform4f = (PFNGLUNIFORM4FPROC)SDL_GL_GetProcAddress("glUniform4f");
+	glUniform1i = (PFNGLUNIFORM1IPROC)SDL_GL_GetProcAddress("glUniform1i");
 	glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glEnableVertexAttribArray");
 	glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
-	glVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC)SDL_GL_GetProcAddress("glVertexAttribPointerARB");
+	glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)SDL_GL_GetProcAddress("glVertexAttribPointer");
+	glIsShader = (PFNGLISSHADERPROC)SDL_GL_GetProcAddress("glIsShader");
 
 	printLog(0, "Extensions loaded successfully.", NULL);
 }
@@ -212,20 +216,20 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		glShaderSource(fragmentShader, 1, (const GLchar **)fsSource, NULL);
 		glCompileShader(fragmentShader);
 
-		GLint compileStatus = GL_FALSE;
+		GLint compileStatus;
 
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
 			printLog(1, "Unable to compile vertex shader: ", vsFilename);
-			printShaderLog(vertexShader);
+			printInfoLog(vertexShader);
 		}
 
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
 			printLog(1, "Unable to compile fragment shader: ", fsFilename);
-			printShaderLog(fragmentShader);
+			printInfoLog(fragmentShader);
 		}
 
 		if(compileStatus == GL_TRUE)
@@ -236,8 +240,17 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 			glAttachShader(*shaderProgram, vertexShader);
 			glAttachShader(*shaderProgram, fragmentShader);
 
-			// TODO: Check for error when linking.
 			glLinkProgram(*shaderProgram);
+
+			GLint linkStatus;
+			glGetProgramiv(*shaderProgram, GL_LINK_STATUS, &linkStatus);
+
+			if(linkStatus == GL_FALSE)
+			{
+				printInfoLog(*shaderProgram);
+			}
+
+			glUseProgram(0);
 		}
 	}
 
@@ -245,16 +258,32 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 	fclose(fsFile);
 }
 
-void printShaderLog(GLuint shader)
+void printInfoLog(GLuint shaderProgram)
 {
-	int infoLogLength = 0, maxLength;
+	GLsizei maxLength, length = 0;
+	GLboolean isShader = glIsShader(shaderProgram);
 
-	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+	if(isShader == GL_TRUE)
+	{
+		glGetShaderiv(shaderProgram, GL_INFO_LOG_LENGTH, &maxLength);
+	}
+	else
+	{
+		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &maxLength);
+	}
+
 	char *infoLog = (char *)malloc(maxLength * sizeof(char));
 
-	glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog);
+	if(isShader == GL_TRUE)
+	{
+		glGetShaderInfoLog(shaderProgram, maxLength, &length, infoLog);
+	}
+	else
+	{
+		glGetProgramInfoLog(shaderProgram, maxLength, &length, infoLog);
+	}
 
-	if(infoLogLength > 0)
+	if(length > 0)
 	{
 		printLog(1, infoLog, NULL);
 	}

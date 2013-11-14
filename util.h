@@ -10,7 +10,7 @@ void executeCommand(Level *level, const char *command);
 void saveScreenshot();
 
 void loadShader(GLuint *shaderProgram, const char *vertexShaderFilename, const char *fragmentShaderFilename);
-void printShaderLog(GLuint shader);
+void printInfoLog(GLuint shaderProgram);
 
 void drawRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat lineWidth, GLfloat r, GLfloat g, GLfloat b);

@@ -197,11 +197,11 @@ void drawLevelVBO(Level *level)
 		BOUND_TEXTURE = level->LevelTexture.ID;
 	}
 
-	glBindBufferARB(GL_ARRAY_BUFFER, level->LevelTexture.VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, level->LevelTexture.VBO);
 	glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
 	glVertexPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
 	glDrawArrays(GL_QUADS, 0, 4 * level->Width * level->Height);
-	glBindBufferARB(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -259,7 +259,7 @@ void setLevelLayout(Level *level, int x, int y, int block)
 	vertexData[3].S = level->TexClips[block].X / level->LevelTexture.TexWidth;
 	vertexData[3].T = (level->TexClips[block].Y + level->TexClips[block].H) / level->LevelTexture.TexHeight;
 
-	glBindBufferARB(GL_ARRAY_BUFFER, level->LevelTexture.VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, level->LevelTexture.VBO);
 	glBufferSubData(GL_ARRAY_BUFFER, (level->Height * x + y) * 4 * sizeof(VertexData), 4 * sizeof(VertexData), vertexData);
-	glBindBufferARB(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
