@@ -23,6 +23,7 @@ void loadTexture(Texture *texture, const char *filename);
 void loadTextureShader(Texture *texture, GLuint shaderProgram);
 void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale);
 void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat scale);
+void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfloat r, GLfloat g, GLfloat b);
 GLuint nextPOT(GLuint number);
 
 #endif

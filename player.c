@@ -34,6 +34,8 @@ void initPlayer(Player *player)
 void loadPlayer(Player *player, const char *dataFile)
 {
 	loadTexture(&player->PlayerTexture, dataFile);
+
+	// TODO: Free player->Animations.
 	player->Animations = (Animation *)malloc(1 * sizeof(Animation));
 
 	for(int i = 0; i < 1; i++)
@@ -63,6 +65,7 @@ void loadPlayer(Player *player, const char *dataFile)
 	player->JumpSpeed = -600.0f;
 	player->CurrentJumpSpeed = 0.0f;
 
+	// TODO: Free player->KeyStates.
 	player->KeyStates = (bool *)malloc(4 * sizeof(bool));
 	for(int i = 0; i < 4; i++)
 	{

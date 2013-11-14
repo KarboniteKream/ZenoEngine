@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 	int commandIndex = 0;
 	uint8_t editorBlock = 0;
 
-	int frames = 0, fps = 60;
+	int frames = 0, fps = 0;
 	char engineInformation[256] = {'\0'};
 
 	Uint32 fpsTimer = SDL_GetTicks();

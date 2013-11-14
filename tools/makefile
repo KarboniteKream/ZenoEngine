@@ -1,5 +1,5 @@
 CC = clang
-FLAGS = -std=c99 -Wall -s
+FLAGS = -std=c99 -Wall -s -O3
 
 tools: font-converter transpose-level
 

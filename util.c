@@ -252,6 +252,9 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 
 			glUseProgram(0);
 		}
+
+		free(vsSource);
+		free(fsSource);
 	}
 
 	fclose(vsFile);
@@ -287,6 +290,8 @@ void printInfoLog(GLuint shaderProgram)
 	{
 		printLog(1, infoLog, NULL);
 	}
+
+	free(infoLog);
 }
 
 void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloat g, GLfloat b, GLfloat a)

@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -std=c99 -Wall
+CFLAGS = -std=c99 -Wall -O3
 LDFLAGS = -lSDL2 -lSDL2_image -lGL -lm -s
 
 OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o

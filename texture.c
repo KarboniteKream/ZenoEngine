@@ -239,6 +239,33 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GL
 	}
 }
 
+void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfloat r, GLfloat g, GLfloat b)
+{
+	if(BOUND_TEXTURE != texture->ID)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture->ID);
+		BOUND_TEXTURE = texture->ID;
+	}
+
+	glUseProgram(texShader);
+	glUniform4f(texColor, r, g, b, 1.0f);
+
+	glEnableVertexAttribArray(texPos);
+	glEnableVertexAttribArray(texCoords);
+
+	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
+	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), *vertexData, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
+	glVertexAttribPointer(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
+	glDrawArrays(GL_QUADS, 0, num);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDisableVertexAttribArray(texCoords);
+	glDisableVertexAttribArray(texPos);
+
+	glUseProgram(0);
+}
+
 GLuint nextPOT(GLuint number)
 {
 	if(number != 0)

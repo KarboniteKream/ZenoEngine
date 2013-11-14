@@ -112,29 +112,7 @@ void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLf
 		}
 	}
 
-	if(BOUND_TEXTURE != font->FontTexture.ID)
-	{
-		glBindTexture(GL_TEXTURE_2D, font->FontTexture.ID);
-		BOUND_TEXTURE = font->FontTexture.ID;
-	}
-
-	glUseProgram(texShader);
-	glUniform4f(texColor, r, g, b, 1.0f);
-
-	glEnableVertexAttribArray(texPos);
-	glEnableVertexAttribArray(texCoords);
-
-	glBindBuffer(GL_ARRAY_BUFFER, font->FontTexture.VBO);
-	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), vertexData, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
-	glVertexAttribPointer(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
-	glDrawArrays(GL_QUADS, 0, num);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glDisableVertexAttribArray(texCoords);
-	glDisableVertexAttribArray(texPos);
-
-	glUseProgram(0);
+	drawTextureWithVBO(&font->FontTexture, &vertexData, num, r, g, b);
 
 	free(vertexData);
 }
