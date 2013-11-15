@@ -13,18 +13,7 @@ void initTexture(Texture *texture)
 	texture->TexHeight = 0;
 }
 
-void initVBO(Texture *texture, GLuint num)
-{
-	VertexData vertexData[num];
-
-	glGenBuffers(1, &texture->VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
-	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), vertexData, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint num)
+void initVBO(Texture *texture, VertexData *vertexData, GLuint num)
 {
 	glGenBuffers(1, &texture->VBO);
 
@@ -91,7 +80,8 @@ void loadTexture(Texture *texture, const char *filename)
 	}
 }
 
-void loadTextureShader(Texture *texture, GLuint shaderProgram)
+// NOTE: Should this be set in loadTexture()?
+void setTextureShader(Texture *texture, GLuint shaderProgram)
 {
 	texture->ShaderProgram = shaderProgram;
 }
@@ -164,6 +154,7 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 	}
 }
 
+// NOTE: Is this function even needed?
 void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat scale)
 {
 	if(texture->ID != 0)
@@ -247,7 +238,7 @@ void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfl
 		BOUND_TEXTURE = texture->ID;
 	}
 
-	glUseProgram(texShader);
+	glUseProgram(texture->ShaderProgram);
 	glUniform4f(texColor, r, g, b, 1.0f);
 
 	glEnableVertexAttribArray(texPos);

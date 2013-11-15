@@ -30,13 +30,11 @@ int main(int argc, char **argv)
 	initPlayer(&player);
 	loadPlayer(&player, "images/player.png");
 
-	Texture interfaceTexture;
-	initTexture(&interfaceTexture);
-	loadTexture(&interfaceTexture, "images/interface.png");
-
-	Texture background;
+	Texture background, interfaceTexture;
 	initTexture(&background);
+	initTexture(&interfaceTexture);
 	loadTexture(&background, "images/background.png");
+	loadTexture(&interfaceTexture, "images/interface.png");
 
 	loadShader(&shaderProgram, "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl");
 	colorLocation = glGetUniformLocation(shaderProgram, "Color");
@@ -45,6 +43,9 @@ int main(int argc, char **argv)
 	texPos = glGetAttribLocation(texShader, "TexturePosition");
 	texCoords = glGetAttribLocation(texShader, "TexCoord");
 	texColor = glGetUniformLocation(texShader, "TextureColor");
+
+	setTextureShader(&font2.FontTexture, texShader);
+	setTextureShader(&font4.FontTexture, texShader);
 
 	SDL_Event event;
 
@@ -106,56 +107,20 @@ int main(int argc, char **argv)
 			{
 				if(event.type == SDL_KEYDOWN)
 				{
-					if(console == true)
+					switch(event.key.keysym.sym)
 					{
-						switch(event.key.keysym.sym)
-						{
-							case SDLK_RETURN:
-								executeCommand(&level, command);
-								// FIXME: Don't close the console, unless the command string is empty or the specified key is pressed.
-								commandIndex = 0;
-								command[0] = '\0';
-								console = false;
-							break;
+						case SDLK_RETURN:
+							console = true;
+						break;
 
-							case SDLK_BACKSPACE:
-								if(commandIndex > 0)
-								{
-									command[--commandIndex] = '\0';
-								}
-							break;
+						case SDLK_1: case SDLK_2:
+						case SDLK_3: case SDLK_4:
+						case SDLK_5:
+							editorBlock = event.key.keysym.sym - 48 - 1;
+						break;
 
-							default:
-								// TODO: What about the Z and Y keys? Perhaps a setting in the options screen?
-								if(commandIndex < 255)
-								{
-									// TODO: Replace with SDL_StartTextInput()
-									if((event.key.keysym.sym >= 'a' && event.key.keysym.sym <= 'z') || event.key.keysym.sym == ' ')
-									{
-										command[commandIndex++] = event.key.keysym.sym;
-										command[commandIndex] = '\0';
-									}
-								}
-							break;
-						}
-					}
-					else
-					{
-						switch(event.key.keysym.sym)
-						{
-							case SDLK_RETURN:
-								console = true;
-							break;
-
-							case SDLK_1: case SDLK_2:
-							case SDLK_3: case SDLK_4:
-							case SDLK_5:
-								editorBlock = event.key.keysym.sym - 48 - 1;
-							break;
-
-							default:
-							break;
-						}
+						default:
+						break;
 					}
 				}
 				else if(event.type == SDL_MOUSEBUTTONDOWN)
@@ -173,10 +138,36 @@ int main(int argc, char **argv)
 				{
 					switch(event.key.keysym.sym)
 					{
+						case SDLK_RETURN:
+							executeCommand(&level, command);
+							commandIndex = 0;
+							command[0] = '\0';
+						break;
+
+						case SDLK_BACKSPACE:
+							if(commandIndex > 0)
+							{
+								command[--commandIndex] = '\0';
+							}
+						break;
+
 						case SDLK_UP:
 						break;
 
 						case SDLK_DOWN:
+						break;
+
+						default:
+							// TODO: What about the Z and Y keys? Perhaps a setting in the options screen?
+							if(commandIndex < 255)
+							{
+								// TODO: Replace with SDL_StartTextInput()
+								if((event.key.keysym.sym >= 'a' && event.key.keysym.sym <= 'z') || (event.key.keysym.sym >= '0' && event.key.keysym.sym <= '9') || event.key.keysym.sym == ' ')
+								{
+									command[commandIndex++] = event.key.keysym.sym;
+									command[commandIndex] = '\0';
+								}
+							}
 						break;
 					}
 				}
@@ -248,23 +239,17 @@ int main(int argc, char **argv)
 		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 1.0f, 0.0f, 0.0f, 1.0f);
 		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
-		sprintf(engineInformation, "%s (F1 - Log, F2 - Editor)\nFPS: %d", NAME_VERSION, fps);
-		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
-
 		if(editor == true)
 		{
-			// TODO: Move console to the logger.
-			if(console == true)
-			{
-				drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f - 15.0f, SCREEN_HEIGHT - 15.0f - (SCREEN_HEIGHT - 60.0f), 1.0f, 1.0f, 1.0f, 1.0f);
-				drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
-
-				drawText(&font4, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
-				drawText(&font4, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
-
-				// TODO: Command history.
-			}
+			sprintf(engineInformation, "%s (EDITOR)\nFPS: %d", NAME_VERSION, fps);
 		}
+		else
+		{
+			sprintf(engineInformation, "%s (F1 - Log, F2 - Editor)\nFPS: %d", NAME_VERSION, fps);
+		}
+
+		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
+
 		if(console == true)
 		{
 			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 400.0f, 0.0f, 0.0f, 0.0f, 0.9f);
@@ -273,6 +258,14 @@ int main(int argc, char **argv)
 			{
 				drawText(&font2, 7.0f, 22.0f * i, logs[i], 1.0f, 0.0f, 1.0f);
 			}
+
+			drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f - 15.0f, SCREEN_HEIGHT - 15.0f - (SCREEN_HEIGHT - 60.0f), 1.0f, 1.0f, 1.0f, 1.0f);
+			drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
+
+			drawText(&font4, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
+			drawText(&font4, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
+
+			// TODO: Command history.
 		}
 
 		SDL_GL_SwapWindow(window);

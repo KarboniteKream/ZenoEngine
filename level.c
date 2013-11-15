@@ -151,7 +151,7 @@ void generateLevelVBO(Level *level)
 		}
 	}
 
-	initStaticVBO(&level->LevelTexture, vertexData, level->Width * level->Height);
+	initVBO(&level->LevelTexture, vertexData, level->Width * level->Height);
 }
 
 // TODO: i * BLOCK_SIZE
