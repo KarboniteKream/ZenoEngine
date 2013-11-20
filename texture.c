@@ -245,6 +245,7 @@ void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfl
 	glEnableVertexAttribArray(texCoords);
 
 	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
+	// NOTE: GL_STREAM_DRAW or GL_DYNAMIC_DRAW?
 	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), *vertexData, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
 	glVertexAttribPointer(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));

@@ -59,6 +59,7 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 	}
 }
 
+// TODO: Rename extensions.
 void loadExtensions()
 {
 	// TODO: Check for supported extensions.

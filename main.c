@@ -239,6 +239,7 @@ int main(int argc, char **argv)
 		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 1.0f, 0.0f, 0.0f, 1.0f);
 		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
+		// TODO: Check if a rebuild is necessary.
 		if(editor == true)
 		{
 			sprintf(engineInformation, "%s (EDITOR)\nFPS: %d", NAME_VERSION, fps);
