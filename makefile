@@ -1,6 +1,12 @@
-CC = clang
+ifeq ($(OS), Windows_NT)
+	CC = gcc
+	LDFLAGS = -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lOpenGL32 -lm -s
+else
+	CC = clang
+	LDFLAGS = -lSDL2 -lSDL2_image -lGL -lm -s
+endif
+
 CFLAGS = -std=c99 -Wall -O3
-LDFLAGS = -lSDL2 -lSDL2_image -lGL -lm -s
 
 OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o
 
