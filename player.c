@@ -30,31 +30,35 @@ void initPlayer(Player *player)
 	player->KeyStates = NULL;
 }
 
-// TODO: Use a data file instead of an image.
-void loadPlayer(Player *player, const char *dataFile)
+// TODO: Use a data file instead of playerTexture.
+void loadPlayer(Player *player, const char *playerTexture)
 {
-	loadTexture(&player->PlayerTexture, dataFile);
+	loadTexture(&player->PlayerTexture, playerTexture);
 
 	// TODO: Free player->Animations.
-	player->Animations = (Animation *)malloc(1 * sizeof(Animation));
+	player->Animations = (Animation *)malloc(3 * sizeof(Animation));
 
-	for(int i = 0; i < 1; i++)
+	for(int i = 0; i < 3; i++)
 	{
 		initAnimation(&player->Animations[i]);
-		loadAnimation(&player->Animations[i], "images/animationIdle.png", 0.55f);
 	}
+
+	loadAnimation(&player->Animations[0], "images/animationIdle.png", 2, 2, 1, 0.45f);
+	loadAnimation(&player->Animations[1], "images/animationStartRunning.png", 6, 3, 2, 0.05f);
+	loadAnimation(&player->Animations[2], "images/animationRunning.png", 12, 4, 3, 0.075f);
 
 	player->MaxHealth = player->Health = 56;
 	player->SelectedSkill = 1;
 
-	player->X = 600.0f;
-	player->Y = 560.0f;
+	//player->Y = 560.0f;
+	player->X = 400.0f;
+	player->Y = 528.0f;
 	player->Scale = 4.0f;
 
-	player->BoundingBox.X = 16;
-	player->BoundingBox.Y = 16;
-	player->BoundingBox.W = 32;
-	player->BoundingBox.H = 32;
+	player->BoundingBox.X = 2.0f;
+	player->BoundingBox.Y = 2.0f;
+	player->BoundingBox.W = 15.0f;
+	player->BoundingBox.H = 21.0f;
 
 	player->IsMoving = false;
 	player->IsStopping = false;
@@ -75,20 +79,29 @@ void loadPlayer(Player *player, const char *dataFile)
 
 void drawPlayer(Player *player)
 {
-	// GLfloat diffX = mouseX - player->X - player->PlayerTexture.Width / 2 + cameraX;
-	// GLfloat diffY = mouseY - player->Y - player->PlayerTexture.Height / 2 + cameraY;
-	// player->Angle = 1.57079632679 + atan2(diffY, diffX);
-	// player->Angle * 57.2957795
-
 	if(player->IsMoving == true)
 	{
-		// TODO: Stop idle animation.
-		drawTexture(&player->PlayerTexture, player->X, player->Y, NULL, 0.0f, player->Scale);
+		stopAnimation(&player->Animations[0]);
+
+		// FIXME: Change rendering origin for animations.
+		if(player->Animations[1].IsFinished == false)
+		{
+			playAnimation(&player->Animations[1], player->X, player->Y, player->Scale, player->KeyStates[0]);
+		}
+		else
+		{
+			playAnimation(&player->Animations[2], player->X, player->Y, player->Scale, player->KeyStates[0]);
+		}
 	}
 	else
 	{
-		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale);
+		stopAnimation(&player->Animations[1]);
+		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->KeyStates[0]);
 	}
+
+	// NOTE: Bounding box debugging.
+	// drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
+	// drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void handlePlayerEvent(Player *player, SDL_Event *event)
@@ -177,14 +190,27 @@ void updatePlayer(Player *player, Level *level)
 {
 	if(player->IsJumping == true)
 	{
-		player->Y += player->JumpSpeed * DELTA_TICKS;
-		player->JumpSpeed += 1600.0 * DELTA_TICKS;
+		player->Y += player->CurrentJumpSpeed * DELTA_TICKS;
+		player->CurrentJumpSpeed += 1600.0f * DELTA_TICKS;
+	}
+	else
+	{
+		// TODO: Rename to 'falling'.
+		player->Y += player->CurrentJumpSpeed * DELTA_TICKS;
+		player->CurrentJumpSpeed += 2000.0f * DELTA_TICKS;
+	}
 
-		if(player->Y > SCREEN_HEIGHT - 160.0f)
+	if(level->Properties[(int)((player->X + (player->BoundingBox.X * player->Scale)) / BLOCK_SIZE)][(int)((player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
+		level->Properties[(int)((player->X + ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale)) / BLOCK_SIZE)][(int)((player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE)][COLLIDABLE] == 1)
+	{
+		player->Y = (int)((player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE) * BLOCK_SIZE - ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale);
+
+		if(player->IsJumping == true)
 		{
 			player->IsJumping = false;
-			player->Y = SCREEN_HEIGHT - 160.0f;
 		}
+
+		player->CurrentJumpSpeed = 0.0f;
 	}
 
 	// TODO: Camera should follow the player.
@@ -204,9 +230,9 @@ void updatePlayer(Player *player, Level *level)
 	if(player->KeyStates[2] == true)
 	{
 		// FIXME: One button press should trigger only one jump.
-		if(player->IsJumping == false)
+		if(player->IsJumping == false && player->CurrentJumpSpeed == 0.0f)
 		{
-			player->JumpSpeed = -600.0f;
+			player->CurrentJumpSpeed = player->JumpSpeed;
 			player->IsJumping = true;
 		}
 	}
@@ -245,14 +271,8 @@ void updatePlayer(Player *player, Level *level)
 		player->Y = (int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->BoundingBox.Y;
 	}*/
 
-	if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.Height + player->BoundingBox.Y - 0.25)
+	if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.Height + (player->BoundingBox.Y * player->Scale) - 0.25)
 	{
-		player->Y = level->Height * BLOCK_SIZE - player->PlayerTexture.Height + player->BoundingBox.Y - 0.25;
+		player->Y = level->Height * BLOCK_SIZE - player->PlayerTexture.Height + (player->BoundingBox.Y * player->Scale) - 0.25;
 	}
-
-	/*if(level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-			level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1)
-	{
-		player->Y = (int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE) * BLOCK_SIZE - player->BoundingBox.Y - player->BoundingBox.H - 0.25;
-	}*/
 }

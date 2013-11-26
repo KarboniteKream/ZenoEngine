@@ -13,32 +13,34 @@ void initAnimation(Animation *animation)
 	animation->FrameStartTime = 0;
 	animation->Started = false;
 
+	animation->IsFinished = false;
+
 	animation->Frame.X = 0.0f;
 	animation->Frame.Y = 0.0f;
 	animation->Frame.W = 0.0f;
 	animation->Frame.H = 0.0f;
 }
 
-void loadAnimation(Animation *animation, const char *animationTexture, float animationSpeed)
+void loadAnimation(Animation *animation, const char *animationTexture, int totalFrames, int framesPerRow, int framesPerColumn, float animationSpeed)
 {
 	loadTexture(&animation->AnimationTexture, animationTexture);
 
-	animation->TotalFrames = 2;
-	animation->FramesPerRow = 2;
-	animation->FramesPerColumn = 1;
+	animation->TotalFrames = totalFrames;
+	animation->FramesPerRow = framesPerRow;
+	animation->FramesPerColumn = framesPerColumn;
 
 	animation->CurrentFrame = 0;
-	animation->AnimationSpeed = 1.0f - animationSpeed;
+	animation->AnimationSpeed = animationSpeed;
 	animation->FrameStartTime = 0;
 	animation->Started = false;
 
 	animation->Frame.X = 0.0f;
 	animation->Frame.Y = 0.0f;
-	animation->Frame.W = 19.0f;
-	animation->Frame.H = 23.0f;
+	animation->Frame.W = animation->AnimationTexture.Width / animation->FramesPerRow;
+	animation->Frame.H = animation->AnimationTexture.Height / animation->FramesPerColumn;
 }
 
-void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale)
+void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale, bool flip)
 {
 	if(animation->Started == false)
 	{
@@ -47,23 +49,10 @@ void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale)
 	}
 
 	// TODO: Store in struct instead of calculating every frame.
-	//animation->Frame.X = (animation->AnimationTexture.Width / animation->FramesPerRow) * (animation->CurrentFrame % animation->FramesPerRow);
-	//animation->Frame.Y = (animation->AnimationTexture.Height / animation->FramesPerColumn) * (int)(animation->CurrentFrame / animation->FramesPerColumn);
+	animation->Frame.X = (animation->CurrentFrame % animation->FramesPerRow) * animation->Frame.W;
+	animation->Frame.Y = (int)(animation->CurrentFrame / animation->FramesPerRow) * animation->Frame.H;
 
-	switch(animation->CurrentFrame)
-	{
-		case 0:
-			animation->Frame.X = 0.0f;
-		break;
-
-		case 1:
-			animation->Frame.X = 19.0f;
-		break;
-	}
-
-	animation->Frame.Y = 0.0f;
-
-	drawTexture(&animation->AnimationTexture, x, y, &animation->Frame, 0.0f, scale);
+	drawTexture(&animation->AnimationTexture, x, y, &animation->Frame, 0.0f, scale, flip);
 
 	float frameTime = (SDL_GetTicks() - animation->FrameStartTime) / 1000.0f;
 
@@ -76,5 +65,13 @@ void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale)
 	if(animation->CurrentFrame == animation->TotalFrames)
 	{
 		animation->CurrentFrame = 0;
+		animation->IsFinished = true;
 	}
+}
+
+void stopAnimation(Animation *animation)
+{
+	animation->Started = false;
+	animation->CurrentFrame = 0;
+	animation->IsFinished = false;
 }

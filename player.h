@@ -1,12 +1,14 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <math.h>
+
 #include "globals.h"
 #include "texture.h"
 #include "level.h"
 #include "animation.h"
-
-#include <math.h>
+// NOTE: Only for debugging.
+#include "util.h"
 
 typedef struct
 {
@@ -38,7 +40,7 @@ typedef struct
 } Player;
 
 void initPlayer(Player *player);
-void loadPlayer(Player *player, const char *dataFile);
+void loadPlayer(Player *player, const char *playerTexture);
 void drawPlayer(Player *player);
 void handlePlayerEvent(Player *player, SDL_Event *event);
 void updatePlayer(Player *player, Level *level);

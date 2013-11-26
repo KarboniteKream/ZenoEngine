@@ -17,11 +17,14 @@ typedef struct
 	unsigned int FrameStartTime;
 	bool Started;
 
+	bool IsFinished;
+
 	RectangleF Frame;
 } Animation;
 
 void initAnimation(Animation *animation);
-void loadAnimation(Animation *animation, const char *animationTexture, float animationSpeed);
-void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale);
+void loadAnimation(Animation *animation, const char *animationTexture, int totalFrames, int columns, int rows, float animationSpeed);
+void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale, bool flip);
+void stopAnimation(Animation *animation);
 
 #endif

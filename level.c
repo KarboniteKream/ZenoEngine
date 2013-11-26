@@ -166,7 +166,7 @@ void drawLevel(Level *level)
 		{
 			if((i >= cameraX / BLOCK_SIZE - 1) && (i < cameraX / BLOCK_SIZE + SCREEN_WIDTH / BLOCK_SIZE + 1) && (j >= cameraY / BLOCK_SIZE - 1) && (j < cameraY / BLOCK_SIZE + SCREEN_HEIGHT / BLOCK_SIZE + 1))
 			{
-				drawTexture(&level->LevelTexture, x, y, &level->TexClips[level->Layout[i][j]], 0.0f, 1.0f);
+				drawTexture(&level->LevelTexture, x, y, &level->TexClips[level->Layout[i][j]], 0.0f, 1.0f, false);
 
 				// TODO: Debug.
 				if(level->Debug == true)
