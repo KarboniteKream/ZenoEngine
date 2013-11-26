@@ -28,9 +28,10 @@ void loadTexture(Texture *texture, const char *filename)
 	{
 		glDeleteTextures(1, &texture->ID);
 		glDeleteBuffers(1, &texture->VBO);
-	}
 
-	initTexture(texture);
+		texture->ID = 0;
+		texture->VBO = 0;
+	}
 
 	SDL_Surface *image = IMG_Load(filename);
 

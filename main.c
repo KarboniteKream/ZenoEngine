@@ -32,6 +32,8 @@ int main(int argc, char **argv)
 	loadPlayer(&player, "images/player.png");
 
 	Texture background, interfaceTexture;
+	initTexture(&background);
+	initTexture(&interfaceTexture);
 	loadTexture(&background, "images/background.png");
 	loadTexture(&interfaceTexture, "images/interface.png");
 

@@ -156,7 +156,7 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 			}
 		break;
 
-		case SDLK_w:
+		case SDLK_w: case  SDLK_SPACE:
 			player->KeyStates[2] = keyState;
 		break;
 
