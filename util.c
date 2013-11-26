@@ -324,7 +324,7 @@ void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat r, GLfloa
 	glUseProgram(0);
 }
 
-void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat lineWidth, GLfloat r, GLfloat g, GLfloat b)
+void drawEmptyRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat lineWidth, GLfloat r, GLfloat g, GLfloat b)
 {
 	glUseProgram(shaderProgram);
 	glUniform4f(colorLocation, r, g, b, 1.0f);
@@ -333,29 +333,29 @@ void drawEmptyRectangle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat 
 
 	Coordinate vertexData[8];
 
-	vertexData[0].X = x1;
-	vertexData[0].Y = y1;
+	vertexData[0].X = x;
+	vertexData[0].Y = y;
 
-	vertexData[1].X = x2;
-	vertexData[1].Y = y1;
+	vertexData[1].X = x + w;
+	vertexData[1].Y = y;
 
-	vertexData[2].X = x2 - 1.0f;
-	vertexData[2].Y = y1;
+	vertexData[2].X = x + w - 1.0f;
+	vertexData[2].Y = y;
 
-	vertexData[3].X = x2 - 1.0f;
-	vertexData[3].Y = y2;
+	vertexData[3].X = x + w - 1.0f;
+	vertexData[3].Y = y + h;
 
-	vertexData[4].X = x2 - 1.0f;
-	vertexData[4].Y = y2 - 1.0f;
+	vertexData[4].X = x + w - 1.0f;
+	vertexData[4].Y = y + h - 1.0f;
 
-	vertexData[5].X = x1;
-	vertexData[5].Y = y2 - 1.0f;
+	vertexData[5].X = x;
+	vertexData[5].Y = y + h - 1.0f;
 
-	vertexData[6].X = x1 + 1.0f;
-	vertexData[6].Y = y2 - 1.0f;
+	vertexData[6].X = x + 1.0f;
+	vertexData[6].Y = y + h - 1.0f;
 
-	vertexData[7].X = x1 + 1.0f;
-	vertexData[7].Y = y1;
+	vertexData[7].X = x + 1.0f;
+	vertexData[7].Y = y;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 

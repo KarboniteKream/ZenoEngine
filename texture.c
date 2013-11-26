@@ -28,10 +28,9 @@ void loadTexture(Texture *texture, const char *filename)
 	{
 		glDeleteTextures(1, &texture->ID);
 		glDeleteBuffers(1, &texture->VBO);
-
-		texture->ID = 0;
-		texture->VBO = 0;
 	}
+
+	initTexture(texture);
 
 	SDL_Surface *image = IMG_Load(filename);
 
@@ -88,7 +87,7 @@ void setTextureShader(Texture *texture, GLuint shaderProgram)
 
 // NOTE: Should I rename clip to rectangle?
 // NOTE: Should clips be moved into texture itself?
-void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale)
+void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale, bool flip)
 {
 	if(texture->ID != 0)
 	{
@@ -134,6 +133,14 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 			glTranslatef(-(x + texWidth / 2), -(y + texHeight / 2), 0.0f);
 		}
 
+		if(flip == true)
+		{
+			glPushMatrix();
+			glTranslatef(x + texWidth / 2, y + texHeight / 2, 0.0f);
+			glScalef(-1.0f, 1.0f, 1.0f);
+			glTranslatef(-(x + texWidth / 2), -(y + texHeight / 2), 0.0f);
+		}
+
 		glBegin(GL_QUADS);
 			glTexCoord2f(texLeft, texTop);
 			glVertex2f(x, y);
@@ -146,6 +153,11 @@ void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLflo
 		glEnd();
 
 		if(angle != 0.0f)
+		{
+			glPopMatrix();
+		}
+
+		if(flip == true)
 		{
 			glPopMatrix();
 		}

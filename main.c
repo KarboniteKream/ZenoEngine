@@ -9,6 +9,7 @@
 // NOTE: The arguments are unused.
 // TODO: Add proper error checking and reporting.
 // TODO: Add error reporting with return values of functions (loadTexture()).
+// TODO: load*() automatically calls init*().
 int main(int argc, char **argv)
 {
 	SDL_Window *window = NULL;
@@ -31,8 +32,6 @@ int main(int argc, char **argv)
 	loadPlayer(&player, "images/player.png");
 
 	Texture background, interfaceTexture;
-	initTexture(&background);
-	initTexture(&interfaceTexture);
 	loadTexture(&background, "images/background.png");
 	loadTexture(&interfaceTexture, "images/interface.png");
 
@@ -228,16 +227,16 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glTranslatef(-cameraX, -cameraY, 0.0f);
 
-		//drawLevelVBO(&level);
-		drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f);
+		drawLevelVBO(&level);
+		//drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f, false);
 		drawPlayer(&player);
 
 		glLoadIdentity();
 
-		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f);
+		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f, false);
 
 		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2 + 32.0f, SCREEN_HEIGHT - 16.0f, 2.0f, 0.0f, 1.0f, 0.0f);
+		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 32.0f, 31.0f, 2.0f, 0.0f, 1.0f, 0.0f);
 
 		// TODO: Check if a rebuild is necessary.
 		if(editor == true)
@@ -260,8 +259,8 @@ int main(int argc, char **argv)
 				drawText(&font2, 7.0f, 22.0f * i, logs[i], 1.0f, 0.0f, 1.0f);
 			}
 
-			drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f - 15.0f, SCREEN_HEIGHT - 15.0f - (SCREEN_HEIGHT - 60.0f), 1.0f, 1.0f, 1.0f, 1.0f);
-			drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 15.0f, SCREEN_HEIGHT - 15.0f, 2.0f, 0.0f, 0.0f, 0.0f);
+			drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
 			drawText(&font4, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
 			drawText(&font4, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
