@@ -45,5 +45,5 @@ tools:
 	@$(MAKE) -C tools --no-print-directory
 
 clean:
-	@rm -rf *.o ZenoEngine
+	@rm -rf *.o ZenoEngine ZenoEngine.exe
 	@$(MAKE) -C tools clean --no-print-directory
