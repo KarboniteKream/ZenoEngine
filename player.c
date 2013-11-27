@@ -28,6 +28,10 @@ void initPlayer(Player *player)
 	player->CurrentJumpSpeed = 0.0f;
 
 	player->KeyStates = NULL;
+	player->IsFacingLeft = false;
+
+	player->IdleTimer = 0;
+	player->IsIdle = false;
 }
 
 // TODO: Use a data file instead of playerTexture.
@@ -36,9 +40,9 @@ void loadPlayer(Player *player, const char *playerTexture)
 	loadTexture(&player->PlayerTexture, playerTexture);
 
 	// TODO: Free player->Animations.
-	player->Animations = (Animation *)malloc(3 * sizeof(Animation));
+	player->Animations = (Animation *)malloc(5 * sizeof(Animation));
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 5; i++)
 	{
 		initAnimation(&player->Animations[i]);
 	}
@@ -46,19 +50,20 @@ void loadPlayer(Player *player, const char *playerTexture)
 	loadAnimation(&player->Animations[0], "images/animationIdle.png", 2, 2, 1, 0.45f);
 	loadAnimation(&player->Animations[1], "images/animationStartRunning.png", 6, 3, 2, 0.05f);
 	loadAnimation(&player->Animations[2], "images/animationRunning.png", 12, 4, 3, 0.075f);
+	loadAnimation(&player->Animations[3], "images/animationStopping.png", 5, 3, 2, 0.1f);
+	loadAnimation(&player->Animations[4], "images/animationIdleWait.png", 11, 4, 3, 0.2f);
 
 	player->MaxHealth = player->Health = 56;
 	player->SelectedSkill = 1;
 
-	//player->Y = 560.0f;
 	player->X = 400.0f;
-	player->Y = 528.0f;
+	player->Y = 516.0f;
 	player->Scale = 4.0f;
 
-	player->BoundingBox.X = 2.0f;
-	player->BoundingBox.Y = 2.0f;
+	player->BoundingBox.X = 4.0f;
+	player->BoundingBox.Y = 4.0f;
 	player->BoundingBox.W = 15.0f;
-	player->BoundingBox.H = 21.0f;
+	player->BoundingBox.H = 22.0f;
 
 	player->IsMoving = false;
 	player->IsStopping = false;
@@ -75,6 +80,11 @@ void loadPlayer(Player *player, const char *playerTexture)
 	{
 		player->KeyStates[i] = false;
 	}
+
+	player->IsFacingLeft = false;
+
+	player->IdleTimer = 0;
+	player->IsIdle = false;
 }
 
 void drawPlayer(Player *player)
@@ -86,22 +96,49 @@ void drawPlayer(Player *player)
 		// FIXME: Change rendering origin for animations.
 		if(player->Animations[1].IsFinished == false)
 		{
-			playAnimation(&player->Animations[1], player->X, player->Y, player->Scale, player->KeyStates[0]);
+			playAnimation(&player->Animations[1], player->X, player->Y, player->Scale, player->IsFacingLeft);
 		}
 		else
 		{
-			playAnimation(&player->Animations[2], player->X, player->Y, player->Scale, player->KeyStates[0]);
+			playAnimation(&player->Animations[2], player->X, player->Y, player->Scale, player->IsFacingLeft);
+		}
+	}
+	else if(player->IsStopping == true)
+	{
+		stopAnimation(&player->Animations[0]);
+		stopAnimation(&player->Animations[1]);
+		stopAnimation(&player->Animations[2]);
+		// FIXME: Remember last direction, reset animations on change.
+		playAnimation(&player->Animations[3], player->X, player->Y, player->Scale, player->IsFacingLeft);
+
+		// NOTE: Animation speed should be synced.
+		if(player->CurrentSpeed == 0.0f && player->Animations[3].IsFinished == true)
+		{
+			stopAnimation(&player->Animations[3]);
+			player->IsStopping = false;
+		}
+	}
+	else if(player->IsIdle == true)
+	{
+		playAnimation(&player->Animations[4], player->X, player->Y, player->Scale, player->IsFacingLeft);
+
+		if(player->Animations[4].IsFinished == true)
+		{
+			stopAnimation(&player->Animations[4]);
+			player->IdleTimer = 0;
+			player->IsIdle = false;
 		}
 	}
 	else
 	{
 		stopAnimation(&player->Animations[1]);
-		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->KeyStates[0]);
+		stopAnimation(&player->Animations[2]);
+		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->IsFacingLeft);
 	}
 
 	// NOTE: Bounding box debugging.
-	// drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
-	// drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
+	//drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
+	//drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void handlePlayerEvent(Player *player, SDL_Event *event)
@@ -114,13 +151,15 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 			if(event->key.repeat == 0)
 			{
 				player->KeyStates[0] = keyState;
-				player->IsMoving = keyState;
+				player->IsFacingLeft = true;
 
 				// TODO: Smooth start?
 				// TODO: Smooth turning.
 				if(player->KeyStates[1] == true)
 				{
 					player->CurrentSpeed = keyState ? -player->Speed : player->Speed;
+					player->IsMoving = true;
+					player->IsFacingLeft = keyState;
 				}
 				else
 				{
@@ -130,6 +169,7 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 					}
 
 					player->IsStopping = !keyState;
+					player->IsMoving = keyState;
 				}
 			}
 		break;
@@ -138,11 +178,13 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 			if(event->key.repeat == 0)
 			{
 				player->KeyStates[1] = keyState;
-				player->IsMoving = keyState;
+				player->IsFacingLeft = false;
 
 				if(player->KeyStates[0] == true)
 				{
 					player->CurrentSpeed = keyState ? player->Speed : -player->Speed;
+					player->IsMoving = true;
+					player->IsFacingLeft = !keyState;
 				}
 				else
 				{
@@ -151,6 +193,7 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 						player->CurrentSpeed = player->Speed;
 					}
 
+					player->IsMoving = keyState;
 					player->IsStopping = !keyState;
 				}
 			}
@@ -182,21 +225,39 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 		break;
 
 		default:
+
 		break;
 	}
 }
 
 void updatePlayer(Player *player, Level *level)
 {
-	if(player->IsJumping == true)
+	if(player->IsIdle == true && player->CurrentSpeed != 0.0f)
 	{
-		player->Y += player->CurrentJumpSpeed * DELTA_TICKS;
+		stopAnimation(&player->Animations[4]);
+		player->IdleTimer = 0;
+		player->IsIdle = false;
+	}
+
+	if(SDL_GetTicks() - player->IdleTimer >= 10000 && player->IdleTimer != 0 && player->IsIdle == false)
+	{
+		player->IsIdle = true;
+	}
+
+	if(player->IdleTimer == 0 && player->CurrentSpeed == 0.0f && player->IsIdle == false)
+	{
+		player->IdleTimer = SDL_GetTicks();
+	}
+
+	player->Y += player->CurrentJumpSpeed * DELTA_TICKS;
+
+	if(player->IsJumping == true && player->CurrentJumpSpeed < 0.0f)
+	{
 		player->CurrentJumpSpeed += 1600.0f * DELTA_TICKS;
 	}
 	else
 	{
 		// TODO: Rename to 'falling'.
-		player->Y += player->CurrentJumpSpeed * DELTA_TICKS;
 		player->CurrentJumpSpeed += 2000.0f * DELTA_TICKS;
 	}
 
@@ -217,7 +278,7 @@ void updatePlayer(Player *player, Level *level)
 
 	if(player->IsStopping == true)
 	{
-		player->CurrentSpeed *= 1.0f - (9.7f * DELTA_TICKS);
+		player->CurrentSpeed *= 1.0f - (9.5f * DELTA_TICKS);
 
 		if(fabs(player->CurrentSpeed) < 25.0f)
 		{
@@ -271,8 +332,8 @@ void updatePlayer(Player *player, Level *level)
 		player->Y = (int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->BoundingBox.Y;
 	}*/
 
-	if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.Height + (player->BoundingBox.Y * player->Scale) - 0.25)
+	if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.Height * player->Scale + (player->BoundingBox.Y * player->Scale) - 0.25)
 	{
-		player->Y = level->Height * BLOCK_SIZE - player->PlayerTexture.Height + (player->BoundingBox.Y * player->Scale) - 0.25;
+		player->Y = level->Height * BLOCK_SIZE - player->PlayerTexture.Height * player->Scale + (player->BoundingBox.Y * player->Scale) - 0.25;
 	}
 }

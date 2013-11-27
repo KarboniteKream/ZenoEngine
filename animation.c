@@ -10,10 +10,12 @@ void initAnimation(Animation *animation)
 
 	animation->CurrentFrame = 0;
 	animation->AnimationSpeed = 0.0f;
-	animation->FrameStartTime = 0;
+
 	animation->Started = false;
+	animation->FrameStartTime = 0;
 
 	animation->IsFinished = false;
+	animation->IsLastFrame = false;
 
 	animation->Frame.X = 0.0f;
 	animation->Frame.Y = 0.0f;
@@ -31,8 +33,12 @@ void loadAnimation(Animation *animation, const char *animationTexture, int total
 
 	animation->CurrentFrame = 0;
 	animation->AnimationSpeed = animationSpeed;
-	animation->FrameStartTime = 0;
+
 	animation->Started = false;
+	animation->FrameStartTime = 0;
+
+	animation->IsFinished = false;
+	animation->IsLastFrame = false;
 
 	animation->Frame.X = 0.0f;
 	animation->Frame.Y = 0.0f;
@@ -65,7 +71,13 @@ void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale, bo
 	if(animation->CurrentFrame == animation->TotalFrames)
 	{
 		animation->CurrentFrame = 0;
+		animation->IsLastFrame = true;
+	}
+
+	if(animation->CurrentFrame == 0 && animation->IsLastFrame == true)
+	{
 		animation->IsFinished = true;
+		animation->IsLastFrame = false;
 	}
 }
 
@@ -73,5 +85,7 @@ void stopAnimation(Animation *animation)
 {
 	animation->Started = false;
 	animation->CurrentFrame = 0;
+
 	animation->IsFinished = false;
+	animation->IsLastFrame = false;
 }

@@ -14,10 +14,12 @@ typedef struct
 
 	int CurrentFrame;
 	float AnimationSpeed;
-	unsigned int FrameStartTime;
+
 	bool Started;
+	unsigned int FrameStartTime;
 
 	bool IsFinished;
+	bool IsLastFrame;
 
 	RectangleF Frame;
 } Animation;

@@ -35,6 +35,11 @@ typedef struct
 	GLfloat CurrentJumpSpeed;
 
 	bool *KeyStates;
+	bool IsFacingLeft;
+
+	Uint32 IdleTimer;
+	bool IsIdle;
+
 	// TODO: Store control scheme in an array.
 	// TODO: Add enumerators.
 } Player;
