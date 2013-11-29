@@ -65,6 +65,7 @@ void loadLevel(Level *level, const char *filename)
 
 	if(levelFile != NULL)
 	{
+		// NOTE: Should this be uint8_t?
 		int tile = 0;
 
 		for(int i = 0; i < level->Width; i++)
@@ -114,7 +115,30 @@ void loadLevel(Level *level, const char *filename)
 
 void saveLevel(Level *level, const char *filename)
 {
+	char levelFilename[256] = {'\0'};
 
+	// FIXME: What about levels with same textures (regarding filename)?
+	// NOTE: Should be resolved with moving metadata.
+	sprintf(levelFilename, "levels/%s.map", filename);
+
+	FILE *levelFile = fopen(levelFilename, "wb");
+
+	if(levelFile != NULL)
+	{
+		// NOTE: Should this be uint8_t?
+		int tile = 0;
+
+		for(int i = 0; i < level->Width; i++)
+		{
+			for(int j = 0; j < level->Height; j++)
+			{
+				tile = (level->Layout[i][j] << 4) + (level->Properties[i][j][0] & 0x0F);
+				fwrite(&tile, 1, 1, levelFile);
+			}
+		}
+
+		fclose(levelFile);
+	}
 }
 
 void generateLevelVBO(Level *level)
@@ -154,7 +178,7 @@ void generateLevelVBO(Level *level)
 	initVBO(&level->LevelTexture, vertexData, level->Width * level->Height);
 }
 
-// TODO: i * BLOCK_SIZE
+// TODO: i * BLOCK_SIZE instead of x.
 void drawLevel(Level *level)
 {
 	GLfloat x = 0.0f;

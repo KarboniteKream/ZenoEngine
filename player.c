@@ -40,9 +40,9 @@ void loadPlayer(Player *player, const char *playerTexture)
 	loadTexture(&player->PlayerTexture, playerTexture);
 
 	// TODO: Free player->Animations.
-	player->Animations = (Animation *)malloc(5 * sizeof(Animation));
+	player->Animations = (Animation *)malloc(6 * sizeof(Animation));
 
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 6; i++)
 	{
 		initAnimation(&player->Animations[i]);
 	}
@@ -52,11 +52,12 @@ void loadPlayer(Player *player, const char *playerTexture)
 	loadAnimation(&player->Animations[2], "images/animationRunning.png", 12, 4, 3, 0.075f);
 	loadAnimation(&player->Animations[3], "images/animationStopping.png", 5, 3, 2, 0.1f);
 	loadAnimation(&player->Animations[4], "images/animationIdleWait.png", 11, 4, 3, 0.2f);
+	loadAnimation(&player->Animations[5], "images/animationJumping.png", 9, 3, 3, 0.075f);
 
 	player->MaxHealth = player->Health = 56;
 	player->SelectedSkill = 1;
 
-	player->X = 400.0f;
+	player->X = 600.0f;
 	player->Y = 516.0f;
 	player->Scale = 4.0f;
 
@@ -91,6 +92,7 @@ void drawPlayer(Player *player)
 {
 	if(player->IsMoving == true)
 	{
+		// FIXME: Jumping animation if the player is jumping.
 		stopAnimation(&player->Animations[0]);
 
 		// FIXME: Change rendering origin for animations.
@@ -108,7 +110,6 @@ void drawPlayer(Player *player)
 		stopAnimation(&player->Animations[0]);
 		stopAnimation(&player->Animations[1]);
 		stopAnimation(&player->Animations[2]);
-		// FIXME: Remember last direction, reset animations on change.
 		playAnimation(&player->Animations[3], player->X, player->Y, player->Scale, player->IsFacingLeft);
 
 		// NOTE: Animation speed should be synced.
@@ -117,6 +118,15 @@ void drawPlayer(Player *player)
 			stopAnimation(&player->Animations[3]);
 			player->IsStopping = false;
 		}
+	}
+	else if(player->IsJumping == true)
+	{
+		stopAnimation(&player->Animations[0]);
+		stopAnimation(&player->Animations[1]);
+		stopAnimation(&player->Animations[2]);
+		stopAnimation(&player->Animations[3]);
+		stopAnimation(&player->Animations[4]);
+		playAnimation(&player->Animations[5], player->X, player->Y, player->Scale, player->IsFacingLeft);
 	}
 	else if(player->IsIdle == true)
 	{
@@ -133,6 +143,7 @@ void drawPlayer(Player *player)
 	{
 		stopAnimation(&player->Animations[1]);
 		stopAnimation(&player->Animations[2]);
+		stopAnimation(&player->Animations[5]);
 		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->IsFacingLeft);
 	}
 
@@ -232,6 +243,8 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 
 void updatePlayer(Player *player, Level *level)
 {
+	player->X += player->CurrentSpeed * DELTA_TICKS;
+
 	if(player->IsIdle == true && player->CurrentSpeed != 0.0f)
 	{
 		stopAnimation(&player->Animations[4]);
@@ -249,6 +262,37 @@ void updatePlayer(Player *player, Level *level)
 		player->IdleTimer = SDL_GetTicks();
 	}
 
+	if(player->IsFacingLeft == true)
+	{
+		int w = (player->X + (player->BoundingBox.X * player->Scale)) / BLOCK_SIZE;
+		int h1 = (player->Y + (player->BoundingBox.Y * player->Scale)) / BLOCK_SIZE;
+		int h2 = (player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE;
+
+		for(int i = h1; i <= h2; i++)
+		{
+			if(level->Properties[w][i][COLLIDABLE] == 1)
+			{
+				player->X = (w + 1) * BLOCK_SIZE - (player->BoundingBox.X * player->Scale);
+				break;
+			}
+		}
+	}
+	else
+	{
+		int w = (player->X + ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale)) / BLOCK_SIZE;
+		int h1 = (player->Y + (player->BoundingBox.Y * player->Scale)) / BLOCK_SIZE;
+		int h2 = (player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE;
+
+		for(int i = h1; i <= h2; i++)
+		{
+			if(level->Properties[w][i][COLLIDABLE] == 1)
+			{
+				player->X = w * BLOCK_SIZE - ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale) - 0.25;
+				break;
+			}
+		}
+	}
+
 	player->Y += player->CurrentJumpSpeed * DELTA_TICKS;
 
 	if(player->IsJumping == true && player->CurrentJumpSpeed < 0.0f)
@@ -258,20 +302,31 @@ void updatePlayer(Player *player, Level *level)
 	else
 	{
 		// TODO: Rename to 'falling'.
+		// TODO: Falling animation.
 		player->CurrentJumpSpeed += 2000.0f * DELTA_TICKS;
 	}
 
-	if(level->Properties[(int)((player->X + (player->BoundingBox.X * player->Scale)) / BLOCK_SIZE)][(int)((player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-		level->Properties[(int)((player->X + ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale)) / BLOCK_SIZE)][(int)((player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE)][COLLIDABLE] == 1)
 	{
-		player->Y = (int)((player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE) * BLOCK_SIZE - ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale);
+		int h = (player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE;
+		int w1 = (player->X + (player->BoundingBox.X * player->Scale)) / BLOCK_SIZE;
+		int w2 = (player->X + ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale)) / BLOCK_SIZE;
 
-		if(player->IsJumping == true)
+		for(int i = w1; i <= w2; i++)
 		{
-			player->IsJumping = false;
-		}
+			if(level->Properties[i][h][COLLIDABLE] == 1)
+			{
+				player->Y = h * BLOCK_SIZE - ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale) - 0.25;
 
-		player->CurrentJumpSpeed = 0.0f;
+				if(player->IsJumping == true)
+				{
+					player->IsJumping = false;
+				}
+
+				player->CurrentJumpSpeed = 0.0f;
+
+				break;
+			}
+		}
 	}
 
 	// TODO: Camera should follow the player.
@@ -285,8 +340,6 @@ void updatePlayer(Player *player, Level *level)
 			player->CurrentSpeed = 0.0f;
 		}
 	}
-
-	player->X += player->CurrentSpeed * DELTA_TICKS;
 
 	if(player->KeyStates[2] == true)
 	{
@@ -304,23 +357,6 @@ void updatePlayer(Player *player, Level *level)
 		player->X = -player->BoundingBox.X;
 	}
 
-	/*if(level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-			level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1)
-	{
-		player->X = (int)((player->X + player->BoundingBox.X) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->BoundingBox.X;
-	}*/
-
-	if(player->X >= level->Width * BLOCK_SIZE - player->PlayerTexture.Width + player->BoundingBox.X - 0.25)
-	{
-		player->X = level->Width * BLOCK_SIZE - player->PlayerTexture.Width + player->BoundingBox.X - 0.25;
-	}
-
-	/*if(level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-		level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y + player->BoundingBox.H) / BLOCK_SIZE)][COLLIDABLE] == 1)
-	{
-		player->X = (int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE) * BLOCK_SIZE - player->BoundingBox.X - player->BoundingBox.W - 0.25;
-	}*/
-
 	if(player->Y < -player->BoundingBox.Y)
 	{
 		player->Y = -player->BoundingBox.Y;
@@ -331,6 +367,12 @@ void updatePlayer(Player *player, Level *level)
 	{
 		player->Y = (int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->BoundingBox.Y;
 	}*/
+
+	// FIXME: Broken.
+	if(player->X >= level->Width * BLOCK_SIZE - player->PlayerTexture.Width + player->BoundingBox.X - 0.25)
+	{
+		player->X = level->Width * BLOCK_SIZE - player->PlayerTexture.Width + player->BoundingBox.X - 0.25;
+	}
 
 	if(player->Y >= level->Height * BLOCK_SIZE - player->PlayerTexture.Height * player->Scale + (player->BoundingBox.Y * player->Scale) - 0.25)
 	{

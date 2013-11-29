@@ -191,6 +191,7 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 	}
 	else
 	{
+		// NOTE: Should fopen() have an argument "a", so there is no need to fseek()?
 		fseek(vsFile, 0, SEEK_END);
 		fseek(fsFile, 0, SEEK_END);
 

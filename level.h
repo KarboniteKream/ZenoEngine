@@ -13,6 +13,7 @@ typedef struct
 	int Height;
 
 	uint8_t **Layout;
+	// NOTE: Would bool be better?
 	uint8_t ***Properties;
 
 	bool Debug;
