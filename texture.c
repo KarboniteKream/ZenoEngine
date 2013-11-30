@@ -53,21 +53,7 @@ void loadTexture(Texture *texture, const char *filename)
 
 	if(texture->Width != texture->TexWidth || texture->Height != texture->TexHeight)
 	{
-		Uint32 rMask, gMask, bMask, aMask;
-
-		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-			rMask = 0xFF000000;
-			gMask = 0x00FF0000;
-			bMask = 0x0000FF00;
-			aMask = 0x000000FF;
-		#else
-			rMask = 0x000000FF;
-			gMask = 0x0000FF00;
-			bMask = 0x00FF0000;
-			aMask = 0xFF000000;
-		#endif
-
-		SDL_Surface *paddedImage = SDL_CreateRGBSurface(0, texture->TexWidth, texture->TexHeight, 32, rMask, gMask, bMask, aMask);
+		SDL_Surface *paddedImage = SDL_CreateRGBSurface(0, texture->TexWidth, texture->TexHeight, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
 		SDL_SetSurfaceAlphaMod(image, 255);
 		SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
