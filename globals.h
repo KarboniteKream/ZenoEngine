@@ -18,7 +18,7 @@
 #define CAMERA_SPEED 600.0f
 #define EDITOR_EDGE 25.0f
 
-// TODO: Remove.
+// TODO: Remove?
 #define COLLIDABLE 0
 
 extern float DELTA_TICKS;

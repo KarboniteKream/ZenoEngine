@@ -160,7 +160,19 @@ void executeCommand(Level *level, const char *command)
 
 void saveScreenshot()
 {
-	SDL_Surface *screenshot = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0x0000FF, 0x00FF00, 0xFF0000, 0);
+	Uint32 rMask, gMask, bMask;
+
+	#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		rMask = 0xFF0000;
+		gMask = 0x00FF00;
+		bMask = 0x0000FF;
+	#else
+		rMask = 0x0000FF;
+		gMask = 0x00FF00;
+		bMask = 0xFF0000;
+	#endif
+
+	SDL_Surface *screenshot = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, rMask, gMask, bMask, 0);
 
 	unsigned char *pixels = (unsigned char *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 3);
 	glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pixels);
