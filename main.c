@@ -247,7 +247,7 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			sprintf(engineInformation, "%s (F1 - Log, F2 - Editor)\nFPS: %d", NAME_VERSION, fps);
+			sprintf(engineInformation, "%s (F1 - Log, F2 - Editor, F12 - Screenshot)\nFPS: %d", NAME_VERSION, fps);
 		}
 
 		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);

@@ -306,6 +306,7 @@ void updatePlayer(Player *player, Level *level)
 		player->CurrentJumpSpeed += 2000.0f * DELTA_TICKS;
 	}
 
+	if(player->CurrentJumpSpeed >= 0.0f)
 	{
 		int h = (player->Y + ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale)) / BLOCK_SIZE;
 		int w1 = (player->X + (player->BoundingBox.X * player->Scale)) / BLOCK_SIZE;
@@ -322,6 +323,24 @@ void updatePlayer(Player *player, Level *level)
 					player->IsJumping = false;
 				}
 
+				player->CurrentJumpSpeed = 0.0f;
+
+				break;
+			}
+		}
+	}
+	else
+	{
+		int h = (player->Y + (player->BoundingBox.Y * player->Scale)) / BLOCK_SIZE;
+		int w1 = (player->X + (player->BoundingBox.X * player->Scale)) / BLOCK_SIZE;
+		int w2 = (player->X + ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale)) / BLOCK_SIZE;
+
+		for(int i = w1; i <= w2; i++)
+		{
+			if(level->Properties[i][h][COLLIDABLE] == 1)
+			{
+				player->Y = (h + 1) * BLOCK_SIZE - (player->BoundingBox.Y * player->Scale);
+				// TODO: Stop jumping animation.
 				player->CurrentJumpSpeed = 0.0f;
 
 				break;
@@ -352,21 +371,15 @@ void updatePlayer(Player *player, Level *level)
 	}
 
 	// NOTE: This is necessary only if the level is not surrounded by walls.
-	if(player->X < -player->BoundingBox.X)
+	if(player->X < -(player->BoundingBox.X * player->Scale))
 	{
-		player->X = -player->BoundingBox.X;
+		player->X = -(player->BoundingBox.X * player->Scale);
 	}
 
 	if(player->Y < -player->BoundingBox.Y)
 	{
 		player->Y = -player->BoundingBox.Y;
 	}
-
-	/*if(level->Properties[(int)((player->X + player->BoundingBox.X) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1 ||
-		level->Properties[(int)((player->X + player->BoundingBox.X + player->BoundingBox.W) / BLOCK_SIZE)][(int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE)][COLLIDABLE] == 1)
-	{
-		player->Y = (int)((player->Y + player->BoundingBox.Y) / BLOCK_SIZE + 1) * BLOCK_SIZE - player->BoundingBox.Y;
-	}*/
 
 	// FIXME: Broken.
 	if(player->X >= level->Width * BLOCK_SIZE - player->PlayerTexture.Width + player->BoundingBox.X - 0.25)

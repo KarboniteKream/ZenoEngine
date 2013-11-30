@@ -28,10 +28,10 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 
 	loadExtensions();
 
-	//SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	SDL_SetWindowIcon(*window, SDL_LoadBMP("resources/icon.bmp"));
+	SDL_SetWindowIcon(*window, SDL_LoadBMP("images/icon.bmp"));
 	SDL_ShowCursor(SDL_ENABLE);
 
 	glMatrixMode(GL_PROJECTION);
@@ -59,7 +59,7 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 	}
 }
 
-// TODO: Rename extensions.
+// TODO: Rename 'extensions'.
 void loadExtensions()
 {
 	// TODO: Check for supported extensions.
@@ -149,6 +149,10 @@ void executeCommand(Level *level, const char *command)
 		{
 			level->Debug = !level->Debug;
 		}
+		else if(strcmp(commandArray[0], "vsync") == 0)
+		{
+			SDL_GL_SetSwapInterval(!SDL_GL_GetSwapInterval());
+		}
 
 		free(commandArray);
 	}
@@ -173,7 +177,7 @@ void saveScreenshot()
 	free(screenshot);
 
 	// TODO: Error checking.
-	printLog(0, "Screenshot saved successfully.", "screenshots/screenshot.png");
+	printLog(0, "Screenshot saved successfully as ", "'screenshots/screenshot.png'.");
 }
 
 void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFilename)
