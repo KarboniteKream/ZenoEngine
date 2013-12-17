@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 
 						case SDLK_1: case SDLK_2:
 						case SDLK_3: case SDLK_4:
-						case SDLK_5:
+						case SDLK_5: case SDLK_6:
 							editorBlock = event.key.keysym.sym - 48 - 1;
 						break;
 
@@ -223,6 +223,8 @@ int main(int argc, char **argv)
 			updatePlayer(&player, &level);
 		}
 
+		Uint64 renderTime = SDL_GetPerformanceCounter();
+
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
@@ -243,11 +245,11 @@ int main(int argc, char **argv)
 		// TODO: Check if a rebuild is necessary.
 		if(editor == true)
 		{
-			sprintf(engineInformation, "%s (EDITOR)\nFPS: %d", NAME_VERSION, fps);
+			sprintf(engineInformation, "%s (EDITOR)", NAME_VERSION);
 		}
 		else
 		{
-			sprintf(engineInformation, "%s (F1 - Log, F2 - Editor, F12 - Screenshot)\nFPS: %d", NAME_VERSION, fps);
+			sprintf(engineInformation, "%s (F1 - Log, F2 - Editor, F12 - Screenshot)", NAME_VERSION);
 		}
 
 		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
@@ -269,6 +271,11 @@ int main(int argc, char **argv)
 
 			// TODO: Command history.
 		}
+
+		char renderTimeString[32];
+		renderTime = SDL_GetPerformanceCounter() - renderTime;
+		sprintf(renderTimeString, "FPS: %d (%.0f us)", fps, (float)(renderTime) / SDL_GetPerformanceFrequency() * 1000000.0f);
+		drawText(&font2, 7.0f, 27.0f, renderTimeString, 0.0f, 0.0f, 0.0f);
 
 		SDL_GL_SwapWindow(window);
 
