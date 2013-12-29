@@ -8,7 +8,7 @@ endif
 
 CFLAGS = -std=c99 -Wall -O3
 
-OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o
+OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o particle.o
 
 .PHONY: tools
 
@@ -17,7 +17,7 @@ all: zeno tools
 zeno: $(OBJECTS)
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o ZenoEngine
 
-main.o: main.c util.h globals.h texture.h level.h player.h font.h
+main.o: main.c util.h globals.h texture.h level.h player.h font.h particle.h
 	$(CC) $(CFLAGS) -c main.c
 
 util.o: util.c globals.h
@@ -40,6 +40,9 @@ font.o: font.c font.h globals.h texture.h
 
 animation.o: animation.c animation.h globals.h texture.h
 	$(CC) $(CFLAGS) -c animation.c
+
+particle.o: particle.c particle.h globals.h texture.h
+	$(CC) $(CFLAGS) -c particle.c
 
 tools:
 	@$(MAKE) -C tools --no-print-directory

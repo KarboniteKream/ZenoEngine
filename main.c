@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "globals.h"
 #include "util.h"
 #include "texture.h"
@@ -5,6 +7,7 @@
 #include "player.h"
 #include "font.h"
 #include "animation.h"
+#include "particle.h"
 
 // NOTE: The arguments are unused.
 // TODO: Add proper error checking and reporting.
@@ -47,6 +50,11 @@ int main(int argc, char **argv)
 
 	setTextureShader(&font2.FontTexture, texShader);
 	setTextureShader(&font4.FontTexture, texShader);
+
+	ParticleSystem pSys;
+	initParticleSystem(&pSys, SCREEN_WIDTH - 25.0f, 250.0f, 400.0f, 50);
+	setParticleTTL(&pSys, 0);
+	srand(time(NULL));
 
 	SDL_Event event;
 
@@ -159,7 +167,6 @@ int main(int argc, char **argv)
 						break;
 
 						default:
-							// TODO: What about the Z and Y keys? Perhaps a setting in the options screen?
 							if(commandIndex < 255)
 							{
 								// TODO: Replace with SDL_StartTextInput()
@@ -181,46 +188,45 @@ int main(int argc, char **argv)
 
 		if(editor == true)
 		{
-			if(mouseX < EDITOR_EDGE)
+			if(mouseX <= EDITOR_EDGE)
 			{
 				cameraX -= CAMERA_SPEED * DELTA_TICKS;
-
-				if(cameraX < 0.0f)
-				{
-					cameraX = 0.0f;
-				}
 			}
-			if(mouseX >= (SCREEN_WIDTH - EDITOR_EDGE))
+			else if(mouseX > (SCREEN_WIDTH - EDITOR_EDGE))
 			{
 				cameraX += CAMERA_SPEED * DELTA_TICKS;
-
-				if(cameraX > (level.Width * BLOCK_SIZE - SCREEN_WIDTH))
-				{
-					cameraX = (level.Width * BLOCK_SIZE - SCREEN_WIDTH);
-				}
 			}
-			if(mouseY < EDITOR_EDGE)
+
+			if(mouseY <= EDITOR_EDGE)
 			{
 				cameraY -= CAMERA_SPEED * DELTA_TICKS;
-
-				if(cameraY < 0.0f)
-				{
-					cameraY = 0.0f;
-				}
 			}
-			if(mouseY >= (SCREEN_HEIGHT - EDITOR_EDGE))
+			else if(mouseY > (SCREEN_HEIGHT - EDITOR_EDGE))
 			{
 				cameraY += CAMERA_SPEED * DELTA_TICKS;
-
-				if(cameraY > (level.Height * BLOCK_SIZE - SCREEN_HEIGHT))
-				{
-					cameraY = (level.Height * BLOCK_SIZE - SCREEN_HEIGHT);
-				}
 			}
 		}
 		else
 		{
 			updatePlayer(&player, &level);
+		}
+
+		if(cameraX < 0.0f)
+		{
+			cameraX = 0.0f;
+		}
+		else if(cameraX > level.Width * BLOCK_SIZE - SCREEN_WIDTH)
+		{
+			cameraX = level.Width * BLOCK_SIZE - SCREEN_WIDTH;
+		}
+
+		if(cameraY < 0.0f)
+		{
+			cameraY = 0.0f;
+		}
+		else if(cameraY > level.Height * BLOCK_SIZE - SCREEN_HEIGHT)
+		{
+			cameraY = level.Height * BLOCK_SIZE - SCREEN_HEIGHT;
 		}
 
 		Uint64 renderTime = SDL_GetPerformanceCounter();
@@ -233,6 +239,9 @@ int main(int argc, char **argv)
 
 		drawLevelVBO(&level);
 		//drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f, false);
+		debugParticleSystem(&pSys);
+		drawText(&font2, SCREEN_WIDTH - 100.0f, 230.0f, "Portal to the Wind Dimension", 0.0f, 0.0f, 1.0f);
+		updateParticleSystem(&pSys);
 		drawPlayer(&player);
 
 		glLoadIdentity();

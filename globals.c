@@ -5,8 +5,13 @@ GLuint BOUND_TEXTURE = 0;
 
 uint8_t BLOCK_SIZE = 48;
 
-GLfloat cameraX = 0.0f, cameraY = 0.0f;
-GLfloat mouseX = 0.0f, mouseY = 0.0f;
+bool DEBUG = false;
+
+GLfloat cameraX = 0.0f;
+GLfloat cameraY = 0.0f;
+
+GLfloat mouseX = 0.0f;
+GLfloat mouseY = 0.0f;
 
 GLuint shaderProgram = 0;
 GLint colorLocation = 0;

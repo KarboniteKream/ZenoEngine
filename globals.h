@@ -19,17 +19,25 @@
 #define EDITOR_EDGE 25.0f
 
 // TODO: Remove?
-#define COLLIDABLE 0
+#define LAYOUT 0
+#define PROPERTIES 1
+#define COLLIDABLE 1
+#define SLOPE_LEFT 2
 
 extern float DELTA_TICKS;
 extern GLuint BOUND_TEXTURE;
 
-// TODO: Remove.
+// TODO: Replace with a #define.
 extern uint8_t BLOCK_SIZE;
 
-extern GLfloat cameraX, cameraY;
+extern bool DEBUG;
+
+extern GLfloat cameraX;
+extern GLfloat cameraY;
+
 // NOTE: Should mouseX and mouseY be globals?
-extern GLfloat mouseX, mouseY;
+extern GLfloat mouseX;
+extern GLfloat mouseY;
 
 // FIXME: Rectangle conflicts with Win32API.
 typedef struct
@@ -80,6 +88,8 @@ PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
 PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
 PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
 PFNGLISSHADERPROC glIsShader;
+PFNGLDELETESHADERPROC glDeleteShader;
+PFNGLDETACHSHADERPROC glDetachShader;
 
 // TODO: Move to a separate struct/file.
 extern GLuint shaderProgram;

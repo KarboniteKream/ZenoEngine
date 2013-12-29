@@ -14,6 +14,7 @@ typedef struct
 {
 	Texture PlayerTexture;
 	Animation *Animations;
+	Animation *Attacks;
 
 	int MaxHealth;
 	int Health;
@@ -39,6 +40,8 @@ typedef struct
 
 	Uint32 IdleTimer;
 	bool IsIdle;
+
+	bool IsAttacking;
 
 	// TODO: Store control scheme in an array.
 	// TODO: Add enumerators.

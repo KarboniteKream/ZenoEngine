@@ -89,6 +89,8 @@ void loadExtensions()
 	glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
 	glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)SDL_GL_GetProcAddress("glVertexAttribPointer");
 	glIsShader = (PFNGLISSHADERPROC)SDL_GL_GetProcAddress("glIsShader");
+	glDeleteShader = (PFNGLDELETESHADERPROC)SDL_GL_GetProcAddress("glDeleteShader");
+	glDetachShader = (PFNGLDETACHSHADERPROC)SDL_GL_GetProcAddress("glDetachShader");
 
 	printLog(0, "Extensions loaded successfully.", NULL);
 }
@@ -140,14 +142,14 @@ void executeCommand(Level *level, const char *command)
 				// TODO: This should be removed some day.
 				if(length > 2 && strcmp(commandArray[1], "scale") == 0)
 				{
-					BLOCK_SIZE = atoi(commandArray[2]);
+					// BLOCK_SIZE = atoi(commandArray[2]);
 					// TODO: Reload the level with the new textures.
 				}
 			}
 		}
 		else if(strcmp(commandArray[0], "debug") == 0)
 		{
-			level->Debug = !level->Debug;
+			DEBUG = !DEBUG;
 		}
 		else if(strcmp(commandArray[0], "vsync") == 0)
 		{
@@ -199,8 +201,8 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		fseek(vsFile, 0, SEEK_END);
 		fseek(fsFile, 0, SEEK_END);
 
-		unsigned int vsLength = ftell(vsFile);
-		unsigned int fsLength = ftell(fsFile);
+		long vsLength = ftell(vsFile);
+		long fsLength = ftell(fsFile);
 
 		fseek(vsFile, 0, SEEK_SET);
 		fseek(fsFile, 0, SEEK_SET);
@@ -222,13 +224,14 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		glShaderSource(fragmentShader, 1, (const GLchar **)fsSource, NULL);
 		glCompileShader(fragmentShader);
 
-		GLint compileStatus;
+		GLint compileStatus = GL_TRUE;
 
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
 			printLog(1, "Unable to compile vertex shader: ", vsFilename);
 			printInfoLog(vertexShader);
+			glDeleteShader(vertexShader);
 		}
 
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileStatus);
@@ -236,28 +239,32 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		{
 			printLog(1, "Unable to compile fragment shader: ", fsFilename);
 			printInfoLog(fragmentShader);
+			glDeleteShader(fragmentShader);
+			glDeleteShader(vertexShader);
 		}
 
-		if(compileStatus == GL_TRUE)
+		glUseProgram(*shaderProgram);
+		*shaderProgram = glCreateProgram();
+
+		glAttachShader(*shaderProgram, vertexShader);
+		glAttachShader(*shaderProgram, fragmentShader);
+
+		glLinkProgram(*shaderProgram);
+
+		GLint linkStatus;
+		glGetProgramiv(*shaderProgram, GL_LINK_STATUS, &linkStatus);
+
+		if(linkStatus == GL_FALSE)
 		{
-			glUseProgram(*shaderProgram);
-			*shaderProgram = glCreateProgram();
-
-			glAttachShader(*shaderProgram, vertexShader);
-			glAttachShader(*shaderProgram, fragmentShader);
-
-			glLinkProgram(*shaderProgram);
-
-			GLint linkStatus;
-			glGetProgramiv(*shaderProgram, GL_LINK_STATUS, &linkStatus);
-
-			if(linkStatus == GL_FALSE)
-			{
-				printInfoLog(*shaderProgram);
-			}
-
-			glUseProgram(0);
+			printInfoLog(*shaderProgram);
+			glDeleteProgram(*shaderProgram);
+			glDeleteShader(vertexShader);
+			glDeleteShader(fragmentShader);
 		}
+
+		glDetachShader(*shaderProgram, vertexShader);
+		glDetachShader(*shaderProgram, fragmentShader);
+		glUseProgram(0);
 
 		free(vsSource);
 		free(fsSource);

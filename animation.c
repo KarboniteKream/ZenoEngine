@@ -81,6 +81,51 @@ void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale, bo
 	}
 }
 
+void playStaticAnimation(Animation* animation)
+{
+	if(animation->Started == false)
+	{
+		animation->FrameStartTime = SDL_GetTicks();
+		animation->Started = true;
+	}
+
+	// TODO: Store in struct instead of calculating every frame.
+	animation->Frame.X = (animation->CurrentFrame % animation->FramesPerRow) * animation->Frame.W;
+	animation->Frame.Y = (int)(animation->CurrentFrame / animation->FramesPerRow) * animation->Frame.H;
+
+	drawTexture(&animation->AnimationTexture, animation->X, animation->Y, &animation->Frame, 0.0f, animation->Scale, animation->Flip);
+
+	float frameTime = (SDL_GetTicks() - animation->FrameStartTime) / 1000.0f;
+
+	if(frameTime >= animation->AnimationSpeed)
+	{
+		animation->CurrentFrame++;
+		animation->FrameStartTime = SDL_GetTicks();
+	}
+
+	if(animation->CurrentFrame == animation->TotalFrames)
+	{
+		animation->CurrentFrame = 0;
+		animation->IsLastFrame = true;
+	}
+
+	if(animation->CurrentFrame == 0 && animation->IsLastFrame == true)
+	{
+		animation->IsFinished = true;
+		animation->IsLastFrame = false;
+	}
+}
+
+void startAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale, bool flip)
+{
+	animation->Started = true;
+
+	animation->X = x;
+	animation->Y = y;
+	animation->Scale = scale;
+	animation->Flip = flip;
+}
+
 void stopAnimation(Animation *animation)
 {
 	animation->Started = false;
