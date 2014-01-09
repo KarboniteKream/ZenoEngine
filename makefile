@@ -1,9 +1,9 @@
 ifeq ($(OS), Windows_NT)
 	CC = gcc
-	LDFLAGS = -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lOpenGL32 -lm -s
+	LDFLAGS = -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lOpenGL32 -lm -s
 else
 	CC = clang
-	LDFLAGS = -lSDL2 -lSDL2_image -lGL -lm -s
+	LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_net -lGL -lm -s
 endif
 
 CFLAGS = -std=c99 -Wall -O3
