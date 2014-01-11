@@ -222,8 +222,10 @@ void executeCommand(Level *level, const char *command)
 					SDLNet_UDP_Bind(SOCKET, 0, &HOST_ADDRESS);
 				}
 
-				sprintf((char *)PACKET->data, "init");
-				PACKET->len = strlen((char *)PACKET->data) + 1;
+				/*sprintf((char *)PACKET->data, "init");
+				PACKET->len = strlen((char *)PACKET->data) + 1;*/
+				PACKET->data[0] = 'i';
+				PACKET->len = 2;
 				SDLNet_UDP_Send(SOCKET, 0, PACKET);
 			}
 		}

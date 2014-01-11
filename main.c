@@ -88,42 +88,50 @@ int main(int argc, char **argv)
 			players = (Player *)malloc(1 * sizeof(Player));
 		}
 
-		if(MULTIPLAYER == true && SDLNet_UDP_Recv(SOCKET, PACKET) == 1)
+		if(MULTIPLAYER == true && CLIENT == false)
 		{
-			// NOTE: Is there a faster way?
-			char temp[PACKET->len];
-			strcpy(temp, (char *)PACKET->data);
-
-			char **commandArray = (char **)malloc(sizeof(char *));
-			int index = 0, length = 0;
-			commandArray[index] = strtok(temp, " ");
-
-			while(commandArray[index] != NULL)
+			while(SDLNet_UDP_Recv(SOCKET, PACKET) == 1)
 			{
-				index++;
-				length++;
-				commandArray = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
-				commandArray[index] = strtok(NULL, " ");
-			}
+				// NOTE: Is there a faster way?
+				/*char temp[PACKET->len];
+				strcpy(temp, (char *)PACKET->data);
 
-			if(strcmp(commandArray[0], "init") == 0)
-			{
-				initPlayer(&players[0]);
-				loadPlayer(&players[0], "images/player.png");
-				playerInit = true;
-			}
-			else
-			{
-				players[0].X = atof(commandArray[0]);
-				players[0].Y = atof(commandArray[1]);
-			}
+				char **commandArray = (char **)malloc(sizeof(char *));
+				int index = 0, length = 0;
+				commandArray[index] = strtok(temp, " ");
 
-			/*SDL_Event ev;
-			ev.key.keysym.sym = atoi((char *)PACKET->data);
-			ev.type = SDL_KEYDOWN;
-			ev.key.repeat = 0;
+				while(commandArray[index] != NULL)
+				{
+					index++;
+					length++;
+					commandArray = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
+					commandArray[index] = strtok(NULL, " ");
+				}
 
-			handlePlayerEvent(&player, &ev);*/
+				if(strcmp(commandArray[0], "init") == 0)
+				{
+					initPlayer(&players[0]);
+					loadPlayer(&players[0], "images/player.png");
+					playerInit = true;
+				}
+				else
+				{
+					players[0].X = atof(commandArray[0]);
+					players[0].Y = atof(commandArray[1]);
+				}*/
+
+				if(PACKET->data[0] == 'i')
+				{
+					initPlayer(&players[0]);
+					loadPlayer(&players[0], "images/player.png");
+					playerInit = true;
+				}
+				else
+				{
+					players[0].X = PACKET->data[0];
+					players[0].Y = PACKET->data[1];
+				}
+			}
 		}
 
 		while(SDL_PollEvent(&event) != 0)
@@ -351,12 +359,17 @@ int main(int argc, char **argv)
 			fpsTimer = SDL_GetTicks();
 		}
 
-		if(CLIENT == true && SDL_GetTicks() - packetTimer >= 50)
+		if(MULTIPLAYER == true && CLIENT == true && SDL_GetTicks() - packetTimer >= 10)
 		{
-			sprintf((char *)PACKET->data, "%f %f", player.X, player.Y);
-			PACKET->len = strlen((char *)PACKET->data) + 1;
+			//Uint8 data[2] = {player.X, player.Y};
+			//PACKET->data = data;
+			PACKET->data[0] = player.X;
+			PACKET->data[1] = player.Y;
+			PACKET->len = 2;
+			//sprintf((char *)PACKET->data, "%f %f", player.X, player.Y);
+			//PACKET->len = strlen((char *)PACKET->data) + 1;
 			SDLNet_UDP_Send(SOCKET, 0, PACKET);
-			fpsTimer = SDL_GetTicks();
+			packetTimer = SDL_GetTicks();
 		}
 	}
 
