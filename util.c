@@ -2,13 +2,21 @@
 
 void initWindow(SDL_Window **window, const char *windowTitle)
 {
+	// TODO: Support for SDL_GetError() and SDLNet_GetError().
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) == -1)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "An error has occurred while initializing SDL.", NULL);
 		exit(1);
 	}
 
-	atexit(SDL_Quit);
+	if(SDLNet_Init() == -1)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "An error has occurred while initializing SDL_net.", NULL);
+		SDL_Quit();
+		exit(1);
+	}
+
+	// TODO: Setup atexit().
 
 	// TODO: Support for borderless window.
 	// TODO: Fullscreen support.
@@ -135,16 +143,13 @@ void executeCommand(Level *level, const char *command)
 				}
 			}
 		}
-		else if(strcmp(commandArray[0], "set") == 0)
+		else if(strcmp(commandArray[0], "scale") == 0)
 		{
+			// TODO: Remove this.
 			if(length > 1)
 			{
-				// TODO: This should be removed some day.
-				if(length > 2 && strcmp(commandArray[1], "scale") == 0)
-				{
-					// BLOCK_SIZE = atoi(commandArray[2]);
-					// TODO: Reload the level with the new textures.
-				}
+				// BLOCK_SIZE = atoi(commandArray[1]);
+				// TODO: Reload the level with the new textures.
 			}
 		}
 		else if(strcmp(commandArray[0], "debug") == 0)
@@ -154,6 +159,73 @@ void executeCommand(Level *level, const char *command)
 		else if(strcmp(commandArray[0], "vsync") == 0)
 		{
 			SDL_GL_SetSwapInterval(!SDL_GL_GetSwapInterval());
+		}
+		else if(strcmp(commandArray[0], "host") == 0)
+		{
+			// TODO: Turn off multiplayer, check if the client is active.
+			MULTIPLAYER = true;
+			CLIENT = false;
+
+			// TODO: Return on error.
+			// TODO: Close the opened socket.
+			if((SOCKET = SDLNet_UDP_Open(9999)) == NULL)
+			{
+				printLog(1, "Unable to open a socket on port ", "9999.");
+				MULTIPLAYER = false;
+			}
+
+			if((PACKET = SDLNet_AllocPacket(512)) == NULL)
+			{
+				printLog(1, "Unable allocate a packet.", "");
+				MULTIPLAYER = false;
+			}
+
+			printLog(0, "Server hosted on <IP_ADDRESS>:", "9999");
+		}
+		else if(strcmp(commandArray[0], "connect") == 0)
+		{
+			if(length > 1)
+			{
+				// TODO: Check if host is active.
+				MULTIPLAYER = true;
+				CLIENT = true;
+
+				if(SOCKET != NULL)
+				{
+					SDLNet_UDP_Close(SOCKET);
+				}
+
+				if((SOCKET = SDLNet_UDP_Open(0)) == NULL)
+				{
+					printLog(1, "Unable to open a socket.", "");
+					MULTIPLAYER = false;
+				}
+
+				if(PACKET == NULL)
+				{
+					if((PACKET = SDLNet_AllocPacket(512)) == NULL)
+					{
+						printLog(1, "Unable allocate a packet.", "");
+						MULTIPLAYER = false;
+					}
+				}
+
+				// TODO: Add port support.
+				if(SDLNet_ResolveHost(&HOST_ADDRESS, commandArray[1], 9999) == -1)
+				{
+					printLog(1, "Can't resolve host ", commandArray[1]);
+					printLog(1, "Error message: ", SDLNet_GetError());
+				}
+				else
+				{
+					printLog(0, "Connected to ", commandArray[1]);
+					SDLNet_UDP_Bind(SOCKET, 0, &HOST_ADDRESS);
+				}
+
+				sprintf((char *)PACKET->data, "init");
+				PACKET->len = strlen((char *)PACKET->data) + 1;
+				SDLNet_UDP_Send(SOCKET, 0, PACKET);
+			}
 		}
 
 		free(commandArray);

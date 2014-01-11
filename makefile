@@ -1,3 +1,5 @@
+# TODO: Replace LDFLAGS and CFLAGS with sdl2-config.
+
 ifeq ($(OS), Windows_NT)
 	CC = gcc
 	LDFLAGS = -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lOpenGL32 -lm -s

@@ -6,6 +6,12 @@ GLuint BOUND_TEXTURE = 0;
 uint8_t BLOCK_SIZE = 48;
 
 bool DEBUG = false;
+bool MULTIPLAYER = false;
+bool CLIENT = false;
+IPaddress HOST_ADDRESS;
+
+UDPsocket SOCKET = NULL;
+UDPpacket *PACKET = NULL;
 
 GLfloat cameraX = 0.0f;
 GLfloat cameraY = 0.0f;

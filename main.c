@@ -56,6 +56,9 @@ int main(int argc, char **argv)
 	setParticleTTL(&pSys, 0);
 	srand(time(NULL));
 
+	Player *players = NULL;
+	bool playerInit = false;
+
 	SDL_Event event;
 
 	bool quitGame = false;
@@ -70,6 +73,7 @@ int main(int argc, char **argv)
 	char engineInformation[256] = {'\0'};
 
 	Uint32 fpsTimer = SDL_GetTicks();
+	Uint32 packetTimer = SDL_GetTicks();
 	Uint32 currentTime = SDL_GetTicks();
 
 	while(quitGame == false)
@@ -77,6 +81,50 @@ int main(int argc, char **argv)
 		Uint32 previousTime = currentTime;
 		currentTime = SDL_GetTicks();
 		DELTA_TICKS = (currentTime - previousTime) / 1000.0f;
+
+		// FIXME: Execute only on first connect and a new player joining.
+		if(players == NULL && MULTIPLAYER == true && CLIENT == false)
+		{
+			players = (Player *)malloc(1 * sizeof(Player));
+		}
+
+		if(MULTIPLAYER == true && SDLNet_UDP_Recv(SOCKET, PACKET) == 1)
+		{
+			// NOTE: Is there a faster way?
+			char temp[PACKET->len];
+			strcpy(temp, (char *)PACKET->data);
+
+			char **commandArray = (char **)malloc(sizeof(char *));
+			int index = 0, length = 0;
+			commandArray[index] = strtok(temp, " ");
+
+			while(commandArray[index] != NULL)
+			{
+				index++;
+				length++;
+				commandArray = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
+				commandArray[index] = strtok(NULL, " ");
+			}
+
+			if(strcmp(commandArray[0], "init") == 0)
+			{
+				initPlayer(&players[0]);
+				loadPlayer(&players[0], "images/player.png");
+				playerInit = true;
+			}
+			else
+			{
+				players[0].X = atof(commandArray[0]);
+				players[0].Y = atof(commandArray[1]);
+			}
+
+			/*SDL_Event ev;
+			ev.key.keysym.sym = atoi((char *)PACKET->data);
+			ev.type = SDL_KEYDOWN;
+			ev.key.repeat = 0;
+
+			handlePlayerEvent(&player, &ev);*/
+		}
 
 		while(SDL_PollEvent(&event) != 0)
 		{
@@ -170,7 +218,7 @@ int main(int argc, char **argv)
 							if(commandIndex < 255)
 							{
 								// TODO: Replace with SDL_StartTextInput()
-								if((event.key.keysym.sym >= 'a' && event.key.keysym.sym <= 'z') || (event.key.keysym.sym >= '0' && event.key.keysym.sym <= '9') || event.key.keysym.sym == ' ')
+								if((event.key.keysym.sym >= 'a' && event.key.keysym.sym <= 'z') || (event.key.keysym.sym >= '0' && event.key.keysym.sym <= '9') || event.key.keysym.sym == ' ' || event.key.keysym.sym == '.')
 								{
 									command[commandIndex++] = event.key.keysym.sym;
 									command[commandIndex] = '\0';
@@ -242,6 +290,12 @@ int main(int argc, char **argv)
 		debugParticleSystem(&pSys);
 		drawText(&font2, SCREEN_WIDTH - 100.0f, 230.0f, "Portal to the Wind Dimension", 0.0f, 0.0f, 1.0f);
 		updateParticleSystem(&pSys);
+
+		if(MULTIPLAYER == true && playerInit == true)
+		{
+			drawPlayer(&players[0]);
+		}
+
 		drawPlayer(&player);
 
 		glLoadIdentity();
@@ -296,9 +350,19 @@ int main(int argc, char **argv)
 			frames = 0;
 			fpsTimer = SDL_GetTicks();
 		}
+
+		if(CLIENT == true && SDL_GetTicks() - packetTimer >= 50)
+		{
+			sprintf((char *)PACKET->data, "%f %f", player.X, player.Y);
+			PACKET->len = strlen((char *)PACKET->data) + 1;
+			SDLNet_UDP_Send(SOCKET, 0, PACKET);
+			fpsTimer = SDL_GetTicks();
+		}
 	}
 
+	SDLNet_FreePacket(PACKET);
 	SDL_DestroyWindow(window);
+	SDLNet_Quit();
 	SDL_Quit();
 
 	return 0;

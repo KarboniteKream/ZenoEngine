@@ -32,6 +32,12 @@ extern GLuint BOUND_TEXTURE;
 extern uint8_t BLOCK_SIZE;
 
 extern bool DEBUG;
+extern bool MULTIPLAYER;
+extern bool CLIENT;
+extern IPaddress HOST_ADDRESS;
+
+extern UDPsocket SOCKET;
+extern UDPpacket *PACKET;
 
 extern GLfloat cameraX;
 extern GLfloat cameraY;
