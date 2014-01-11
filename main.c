@@ -361,16 +361,9 @@ int main(int argc, char **argv)
 
 		if(MULTIPLAYER == true && SDL_GetTicks() - packetTimer >= 10)
 		{
-			//Uint8 data[2] = {player.X, player.Y};
-			//PACKET->data = data;
-			/*PACKET->data[0] = player.X;
-			PACKET->data[1] = player.Y;
-			PACKET->len = 2;*/
-			sprintf((char *)PACKET->data, "%f %f", player.X, player.Y);
+			sprintf((char *)PACKET->data, "%.0f %.0f", player.X, player.Y);
 			PACKET->len = strlen((char *)PACKET->data) + 1;
-
 			SDLNet_UDP_Send(SOCKET, 0, PACKET);
-
 			packetTimer = SDL_GetTicks();
 		}
 	}
