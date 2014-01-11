@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 
 		if(MULTIPLAYER == true)
 		{
-			if(CLIENT == true && playerInit == false)
+			if(playerInit == false)
 			{
 				initPlayer(&players[0]);
 				loadPlayer(&players[0], "images/player.png");
@@ -99,8 +99,9 @@ int main(int argc, char **argv)
 
 			while(SDLNet_UDP_Recv(SOCKET, PACKET) == 1)
 			{
+				/*
 				// NOTE: Is there a faster way?
-				/*char temp[PACKET->len];
+				char temp[PACKET->len];
 				strcpy(temp, (char *)PACKET->data);
 
 				char **commandArray = (char **)malloc(sizeof(char *));
@@ -125,19 +126,11 @@ int main(int argc, char **argv)
 				{
 					players[0].X = atof(commandArray[0]);
 					players[0].Y = atof(commandArray[1]);
-				}*/
+				}
+				*/
 
-				if(CLIENT == false && PACKET->data[0] == 'i')
-				{
-					initPlayer(&players[0]);
-					loadPlayer(&players[0], "images/player.png");
-					playerInit = true;
-				}
-				else
-				{
-					// NOTE: Is it necessary to convert to char *?
-					sscanf((char *)PACKET->data, "%f %f", &players[0].X, &players[0].Y);
-				}
+				// NOTE: Is it necessary to convert to char *?
+				sscanf((char *)PACKET->data, "%f %f", &players[0].X, &players[0].Y);
 			}
 		}
 
