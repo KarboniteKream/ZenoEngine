@@ -83,13 +83,20 @@ int main(int argc, char **argv)
 		DELTA_TICKS = (currentTime - previousTime) / 1000.0f;
 
 		// FIXME: Execute only on first connect and a new player joining.
-		if(players == NULL && MULTIPLAYER == true && CLIENT == false)
+		if(players == NULL && MULTIPLAYER == true)
 		{
 			players = (Player *)malloc(1 * sizeof(Player));
 		}
 
-		if(MULTIPLAYER == true && CLIENT == false)
+		if(MULTIPLAYER == true)
 		{
+			if(CLIENT == true && playerInit == false)
+			{
+				initPlayer(&players[0]);
+				loadPlayer(&players[0], "images/player.png");
+				playerInit = true;
+			}
+
 			while(SDLNet_UDP_Recv(SOCKET, PACKET) == 1)
 			{
 				// NOTE: Is there a faster way?
@@ -120,7 +127,7 @@ int main(int argc, char **argv)
 					players[0].Y = atof(commandArray[1]);
 				}*/
 
-				if(PACKET->data[0] == 'i')
+				if(CLIENT == false && PACKET->data[0] == 'i')
 				{
 					initPlayer(&players[0]);
 					loadPlayer(&players[0], "images/player.png");
@@ -128,8 +135,8 @@ int main(int argc, char **argv)
 				}
 				else
 				{
-					players[0].X = PACKET->data[0];
-					players[0].Y = PACKET->data[1];
+					// NOTE: Is it necessary to convert to char *?
+					sscanf((char *)PACKET->data, "%f %f", &players[0].X, &players[0].Y);
 				}
 			}
 		}
@@ -359,16 +366,18 @@ int main(int argc, char **argv)
 			fpsTimer = SDL_GetTicks();
 		}
 
-		if(MULTIPLAYER == true && CLIENT == true && SDL_GetTicks() - packetTimer >= 10)
+		if(MULTIPLAYER == true && SDL_GetTicks() - packetTimer >= 10)
 		{
 			//Uint8 data[2] = {player.X, player.Y};
 			//PACKET->data = data;
-			PACKET->data[0] = player.X;
+			/*PACKET->data[0] = player.X;
 			PACKET->data[1] = player.Y;
-			PACKET->len = 2;
-			//sprintf((char *)PACKET->data, "%f %f", player.X, player.Y);
-			//PACKET->len = strlen((char *)PACKET->data) + 1;
+			PACKET->len = 2;*/
+			sprintf((char *)PACKET->data, "%f %f", player.X, player.Y);
+			PACKET->len = strlen((char *)PACKET->data) + 1;
+
 			SDLNet_UDP_Send(SOCKET, 0, PACKET);
+
 			packetTimer = SDL_GetTicks();
 		}
 	}

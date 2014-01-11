@@ -34,9 +34,9 @@ extern uint8_t BLOCK_SIZE;
 extern bool DEBUG;
 extern bool MULTIPLAYER;
 extern bool CLIENT;
-extern IPaddress HOST_ADDRESS;
 
 extern UDPsocket SOCKET;
+extern IPaddress ADDRESS;
 extern UDPpacket *PACKET;
 
 extern GLfloat cameraX;

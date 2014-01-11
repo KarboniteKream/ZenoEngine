@@ -180,7 +180,18 @@ void executeCommand(Level *level, const char *command)
 				MULTIPLAYER = false;
 			}
 
-			printLog(0, "Server hosted on <IP_ADDRESS>:", "9999");
+			// TODO: Add port support.
+			if(SDLNet_ResolveHost(&ADDRESS, commandArray[1], 9999) == -1)
+			{
+				printLog(1, "Unable to resolve client ", commandArray[1]);
+				printLog(1, "Error message: ", SDLNet_GetError());
+			}
+			else
+			{
+				printLog(0, "Server hosted on <IP_ADDRESS>:", "9999");
+				// TODO: Get IP address from the client.
+				SDLNet_UDP_Bind(SOCKET, 0, &ADDRESS);
+			}
 		}
 		else if(strcmp(commandArray[0], "connect") == 0)
 		{
@@ -190,12 +201,7 @@ void executeCommand(Level *level, const char *command)
 				MULTIPLAYER = true;
 				CLIENT = true;
 
-				if(SOCKET != NULL)
-				{
-					SDLNet_UDP_Close(SOCKET);
-				}
-
-				if((SOCKET = SDLNet_UDP_Open(0)) == NULL)
+				if((SOCKET = SDLNet_UDP_Open(9999)) == NULL)
 				{
 					printLog(1, "Unable to open a socket.", "");
 					MULTIPLAYER = false;
@@ -211,15 +217,15 @@ void executeCommand(Level *level, const char *command)
 				}
 
 				// TODO: Add port support.
-				if(SDLNet_ResolveHost(&HOST_ADDRESS, commandArray[1], 9999) == -1)
+				if(SDLNet_ResolveHost(&ADDRESS, commandArray[1], 9999) == -1)
 				{
-					printLog(1, "Can't resolve host ", commandArray[1]);
+					printLog(1, "Unable to resolve server ", commandArray[1]);
 					printLog(1, "Error message: ", SDLNet_GetError());
 				}
 				else
 				{
 					printLog(0, "Connected to ", commandArray[1]);
-					SDLNet_UDP_Bind(SOCKET, 0, &HOST_ADDRESS);
+					SDLNet_UDP_Bind(SOCKET, 0, &ADDRESS);
 				}
 
 				/*sprintf((char *)PACKET->data, "init");
