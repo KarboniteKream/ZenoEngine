@@ -25,6 +25,7 @@ typedef struct
 	GLfloat Y;
 	GLfloat WH;
 
+	// NOTE: How many particles do I really need?
 	unsigned int NumberOfParticles;
 
 	Particle *Particles;

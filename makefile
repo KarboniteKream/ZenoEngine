@@ -9,7 +9,7 @@ else
 	LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_net -lGL -lm -s
 endif
 
-CFLAGS = -std=c99 -pedantic -Wall -O3
+CFLAGS = -std=c99 -Wall -Wextra -O3
 
 OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o particle.o
 

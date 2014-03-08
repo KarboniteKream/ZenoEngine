@@ -34,7 +34,7 @@ void initParticle(Particle *particle, GLfloat x, GLfloat y, GLfloat speedX)
 
 void setParticleTTL(ParticleSystem *particleSystem, unsigned int ttl)
 {
-	for(int i = 0; i < particleSystem->NumberOfParticles; i++)
+	for(unsigned int i = 0; i < particleSystem->NumberOfParticles; i++)
 	{
 		particleSystem->Particles[i].TTL = ttl;
 	}
@@ -47,7 +47,7 @@ void debugParticleSystem(ParticleSystem *particleSystem)
 
 void updateParticleSystem(ParticleSystem *particleSystem)
 {
-	for(int i = 0; i < particleSystem->NumberOfParticles; i++)
+	for(unsigned int i = 0; i < particleSystem->NumberOfParticles; i++)
 	{
 		if(particleSystem->Particles[i].TTL != -1)
 		{

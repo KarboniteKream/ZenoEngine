@@ -4,7 +4,7 @@ else
 	CC = clang
 endif
 
-FLAGS = -std=c99 -Wall -O3 -s
+FLAGS = -std=c99 -Wall -Wextra -O3 -s
 
 tools: font-converter transpose-level
 

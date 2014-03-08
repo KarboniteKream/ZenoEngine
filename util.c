@@ -20,7 +20,7 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 
 	// TODO: Support for borderless window.
 	// TODO: Fullscreen support.
-	*window = SDL_CreateWindow("Zeno Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	*window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
 	if(*window == NULL)
 	{
@@ -71,34 +71,37 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 void loadExtensions()
 {
 	// TODO: Check for supported extensions.
-	glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
-	glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
-	glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
-	glBufferSubData = (PFNGLBUFFERSUBDATAPROC)SDL_GL_GetProcAddress("glBufferSubData");
+	glBindBuffer = (GL_BindBuffer)SDL_GL_GetProcAddress("glBindBuffer");
+	glGenBuffers = (GL_GenBuffers)SDL_GL_GetProcAddress("glGenBuffers");
+	glDeleteBuffers = (GL_DeleteBuffers)SDL_GL_GetProcAddress("glDeleteBuffers");
+	glBufferData = (GL_BufferData)SDL_GL_GetProcAddress("glBufferData");
+	glBufferSubData = (GL_BufferSubData)SDL_GL_GetProcAddress("glBufferSubData");
 
-	glUseProgram = (PFNGLUSEPROGRAMPROC)SDL_GL_GetProcAddress("glUseProgram");
-	glCreateProgram = (PFNGLCREATEPROGRAMPROC)SDL_GL_GetProcAddress("glCreateProgram");
-	glDeleteProgram = (PFNGLDELETEPROGRAMPROC)SDL_GL_GetProcAddress("glDeleteProgram");
-	glCreateShader = (PFNGLCREATESHADERPROC)SDL_GL_GetProcAddress("glCreateShader");
-	glShaderSource = (PFNGLSHADERSOURCEPROC)SDL_GL_GetProcAddress("glShaderSource");
-	glCompileShader = (PFNGLCOMPILESHADERPROC)SDL_GL_GetProcAddress("glCompileShader");
-	glAttachShader = (PFNGLATTACHSHADERPROC)SDL_GL_GetProcAddress("glAttachShader");
-	glLinkProgram = (PFNGLLINKPROGRAMPROC)SDL_GL_GetProcAddress("glLinkProgram");
-	glGetShaderiv = (PFNGLGETSHADERIVPROC)SDL_GL_GetProcAddress("glGetShaderiv");
-	glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)SDL_GL_GetProcAddress("glGetShaderInfoLog");
-	glGetProgramiv = (PFNGLGETPROGRAMIVPROC)SDL_GL_GetProcAddress("glGetProgramiv");
-	glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)SDL_GL_GetProcAddress("glGetProgramInfoLog");
-	glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)SDL_GL_GetProcAddress("glGetUniformLocation");
-	glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)SDL_GL_GetProcAddress("glGetAttribLocation");
-	glUniform4f = (PFNGLUNIFORM4FPROC)SDL_GL_GetProcAddress("glUniform4f");
-	glUniform1i = (PFNGLUNIFORM1IPROC)SDL_GL_GetProcAddress("glUniform1i");
-	glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glEnableVertexAttribArray");
-	glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
-	glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)SDL_GL_GetProcAddress("glVertexAttribPointer");
-	glIsShader = (PFNGLISSHADERPROC)SDL_GL_GetProcAddress("glIsShader");
-	glDeleteShader = (PFNGLDELETESHADERPROC)SDL_GL_GetProcAddress("glDeleteShader");
-	glDetachShader = (PFNGLDETACHSHADERPROC)SDL_GL_GetProcAddress("glDetachShader");
+	glUseProgram = (GL_UseProgram)SDL_GL_GetProcAddress("glUseProgram");
+	glCreateProgram = (GL_CreateProgram)SDL_GL_GetProcAddress("glCreateProgram");
+	glDeleteProgram = (GL_DeleteProgram)SDL_GL_GetProcAddress("glDeleteProgram");
+	glLinkProgram = (GL_LinkProgram)SDL_GL_GetProcAddress("glLinkProgram");
+	glGetProgramiv = (GL_GetProgramiv)SDL_GL_GetProcAddress("glGetProgramiv");
+	glGetProgramInfoLog = (GL_GetProgramInfoLog)SDL_GL_GetProcAddress("glGetProgramInfoLog");
+
+	glCreateShader = (GL_CreateShader)SDL_GL_GetProcAddress("glCreateShader");
+	glDeleteShader = (GL_DeleteShader)SDL_GL_GetProcAddress("glDeleteShader");
+	glShaderSource = (GL_ShaderSource)SDL_GL_GetProcAddress("glShaderSource");
+	glCompileShader = (GL_CompileShader)SDL_GL_GetProcAddress("glCompileShader");
+	glIsShader = (GL_IsShader)SDL_GL_GetProcAddress("glIsShader");
+	glGetShaderiv = (GL_GetShaderiv)SDL_GL_GetProcAddress("glGetShaderiv");
+	glGetShaderInfoLog = (GL_GetShaderInfoLog)SDL_GL_GetProcAddress("glGetShaderInfoLog");
+	glAttachShader = (GL_AttachShader)SDL_GL_GetProcAddress("glAttachShader");
+	glDetachShader = (GL_DetachShader)SDL_GL_GetProcAddress("glDetachShader");
+
+	glGetAttribLocation = (GL_GetAttribLocation)SDL_GL_GetProcAddress("glGetAttribLocation");
+	glGetUniformLocation = (GL_GetUniformLocation)SDL_GL_GetProcAddress("glGetUniformLocation");
+	glUniform1i = (GL_Uniform1i)SDL_GL_GetProcAddress("glUniform1i");
+	glUniform4f = (GL_Uniform4f)SDL_GL_GetProcAddress("glUniform4f");
+
+	glEnableVertexAttribArray = (GL_EnableVertexAttribArray)SDL_GL_GetProcAddress("glEnableVertexAttribArray");
+	glDisableVertexAttribArray = (GL_DisableVertexAttribArray)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
+	glVertexAttribPointer = (GL_VertexAttribPointer)SDL_GL_GetProcAddress("glVertexAttribPointer");
 
 	printLog(0, "Extensions loaded successfully.", NULL);
 }
@@ -303,6 +306,7 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 
 		GLint compileStatus = GL_TRUE;
 
+		// TODO: Add message on successful compilation.
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
