@@ -243,7 +243,7 @@ void saveScreenshot()
 
 	for(int i = 0; i < SCREEN_HEIGHT; i++)
 	{
-		memcpy(screenshot->pixels + SCREEN_WIDTH * 3 * i, pixels + SCREEN_WIDTH * 3 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 3);
+		memcpy((char *)screenshot->pixels + SCREEN_WIDTH * 3 * i, pixels + SCREEN_WIDTH * 3 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 3);
 	}
 
 	// TODO: Add automatic numbering.
