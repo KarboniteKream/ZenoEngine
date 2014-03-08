@@ -33,6 +33,7 @@ int logIndex = 0;
 void printLog(int type, const char *summary, const char *details)
 {
 	// TODO: Dynamic size.
+	// TODO: Free logs.
 	logs[logIndex] = (char *)malloc(256 * sizeof(char));
 	// NOTE: Should details be just another message, but smaller, or with a different color?
 	char message[256];

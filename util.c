@@ -70,7 +70,8 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 // TODO: Rename 'extensions'.
 void loadExtensions()
 {
-	// TODO: Check for supported extensions.
+	// TODO: Check for supported extensions with SDL_GL_ExtensionSupported().
+	// WINDOWS: Function pointers are context-specific.
 	glBindBuffer = (GL_BindBuffer)SDL_GL_GetProcAddress("glBindBuffer");
 	glGenBuffers = (GL_GenBuffers)SDL_GL_GetProcAddress("glGenBuffers");
 	glDeleteBuffers = (GL_DeleteBuffers)SDL_GL_GetProcAddress("glDeleteBuffers");
@@ -163,6 +164,7 @@ void executeCommand(Level *level, const char *command)
 		{
 			SDL_GL_SetSwapInterval(!SDL_GL_GetSwapInterval());
 		}
+		// TODO: Add disconnect option and free PACKET.
 		else if(strcmp(commandArray[0], "host") == 0)
 		{
 			// TODO: Turn off multiplayer, check if the client is active.
@@ -196,6 +198,7 @@ void executeCommand(Level *level, const char *command)
 				SDLNet_UDP_Bind(SOCKET, 0, &ADDRESS);
 			}
 		}
+		// TODO: Add disconnect option and free PACKET.
 		else if(strcmp(commandArray[0], "connect") == 0)
 		{
 			if(length > 1)
@@ -249,10 +252,10 @@ void saveScreenshot()
 		memcpy((char *)screenshot->pixels + SCREEN_WIDTH * 3 * i, pixels + SCREEN_WIDTH * 3 * (SCREEN_HEIGHT - i - 1), SCREEN_WIDTH * 3);
 	}
 
+	free(pixels);
+
 	// TODO: Add automatic numbering.
 	IMG_SavePNG(screenshot, "screenshots/screenshot.png");
-
-	free(pixels);
 	free(screenshot);
 
 	// TODO: Error checking.
@@ -296,17 +299,14 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		fread(fsSource[0], sizeof(GLchar), fsLength, fsFile);
 		fclose(fsFile);
 
+		GLint compileStatus = GL_TRUE;
+
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, 1, (const GLchar **)vsSource, NULL);
 		glCompileShader(vertexShader);
+		free(vsSource);
 
-		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShader, 1, (const GLchar **)fsSource, NULL);
-		glCompileShader(fragmentShader);
-
-		GLint compileStatus = GL_TRUE;
-
-		// TODO: Add message on successful compilation.
+		// TODO: Add a message on successful compilation.
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
@@ -315,6 +315,12 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 			glDeleteShader(vertexShader);
 		}
 
+		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShader, 1, (const GLchar **)fsSource, NULL);
+		glCompileShader(fragmentShader);
+		free(fsSource);
+
+		// TODO: Add a message on successful compilation.
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileStatus);
 		if(compileStatus == GL_FALSE)
 		{
@@ -327,6 +333,7 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		glUseProgram(*shaderProgram);
 		*shaderProgram = glCreateProgram();
 
+		// NOTE: What to do if vertexShader is deleted?
 		glAttachShader(*shaderProgram, vertexShader);
 		glAttachShader(*shaderProgram, fragmentShader);
 
@@ -346,9 +353,6 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		glDetachShader(*shaderProgram, vertexShader);
 		glDetachShader(*shaderProgram, fragmentShader);
 		glUseProgram(0);
-
-		free(vsSource);
-		free(fsSource);
 	}
 }
 

@@ -91,6 +91,7 @@ int main(int argc, char **argv)
 		// FIXME: Execute only on first connect and a new player joining.
 		if(players == NULL && MULTIPLAYER == true)
 		{
+			// TODO: Free players.
 			players = (Player *)malloc(1 * sizeof(Player));
 		}
 
@@ -133,6 +134,8 @@ int main(int argc, char **argv)
 					players[0].X = atof(commandArray[0]);
 					players[0].Y = atof(commandArray[1]);
 				}
+
+				free(commandArray);
 				*/
 
 				// NOTE: Is it necessary to convert to char *?

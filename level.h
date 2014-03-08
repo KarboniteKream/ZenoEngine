@@ -6,13 +6,13 @@
 
 typedef struct
 {
-	Texture LevelTexture;
-	RectangleF *TexClips;
-
 	int Width;
 	int Height;
 
 	uint8_t ***Data;
+
+	Texture LevelTexture;
+	RectangleF *TexClips;
 } Level;
 
 void initLevel(Level *level);

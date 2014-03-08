@@ -16,6 +16,7 @@ typedef struct
 	GLuint TexHeight;
 } Texture;
 
+// TODO: Implement freeTexture().
 void initTexture(Texture *texture);
 void initVBO(Texture *texture, VertexData *vertexData, GLuint num);
 void loadTexture(Texture *texture, const char *filename);

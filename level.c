@@ -2,13 +2,13 @@
 
 void initLevel(Level *level)
 {
-	initTexture(&level->LevelTexture);
-	level->TexClips = NULL;
-
 	level->Width = 0;
 	level->Height = 0;
 
 	level->Data = NULL;
+
+	initTexture(&level->LevelTexture);
+	level->TexClips = NULL;
 }
 
 // TODO: Free level.
@@ -38,8 +38,8 @@ void loadLevel(Level *level, const char *filename)
 			free(level->Data[i]);
 		}
 
-		free(level->TexClips);
 		free(level->Data);
+		free(level->TexClips);
 	}
 
 	level->Data = (uint8_t ***)malloc(level->Width * sizeof(uint8_t **));

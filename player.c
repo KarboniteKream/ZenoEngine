@@ -58,6 +58,7 @@ void loadPlayer(Player *player, const char *playerTexture)
 	loadAnimation(&player->Animations[5], "images/animationJumping.png", 9, 3, 3, 0.075f);
 	loadAnimation(&player->Animations[6], "images/groundStrikePlayerAnimation.png", 8, 4, 2, 0.06f);
 
+	// TODO: Free player->Attacks.
 	player->Attacks = (Animation *)malloc(7 * sizeof(Animation));
 
 	for(int i = 0; i < 1; i++)
