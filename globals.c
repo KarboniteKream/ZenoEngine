@@ -29,6 +29,7 @@ GLint texColor = 0;
 
 int logIndex = 0;
 
+// TODO: Better argument handling, variable number of arguments.
 void printLog(int type, const char *summary, const char *details)
 {
 	// TODO: Dynamic size.
@@ -37,20 +38,21 @@ void printLog(int type, const char *summary, const char *details)
 	char message[256];
 
 	// TODO: Replace "OK" and "ERROR" with colors.
+	// TODO: Remove NULL.
 	switch(type)
 	{
 		case 0:
-			sprintf(message, "OK: %s%s", summary, (details == NULL) ? "" : details);
+			sprintf(message, "OK: %s %s", summary, (details == NULL) ? "" : details);
 		break;
 
 		case 1:
-			sprintf(message, "ERROR: %s%s", summary, (details == NULL) ? "" : details);
+			sprintf(message, "ERROR: %s %s", summary, (details == NULL) ? "" : details);
 		break;
 	}
 
 	strcpy(logs[logIndex++], message);
 
-	if(type != 0)
+	if(type == 1)
 	{
 		printf("%s\n", message);
 	}

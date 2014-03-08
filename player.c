@@ -195,97 +195,99 @@ void drawPlayer(Player *player)
 
 void handlePlayerEvent(Player *player, SDL_Event *event)
 {
-	bool keyState = (event->type == SDL_KEYDOWN) ? true : false;
-
-	// NOTE: Valgrind error.
-	switch(event->key.keysym.sym)
+	if(event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
 	{
-		case SDLK_a:
-			if(event->key.repeat == 0)
-			{
-				player->KeyStates[0] = keyState;
-				player->IsFacingLeft = true;
+		bool keyState = (event->type == SDL_KEYDOWN) ? true : false;
 
-				// TODO: Smooth start?
-				// TODO: Smooth turning.
-				if(player->KeyStates[1] == true)
+		switch(event->key.keysym.sym)
+		{
+			case SDLK_a:
+				if(event->key.repeat == 0)
 				{
-					player->CurrentSpeed = keyState == true ? -player->Speed : player->Speed;
-					player->IsMoving = true;
-					player->IsFacingLeft = keyState;
-				}
-				else
-				{
-					if(keyState == true)
+					player->KeyStates[0] = keyState;
+					player->IsFacingLeft = true;
+
+					// TODO: Smooth start?
+					// TODO: Smooth turning.
+					if(player->KeyStates[1] == true)
 					{
-						player->CurrentSpeed = -player->Speed;
+						player->CurrentSpeed = keyState == true ? -player->Speed : player->Speed;
+						player->IsMoving = true;
+						player->IsFacingLeft = keyState;
 					}
-
-					player->IsStopping = !keyState;
-					player->IsMoving = keyState;
-				}
-			}
-		break;
-
-		case SDLK_d:
-			if(event->key.repeat == 0)
-			{
-				player->KeyStates[1] = keyState;
-				player->IsFacingLeft = false;
-
-				if(player->KeyStates[0] == true)
-				{
-					player->CurrentSpeed = keyState ? player->Speed : -player->Speed;
-					player->IsMoving = true;
-					player->IsFacingLeft = !keyState;
-				}
-				else
-				{
-					if(keyState == true)
+					else
 					{
-						player->CurrentSpeed = player->Speed;
+						if(keyState == true)
+						{
+							player->CurrentSpeed = -player->Speed;
+						}
+
+						player->IsStopping = !keyState;
+						player->IsMoving = keyState;
 					}
-
-					player->IsMoving = keyState;
-					player->IsStopping = !keyState;
 				}
-			}
-		break;
+			break;
 
-		case SDLK_w: case SDLK_SPACE:
-			if(event->key.repeat == 0)
-			{
-				player->KeyStates[2] = keyState;
-			}
-		break;
+			case SDLK_d:
+				if(event->key.repeat == 0)
+				{
+					player->KeyStates[1] = keyState;
+					player->IsFacingLeft = false;
 
-		case SDLK_j:
-			player->Health -= 4;
-			if(player->Health < 0)
-			{
-				player->Health = 0;
-			}
-		break;
+					if(player->KeyStates[0] == true)
+					{
+						player->CurrentSpeed = keyState ? player->Speed : -player->Speed;
+						player->IsMoving = true;
+						player->IsFacingLeft = !keyState;
+					}
+					else
+					{
+						if(keyState == true)
+						{
+							player->CurrentSpeed = player->Speed;
+						}
 
-		case SDLK_k:
-			player->Health += 4;
-			if(player->Health > player->MaxHealth)
-			{
-				player->Health = player->MaxHealth;
-			}
-		break;
+						player->IsMoving = keyState;
+						player->IsStopping = !keyState;
+					}
+				}
+			break;
 
-		case SDLK_1: case SDLK_2:
-		case SDLK_3: case SDLK_4:
-			player->SelectedSkill = event->key.keysym.sym - 48;
-		break;
+			case SDLK_w: case SDLK_SPACE:
+				if(event->key.repeat == 0)
+				{
+					player->KeyStates[2] = keyState;
+				}
+			break;
 
-		case SDLK_q:
-			player->IsAttacking = true;
-		break;
+			case SDLK_j:
+				player->Health -= 4;
+				if(player->Health < 0)
+				{
+					player->Health = 0;
+				}
+			break;
 
-		default:
-		break;
+			case SDLK_k:
+				player->Health += 4;
+				if(player->Health > player->MaxHealth)
+				{
+					player->Health = player->MaxHealth;
+				}
+			break;
+
+			case SDLK_1: case SDLK_2:
+			case SDLK_3: case SDLK_4:
+				player->SelectedSkill = event->key.keysym.sym - 48;
+			break;
+
+			case SDLK_q:
+				player->IsAttacking = true;
+			break;
+
+			default:
+			break;
+		}
 	}
 }
 
@@ -335,7 +337,10 @@ void updatePlayer(Player *player, Level *level)
 			}
 			else if(level->Data[w][i][PROPERTIES] == SLOPE_LEFT)
 			{
-				player->Y += w + BLOCK_SIZE - player->X + (player->BoundingBox.X * player->Scale);
+				// NOTE: Should I check only h2?
+				GLfloat w1 = (player->X + (player->BoundingBox.X * player->Scale));
+				GLfloat w2 = w1 - (int)(w1 / BLOCK_SIZE) * BLOCK_SIZE;
+				player->Y = (i - 2) * BLOCK_SIZE + w2;
 			}
 		}
 	}
@@ -351,6 +356,14 @@ void updatePlayer(Player *player, Level *level)
 			{
 				player->X = w * BLOCK_SIZE - ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale) - 0.25;
 				break;
+			}
+			else if(level->Data[w][i][PROPERTIES] == SLOPE_RIGHT)
+			{
+				// NOTE: Should I check only h2?
+				GLfloat w1 = (player->X + ((player->BoundingBox.X + player->BoundingBox.W) * player->Scale));
+				// NOTE: Check only the left side of the block.
+				GLfloat w2 = -(((int)(w1 / BLOCK_SIZE) + 1) * BLOCK_SIZE - w1);
+				player->Y = (i - 2) * BLOCK_SIZE + w2;
 			}
 		}
 	}
@@ -398,6 +411,10 @@ void updatePlayer(Player *player, Level *level)
 				player->CurrentJumpSpeed = 0.0f;
 
 				break;
+			}
+			else if(level->Data[i][h][PROPERTIES] == SLOPE_LEFT)
+			{
+				player->CurrentJumpSpeed = 0.0f;
 			}
 		}
 	}

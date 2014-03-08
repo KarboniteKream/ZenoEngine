@@ -24,6 +24,7 @@
 #define PROPERTIES 1
 #define COLLIDABLE 1
 #define SLOPE_LEFT 2
+#define SLOPE_RIGHT 3
 
 extern float DELTA_TICKS;
 extern GLuint BOUND_TEXTURE;
@@ -110,6 +111,6 @@ extern GLint texColor;
 extern int logIndex;
 char *logs[256];
 
-void printLog(int type, const char *error, const char *details);
+void printLog(int type, const char *summary, const char *details);
 
 #endif

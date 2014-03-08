@@ -77,7 +77,7 @@ void loadLevel(Level *level, const char *filename)
 	loadTexture(&level->LevelTexture, textureFilename);
 
 	// FIXME: Move metadata to .dat files.
-	level->TexClips = (RectangleF *)malloc(6 * sizeof(RectangleF));
+	level->TexClips = (RectangleF *)malloc(7 * sizeof(RectangleF));
 
 	level->TexClips[0].X = 0.0f;
 	level->TexClips[0].Y = 0.0f;
@@ -97,7 +97,10 @@ void loadLevel(Level *level, const char *filename)
 	level->TexClips[5].X = BLOCK_SIZE * 2;
 	level->TexClips[5].Y = BLOCK_SIZE;
 
-	for(int i = 0; i < 6; i++)
+	level->TexClips[6].X = 0.0f;
+	level->TexClips[6].Y = BLOCK_SIZE * 2;
+
+	for(int i = 0; i < 7; i++)
 	{
 		level->TexClips[i].W = BLOCK_SIZE;
 		level->TexClips[i].H = BLOCK_SIZE;
@@ -245,6 +248,10 @@ void setLevelLayout(Level *level, int x, int y, int block)
 
 		case 5:
 			level->Data[x][y][PROPERTIES] = SLOPE_LEFT;
+		break;
+
+		case 6:
+			level->Data[x][y][PROPERTIES] = SLOPE_RIGHT;
 		break;
 	}
 

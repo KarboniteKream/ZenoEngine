@@ -82,6 +82,12 @@ int main(int argc, char **argv)
 		currentTime = SDL_GetTicks();
 		DELTA_TICKS = (currentTime - previousTime) / 1000.0f;
 
+		// NOTE: The game will not run properly below 30 FPS.
+		if(DELTA_TICKS > 0.034f)
+		{
+			DELTA_TICKS = 0.034f;
+		}
+
 		// FIXME: Execute only on first connect and a new player joining.
 		if(players == NULL && MULTIPLAYER == true)
 		{
@@ -181,6 +187,7 @@ int main(int argc, char **argv)
 						case SDLK_1: case SDLK_2:
 						case SDLK_3: case SDLK_4:
 						case SDLK_5: case SDLK_6:
+						case SDLK_7:
 							editorBlock = event.key.keysym.sym - 48 - 1;
 						break;
 
