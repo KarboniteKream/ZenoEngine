@@ -19,6 +19,9 @@ all: zeno tools
 zeno: $(OBJECTS)
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o ZenoEngine
 
+tools:
+	@$(MAKE) -C tools --no-print-directory
+
 main.o: main.c util.h globals.h texture.h level.h player.h font.h particle.h
 	$(CC) $(CFLAGS) -c main.c
 
@@ -45,9 +48,6 @@ animation.o: animation.c animation.h globals.h texture.h
 
 particle.o: particle.c particle.h globals.h texture.h
 	$(CC) $(CFLAGS) -c particle.c
-
-tools:
-	@$(MAKE) -C tools --no-print-directory
 
 clean:
 	@rm -rf *.o ZenoEngine ZenoEngine.exe

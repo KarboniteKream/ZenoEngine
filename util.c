@@ -288,7 +288,10 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		fsSource[0] = (GLchar *)calloc(fsLength + 1, sizeof(GLchar));
 
 		fread(vsSource[0], sizeof(GLchar), vsLength, vsFile);
+		fclose(vsFile);
+
 		fread(fsSource[0], sizeof(GLchar), fsLength, fsFile);
+		fclose(fsFile);
 
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, 1, (const GLchar **)vsSource, NULL);
@@ -343,9 +346,6 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 		free(vsSource);
 		free(fsSource);
 	}
-
-	fclose(vsFile);
-	fclose(fsFile);
 }
 
 void printInfoLog(GLuint shaderProgram)
