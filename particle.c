@@ -8,12 +8,6 @@ void initParticleSystem(ParticleSystem *particleSystem, GLfloat x, GLfloat y, GL
 
 	particleSystem->NumberOfParticles = particleNumber;
 
-	if(particleSystem->Particles != NULL)
-	{
-		// TODO: Free particle textures.
-		free(particleSystem->Particles);
-	}
-
 	particleSystem->Particles = (Particle *)malloc(particleNumber * sizeof(Particle));
 
 	for(int i = 0; i < particleNumber; i++)

@@ -1,27 +1,31 @@
 # TODO: Replace LDFLAGS and CFLAGS with sdl2-config.
-# TODO: Add valgrind testing target. (-g)
+
+CC = clang
+CFLAGS = -std=c99 -Wall -Wextra
+LDFLAGS = -lm `sdl2-config --libs` -lSDL2_image -lSDL2_net
 
 ifeq ($(OS), Windows_NT)
 	CC = gcc
-	LDFLAGS = -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lOpenGL32 -lm -s
+	LDFLAGS += -lOpenGL32
 else
-	CC = clang
-	LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_net -lGL -lm -s
+	LDFLAGS += -lGL
 endif
-
-CFLAGS = -std=c99 -Wall -Wextra -O3
 
 OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o particle.o
 
 .PHONY: tools
-
-all: zeno tools
 
 zeno: $(OBJECTS)
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o ZenoEngine
 
 tools:
 	@$(MAKE) -C tools --no-print-directory
+
+all: zeno tools
+
+release:
+	@make clean --no-print-directory
+	@make CFLAGS="$(CFLAGS) -O3" LDFLAGS="$(LDFLAGS) -s" zeno --no-print-directory
 
 main.o: main.c util.h globals.h texture.h level.h player.h font.h particle.h
 	$(CC) $(CFLAGS) -c main.c
@@ -53,3 +57,8 @@ particle.o: particle.c particle.h globals.h texture.h
 clean:
 	@rm -rf *.o ZenoEngine ZenoEngine.exe
 	@$(MAKE) -C tools clean --no-print-directory
+
+check:
+	@make clean --no-print-directory
+	@make CFLAGS="$(CFLAGS) -g" zeno --no-print-directory
+	@echo "valgrind"
