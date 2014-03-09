@@ -107,25 +107,24 @@ void loadExtensions()
 	printLog(0, "Extensions loaded successfully.", NULL);
 }
 
-void executeCommand(Level *level, const char *command)
+void executeCommand(Level *level, char *command)
 {
-	if(strlen(command) > 0)
+	int index = 0;
+	int length = 0;
+
+	char **commandArray = (char **)malloc(sizeof(char *));
+	commandArray[index] = strtok(command, " ");
+
+	while(commandArray[index] != NULL)
 	{
-		char temp[strlen(command) + 1];
-		strcpy(temp, command);
+		index++;
+		length++;
+		commandArray = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
+		commandArray[index] = strtok(NULL, " ");
+	}
 
-		char **commandArray = (char **)malloc(sizeof(char *));
-		int index = 0, length = 0;
-		commandArray[index] = strtok(temp, " ");
-
-		while(commandArray[index] != NULL)
-		{
-			index++;
-			length++;
-			commandArray = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
-			commandArray[index] = strtok(NULL, " ");
-		}
-
+	if(commandArray[0] != NULL)
+	{
 		// TODO: Add error reporting.
 		if(strcmp(commandArray[0], "save") == 0)
 		{
@@ -235,9 +234,9 @@ void executeCommand(Level *level, const char *command)
 				}
 			}
 		}
-
-		free(commandArray);
 	}
+
+	free(commandArray);
 }
 
 void saveScreenshot()
@@ -259,7 +258,7 @@ void saveScreenshot()
 	free(screenshot);
 
 	// TODO: Error checking.
-	printLog(0, "Screenshot saved successfully as ", "'screenshots/screenshot.png'.");
+	printLog(0, "Screenshot saved successfully as", "\'screenshots/screenshot.png\'.");
 }
 
 void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFilename)

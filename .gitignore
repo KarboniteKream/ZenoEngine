@@ -6,3 +6,4 @@ ZenoEngine
 font-converter
 transpose-level
 screenshots/
+valgrind-log.txt

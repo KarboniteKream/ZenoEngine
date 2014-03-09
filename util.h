@@ -6,7 +6,7 @@
 
 void initWindow(SDL_Window **window, const char *windowTitle);
 void loadExtensions();
-void executeCommand(Level *level, const char *command);
+void executeCommand(Level *level, char *command);
 void saveScreenshot();
 
 void loadShader(GLuint *shaderProgram, const char *vertexShaderFilename, const char *fragmentShaderFilename);

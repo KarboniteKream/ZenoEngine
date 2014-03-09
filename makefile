@@ -1,8 +1,7 @@
-# TODO: Replace LDFLAGS and CFLAGS with sdl2-config.
-
 CC = clang
-CFLAGS = -std=c99 -Wall -Wextra
+CFLAGS = -std=c99 -Wall -Wextra `sdl2-config --cflags`
 LDFLAGS = -lm `sdl2-config --libs` -lSDL2_image -lSDL2_net
+VALGRIND = valgrind-log.txt
 
 ifeq ($(OS), Windows_NT)
 	CC = gcc
@@ -24,8 +23,8 @@ tools:
 all: zeno tools
 
 release:
-	@make clean --no-print-directory
-	@make CFLAGS="$(CFLAGS) -O3" LDFLAGS="$(LDFLAGS) -s" zeno --no-print-directory
+	@$(MAKE) clean --no-print-directory
+	@+$(MAKE) CFLAGS="$(CFLAGS) -O3" LDFLAGS="$(LDFLAGS) -s" zeno --no-print-directory
 
 main.o: main.c util.h globals.h texture.h level.h player.h font.h particle.h
 	$(CC) $(CFLAGS) -c main.c
@@ -59,6 +58,8 @@ clean:
 	@$(MAKE) -C tools clean --no-print-directory
 
 check:
-	@make clean --no-print-directory
-	@make CFLAGS="$(CFLAGS) -g" zeno --no-print-directory
-	@echo "valgrind"
+	@$(MAKE) clean --no-print-directory
+	@+$(MAKE) CFLAGS="$(CFLAGS) -g" zeno --no-print-directory
+	@echo -e "\nRunning valgrind..."
+	@valgrind --track-origins=yes ./ZenoEngine > $(VALGRIND) 2>&1
+	@echo "Log saved as $(VALGRIND)."
