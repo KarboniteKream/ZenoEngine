@@ -232,7 +232,7 @@ void saveScreenshot()
 
 	// TODO: Add automatic numbering.
 	IMG_SavePNG(screenshot, "screenshots/screenshot.png");
-	free(screenshot);
+	SDL_FreeSurface(screenshot);
 
 	// TODO: Error checking.
 	printLog(0, "Screenshot saved successfully as", "\'screenshots/screenshot.png\'.");

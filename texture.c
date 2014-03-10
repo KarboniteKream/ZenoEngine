@@ -71,10 +71,11 @@ void loadTexture(Texture *texture, const char *filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	free(image);
+	SDL_FreeSurface(image);
 
 	if(glGetError() != GL_NO_ERROR)
 	{
+		// TODO: Call printLog().
 		fprintf(stderr, "An error has occurred while loading texture '%s' using OpenGL.\n", filename);
 		exit(1);
 	}
