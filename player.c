@@ -389,7 +389,7 @@ void updatePlayer(Player *player, Level *level)
 	{
 		// TODO: Rename to 'falling'.
 		// TODO: Falling animation.
-		player->CurrentJumpSpeed += 2000.0f * DELTA_TICKS;
+		player->CurrentJumpSpeed += 2500.0f * DELTA_TICKS;
 	}
 
 	if(player->CurrentJumpSpeed >= 0.0f)

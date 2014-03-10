@@ -12,9 +12,15 @@
 // NOTE: The arguments are unused.
 // TODO: Add proper error checking and reporting.
 // TODO: Add error reporting with return values of functions (loadTexture()).
-// TODO: load*() automatically calls init*().
+// TODO: Automatically call init*() with load*().
 int main(int argc, char **argv)
 {
+	// TEMP: Supress a warning.
+	if(argc > 1)
+	{
+		printLog(0, "ARGS:", argv[1]);
+	}
+
 	SDL_Window *window = NULL;
 	initWindow(&window, "Zeno Engine");
 
@@ -353,6 +359,7 @@ int main(int argc, char **argv)
 			// TODO: Command history.
 		}
 
+		// FIXME: Timer doesn't work properly on all platforms.
 		char renderTimeString[32];
 		renderTime = SDL_GetPerformanceCounter() - renderTime;
 		sprintf(renderTimeString, "FPS: %d (%.0f us)", fps, (float)(renderTime) / SDL_GetPerformanceFrequency() * 1000000.0f);

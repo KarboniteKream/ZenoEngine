@@ -56,5 +56,9 @@ void printLog(int type, const char *summary, const char *details)
 	if(type == 1)
 	{
 		printf("%s\n", message);
+
+		FILE *errors = fopen("errors.txt", "w");
+		fprintf(errors, "%s\n", message);
+		fclose(errors);
 	}
 }

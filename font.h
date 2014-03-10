@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "texture.h"
 
+// TODO: Combine all fonts.
 // NOTE: Should this be a linked list?
 typedef struct
 {

@@ -62,6 +62,7 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 
 	if(glGetError() != GL_NO_ERROR)
 	{
+		// TODO: Call printLog().
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "An error has occurred while initializing OpenGL.", *window);
 		exit(1);
 	}
@@ -70,41 +71,17 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 // TODO: Rename 'extensions'.
 void loadExtensions()
 {
-	// TODO: Check for supported extensions with SDL_GL_ExtensionSupported().
-	// WINDOWS: Function pointers are context-specific.
-	glBindBuffer = (GL_BindBuffer)SDL_GL_GetProcAddress("glBindBuffer");
-	glGenBuffers = (GL_GenBuffers)SDL_GL_GetProcAddress("glGenBuffers");
-	glDeleteBuffers = (GL_DeleteBuffers)SDL_GL_GetProcAddress("glDeleteBuffers");
-	glBufferData = (GL_BufferData)SDL_GL_GetProcAddress("glBufferData");
-	glBufferSubData = (GL_BufferSubData)SDL_GL_GetProcAddress("glBufferSubData");
+	// glewExperimental = TRUE;
+	GLenum glewStatus = glewInit();
 
-	glUseProgram = (GL_UseProgram)SDL_GL_GetProcAddress("glUseProgram");
-	glCreateProgram = (GL_CreateProgram)SDL_GL_GetProcAddress("glCreateProgram");
-	glDeleteProgram = (GL_DeleteProgram)SDL_GL_GetProcAddress("glDeleteProgram");
-	glLinkProgram = (GL_LinkProgram)SDL_GL_GetProcAddress("glLinkProgram");
-	glGetProgramiv = (GL_GetProgramiv)SDL_GL_GetProcAddress("glGetProgramiv");
-	glGetProgramInfoLog = (GL_GetProgramInfoLog)SDL_GL_GetProcAddress("glGetProgramInfoLog");
-
-	glCreateShader = (GL_CreateShader)SDL_GL_GetProcAddress("glCreateShader");
-	glDeleteShader = (GL_DeleteShader)SDL_GL_GetProcAddress("glDeleteShader");
-	glShaderSource = (GL_ShaderSource)SDL_GL_GetProcAddress("glShaderSource");
-	glCompileShader = (GL_CompileShader)SDL_GL_GetProcAddress("glCompileShader");
-	glIsShader = (GL_IsShader)SDL_GL_GetProcAddress("glIsShader");
-	glGetShaderiv = (GL_GetShaderiv)SDL_GL_GetProcAddress("glGetShaderiv");
-	glGetShaderInfoLog = (GL_GetShaderInfoLog)SDL_GL_GetProcAddress("glGetShaderInfoLog");
-	glAttachShader = (GL_AttachShader)SDL_GL_GetProcAddress("glAttachShader");
-	glDetachShader = (GL_DetachShader)SDL_GL_GetProcAddress("glDetachShader");
-
-	glGetAttribLocation = (GL_GetAttribLocation)SDL_GL_GetProcAddress("glGetAttribLocation");
-	glGetUniformLocation = (GL_GetUniformLocation)SDL_GL_GetProcAddress("glGetUniformLocation");
-	glUniform1i = (GL_Uniform1i)SDL_GL_GetProcAddress("glUniform1i");
-	glUniform4f = (GL_Uniform4f)SDL_GL_GetProcAddress("glUniform4f");
-
-	glEnableVertexAttribArray = (GL_EnableVertexAttribArray)SDL_GL_GetProcAddress("glEnableVertexAttribArray");
-	glDisableVertexAttribArray = (GL_DisableVertexAttribArray)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
-	glVertexAttribPointer = (GL_VertexAttribPointer)SDL_GL_GetProcAddress("glVertexAttribPointer");
-
-	printLog(0, "Extensions loaded successfully.", NULL);
+	if(glewStatus == GLEW_OK)
+	{
+		printLog(0, "Extensions loaded successfully.", NULL);
+	}
+	else
+	{
+		printLog(1, "An error has occured while initializing GLEW.", NULL);
+	}
 }
 
 void executeCommand(Level *level, char *command)
