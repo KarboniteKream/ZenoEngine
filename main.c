@@ -1,4 +1,5 @@
 #include <time.h>
+#include <unistd.h>
 
 #include "globals.h"
 #include "util.h"
@@ -160,7 +161,10 @@ int main(int argc, char **argv)
 				switch(event.key.keysym.sym)
 				{
 					case SDLK_ESCAPE:
-						quitGame = true;
+						if(console == false && editor == false)
+						{
+							quitGame = true;
+						}
 					break;
 
 					case SDLK_F1:
@@ -183,6 +187,7 @@ int main(int argc, char **argv)
 				mouseY = event.motion.y;
 			}
 
+			// TODO: Rewrite and combine with the if statement above.
 			if(editor == true)
 			{
 				if(event.type == SDL_KEYDOWN)
@@ -198,6 +203,10 @@ int main(int argc, char **argv)
 						case SDLK_5: case SDLK_6:
 						case SDLK_7:
 							editorBlock = event.key.keysym.sym - 48 - 1;
+						break;
+
+						case SDLK_ESCAPE:
+							editor = false;
 						break;
 
 						default:
@@ -236,6 +245,10 @@ int main(int argc, char **argv)
 						break;
 
 						case SDLK_DOWN:
+						break;
+
+						case SDLK_ESCAPE:
+							console = false;
 						break;
 
 						default:
