@@ -71,17 +71,39 @@ void initWindow(SDL_Window **window, const char *windowTitle)
 // TODO: Rename 'extensions'.
 void loadExtensions()
 {
-	// glewExperimental = TRUE;
-	GLenum glewStatus = glewInit();
+	glBindBuffer = (GL_BindBuffer)SDL_GL_GetProcAddress("glBindBuffer");
+	glGenBuffers = (GL_GenBuffers)SDL_GL_GetProcAddress("glGenBuffers");
+	glDeleteBuffers = (GL_DeleteBuffers)SDL_GL_GetProcAddress("glDeleteBuffers");
+	glBufferData = (GL_BufferData)SDL_GL_GetProcAddress("glBufferData");
+	glBufferSubData = (GL_BufferSubData)SDL_GL_GetProcAddress("glBufferSubData");
 
-	if(glewStatus == GLEW_OK)
-	{
-		printLog(0, "Extensions loaded successfully.", NULL);
-	}
-	else
-	{
-		printLog(1, "An error has occured while initializing GLEW.", NULL);
-	}
+	glUseProgram = (GL_UseProgram)SDL_GL_GetProcAddress("glUseProgram");
+	glCreateProgram = (GL_CreateProgram)SDL_GL_GetProcAddress("glCreateProgram");
+	glDeleteProgram = (GL_DeleteProgram)SDL_GL_GetProcAddress("glDeleteProgram");
+	glLinkProgram = (GL_LinkProgram)SDL_GL_GetProcAddress("glLinkProgram");
+	glGetProgramiv = (GL_GetProgramiv)SDL_GL_GetProcAddress("glGetProgramiv");
+	glGetProgramInfoLog = (GL_GetProgramInfoLog)SDL_GL_GetProcAddress("glGetProgramInfoLog");
+
+	glCreateShader = (GL_CreateShader)SDL_GL_GetProcAddress("glCreateShader");
+	glDeleteShader = (GL_DeleteShader)SDL_GL_GetProcAddress("glDeleteShader");
+	glShaderSource = (GL_ShaderSource)SDL_GL_GetProcAddress("glShaderSource");
+	glCompileShader = (GL_CompileShader)SDL_GL_GetProcAddress("glCompileShader");
+	glIsShader = (GL_IsShader)SDL_GL_GetProcAddress("glIsShader");
+	glGetShaderiv = (GL_GetShaderiv)SDL_GL_GetProcAddress("glGetShaderiv");
+	glGetShaderInfoLog = (GL_GetShaderInfoLog)SDL_GL_GetProcAddress("glGetShaderInfoLog");
+	glAttachShader = (GL_AttachShader)SDL_GL_GetProcAddress("glAttachShader");
+	glDetachShader = (GL_DetachShader)SDL_GL_GetProcAddress("glDetachShader");
+
+	glGetAttribLocation = (GL_GetAttribLocation)SDL_GL_GetProcAddress("glGetAttribLocation");
+	glGetUniformLocation = (GL_GetUniformLocation)SDL_GL_GetProcAddress("glGetUniformLocation");
+	glUniform1i = (GL_Uniform1i)SDL_GL_GetProcAddress("glUniform1i");
+	glUniform4f = (GL_Uniform4f)SDL_GL_GetProcAddress("glUniform4f");
+
+	glEnableVertexAttribArray = (GL_EnableVertexAttribArray)SDL_GL_GetProcAddress("glEnableVertexAttribArray");
+	glDisableVertexAttribArray = (GL_DisableVertexAttribArray)SDL_GL_GetProcAddress("glDisableVertexAttribArray");
+	glVertexAttribPointer = (GL_VertexAttribPointer)SDL_GL_GetProcAddress("glVertexAttribPointer");
+
+	printLog(0, "Extensions loaded successfully.", NULL);
 }
 
 void executeCommand(Level *level, char *command)
@@ -89,6 +111,7 @@ void executeCommand(Level *level, char *command)
 	int index = 0;
 	int length = 0;
 
+	// NOTE: Should commandArray be static?
 	char **commandArray = (char **)malloc(sizeof(char *));
 	commandArray[index] = strtok(command, " ");
 
@@ -240,16 +263,19 @@ void saveScreenshot()
 
 void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFilename)
 {
+	printLog(0, "Loading vertex shader", vsFilename);
+	printLog(0, "Loading fragment shader", fsFilename);
+
 	FILE *vsFile = fopen(vsFilename, "r");
 	FILE *fsFile = fopen(fsFilename, "r");
 
 	if(vsFile == NULL)
 	{
-		printLog(1, "Unable to open vertex shader: ", vsFilename);
+		printLog(1, "Unable to open vertex shader:", vsFilename);
 	}
 	else if(fsFile == NULL)
 	{
-		printLog(1, "Unable to open fragment shader: ", fsFilename);
+		printLog(1, "Unable to open fragment shader:", fsFilename);
 	}
 	else
 	{
@@ -291,6 +317,8 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 			glDeleteShader(vertexShader);
 		}
 
+		printLog(0, "OK!", vsFilename);
+
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, 1, (const GLchar **)fsSource, NULL);
 		glCompileShader(fragmentShader);
@@ -305,6 +333,8 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 			glDeleteShader(fragmentShader);
 			glDeleteShader(vertexShader);
 		}
+
+		printLog(0, "OK!", fsFilename);
 
 		glUseProgram(*shaderProgram);
 		*shaderProgram = glCreateProgram();
