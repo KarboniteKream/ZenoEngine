@@ -9,6 +9,7 @@
 #include "font.h"
 #include "animation.h"
 #include "particle.h"
+#include "entity.h"
 
 // TODO: Add proper error checking and reporting.
 // TODO: Add error reporting with return values of functions (loadTexture()).
@@ -42,6 +43,10 @@ int main(int argc, char **argv)
 	initPlayer(&player);
 	loadPlayer(&player, "images/player.png");
 
+	Entity practiceTarget;
+	initEntity(&practiceTarget);
+	loadEntity(&practiceTarget, "images/scarecrow.png", 1100.0f, 256.0f);
+
 	Texture background, interfaceTexture;
 	initTexture(&background);
 	initTexture(&interfaceTexture);
@@ -60,7 +65,7 @@ int main(int argc, char **argv)
 	setTextureShader(&font4.FontTexture, texShader);
 
 	ParticleSystem pSys;
-	initParticleSystem(&pSys, level.Width * BLOCK_SIZE - 25.0f, level.Height * BLOCK_SIZE - 400.0f - BLOCK_SIZE - 25.0f, 400.0f, 50);
+	initParticleSystem(&pSys, level.Width * BLOCK_SIZE - 25.0f, level.Height * BLOCK_SIZE - 400.0f - BLOCK_SIZE - 25.0f, 400.0f, 250);
 	setParticleTTL(&pSys, 0);
 	srand(time(NULL));
 
@@ -272,7 +277,7 @@ int main(int argc, char **argv)
 				{
 					if(event.button.button == SDL_BUTTON_LEFT)
 					{
-
+						startEntity(&practiceTarget);
 					}
 					else if(event.button.button == SDL_BUTTON_RIGHT)
 					{
@@ -309,6 +314,7 @@ int main(int argc, char **argv)
 		else
 		{
 			updatePlayer(&player, &level);
+			updateEntity(&practiceTarget);
 		}
 
 		if(cameraX < 0.0f)
@@ -347,6 +353,7 @@ int main(int argc, char **argv)
 			drawPlayer(&players[0]);
 		}
 
+		drawEntity(&practiceTarget);
 		drawPlayer(&player);
 
 		glLoadIdentity();

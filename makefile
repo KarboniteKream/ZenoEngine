@@ -16,7 +16,7 @@ else
 	endif
 endif
 
-OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o particle.o
+OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o particle.o entity.o
 
 .PHONY: tools
 
@@ -71,6 +71,9 @@ animation.o: animation.c animation.h globals.h texture.h
 
 particle.o: particle.c particle.h globals.h texture.h
 	$(CC) $(CFLAGS) -c particle.c
+
+entity.o: entity.c entity.h util.h globals.h texture.h level.h
+	$(CC) $(CFLAGS) -c entity.c
 
 clean:
 	@rm -rf *.o *.dll $(EXE){,.exe} $(VALGRIND) errors.txt
