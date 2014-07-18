@@ -10,11 +10,15 @@ void initFont(Font *font)
 
 void loadFont(Font *font, const char* filename)
 {
+	printLog(0, "Loading font", filename);
+
 	// NOTE: Instead of calling this function multiple times, I can load the list of fonts from a file.
 	FILE *fontFile = fopen(filename, "rb");
 
 	if(fontFile != NULL)
 	{
+		printLog(0, "File open.", filename);
+
 		char textureFilename[256] = {'\0'};
 		uint8_t filenameLength, num;
 		uint8_t flags[32];
@@ -60,6 +64,8 @@ void loadFont(Font *font, const char* filename)
 		fclose(fontFile);
 
 		glGenBuffers(1, &font->FontTexture.VBO);
+
+		printLog(0, "OK!", filename);
 	}
 }
 

@@ -24,6 +24,8 @@ void initVBO(Texture *texture, VertexData *vertexData, GLuint num)
 
 void loadTexture(Texture *texture, const char *filename)
 {
+	printLog(0, "Loading texture", filename);
+
 	if(texture->ID != 0)
 	{
 		glDeleteTextures(1, &texture->ID);
@@ -39,6 +41,7 @@ void loadTexture(Texture *texture, const char *filename)
 	{
 		// TODO: Replace with printLog() and load a placeholder texture instead.
 		fprintf(stderr, "An error has occurred while loading texture '%s' using SDL_image.\n", filename);
+		printLog(1, "SDL error", filename);
 		exit(1);
 	}
 
@@ -53,6 +56,8 @@ void loadTexture(Texture *texture, const char *filename)
 
 	if(texture->Width != texture->TexWidth || texture->Height != texture->TexHeight)
 	{
+		// TODO: Support for other PNG formats.
+		// TODO: Handle endianness.
 		SDL_Surface *paddedImage = SDL_CreateRGBSurface(0, texture->TexWidth, texture->TexHeight, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
 		SDL_SetSurfaceAlphaMod(image, 255);
@@ -77,8 +82,11 @@ void loadTexture(Texture *texture, const char *filename)
 	{
 		// TODO: Call printLog().
 		fprintf(stderr, "An error has occurred while loading texture '%s' using OpenGL.\n", filename);
+		printLog(1, "OpenGL error", filename);
 		exit(1);
 	}
+
+	printLog(0, "OK!", filename);
 }
 
 // NOTE: Should this be set in loadTexture()?
