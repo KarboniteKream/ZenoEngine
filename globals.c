@@ -56,9 +56,29 @@ void printLog(int type, const char *summary, const char *details)
 	if(type == 1)
 	{
 		printf("%s\n", message);
-
-		FILE *errors = fopen("errors.txt", "w");
-		fprintf(errors, "%s\n", message);
-		fclose(errors);
 	}
+
+	FILE *logFile = fopen("log.txt", "a");
+
+	if(logFile != NULL)
+	{
+		fprintf(logFile, "%s\n", message);
+	}
+
+	fclose(logFile);
+}
+
+FILE *openFile(const char *filename, const char *mode)
+{
+	char *path = SDL_GetBasePath();
+	strcat(path, filename);
+
+	printLog(0, "Opening file", filename);
+	printLog(0, "Path:", path);
+	// TODO: Fix Unicode support.
+	FILE *file = fopen(path, mode);
+
+	// NOTE: Free?
+
+	return file;
 }

@@ -149,5 +149,6 @@ extern int logIndex;
 char *logs[256];
 
 void printLog(int type, const char *summary, const char *details);
+FILE *openFile(const char *filename, const char *mode);
 
 #endif
