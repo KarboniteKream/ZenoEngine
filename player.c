@@ -104,96 +104,6 @@ void loadPlayer(Player *player, const char *playerTexture)
 	player->IsAttacking = false;
 }
 
-void drawPlayer(Player *player)
-{
-	if(player->IsMoving == true)
-	{
-		// FIXME: Jumping animation if the player is jumping.
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[4]);
-
-		// FIXME: Change rendering origin for animations.
-		if(player->Animations[1].IsFinished == false)
-		{
-			playAnimation(&player->Animations[1], player->X, player->Y, player->Scale, player->IsFacingLeft);
-		}
-		else
-		{
-			playAnimation(&player->Animations[2], player->X, player->Y, player->Scale, player->IsFacingLeft);
-		}
-	}
-	else if(player->IsStopping == true)
-	{
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[1]);
-		stopAnimation(&player->Animations[2]);
-		playAnimation(&player->Animations[3], player->X, player->Y, player->Scale, player->IsFacingLeft);
-
-		// NOTE: Animation speed should be synced.
-		if(player->CurrentSpeed == 0.0f && player->Animations[3].IsFinished == true)
-		{
-			stopAnimation(&player->Animations[3]);
-			player->IsStopping = false;
-		}
-	}
-	else if(player->IsJumping == true)
-	{
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[1]);
-		stopAnimation(&player->Animations[2]);
-		stopAnimation(&player->Animations[3]);
-		stopAnimation(&player->Animations[4]);
-		playAnimation(&player->Animations[5], player->X, player->Y, player->Scale, player->IsFacingLeft);
-	}
-	else if(player->IsIdle == true)
-	{
-		playAnimation(&player->Animations[4], player->X, player->Y, player->Scale, player->IsFacingLeft);
-
-		if(player->Animations[4].IsFinished == true)
-		{
-			stopAnimation(&player->Animations[4]);
-			player->IdleTimer = 0;
-			player->IsIdle = false;
-		}
-	}
-	else if(player->IsAttacking == true)
-	{
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[2]);
-		playAnimation(&player->Animations[6], player->X, player->Y + 12.0f, player->Scale, player->IsFacingLeft);
-		startAnimation(&player->Attacks[0], player->IsFacingLeft ? player->X - 230.0f : player->X + 200.0f, player->Y - 20.0f, player->Scale, player->IsFacingLeft);
-
-		if(player->Animations[6].IsFinished == true)
-		{
-			stopAnimation(&player->Animations[6]);
-			player->IsAttacking = false;
-		}
-	}
-	else
-	{
-		stopAnimation(&player->Animations[1]);
-		stopAnimation(&player->Animations[2]);
-		stopAnimation(&player->Animations[5]);
-		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->IsFacingLeft);
-	}
-
-	if(player->Attacks[0].Started == true)
-	{
-		playStaticAnimation(&player->Attacks[0]);
-
-		if(player->Attacks[0].IsFinished == true)
-		{
-			stopAnimation(&player->Attacks[0]);
-		}
-	}
-
-	if(DEBUG == true)
-	{
-		drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
-		drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
-	}
-}
-
 void handlePlayerEvent(Player *player, SDL_Event *event)
 {
 	if(event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
@@ -323,6 +233,7 @@ void updatePlayer(Player *player, Level *level)
 		player->IdleTimer = SDL_GetTicks();
 	}
 
+	//NOTE: Collision only needs four points (vertices/edges). There is no need to calculate eight of them.
 	if(player->IsFacingLeft == true)
 	{
 		int w = (player->X + (player->BoundingBox.X * player->Scale)) / BLOCK_SIZE;
@@ -461,4 +372,95 @@ void updatePlayer(Player *player, Level *level)
 	// TODO: Calculate center of the player.
 	cameraX = (int)(player->X + player->BoundingBox.X + (player->BoundingBox.W / 2)) - (SCREEN_WIDTH / 2);
 	cameraY = (int)(player->Y + player->BoundingBox.Y + (player->BoundingBox.H / 2)) - (SCREEN_HEIGHT / 2);
+}
+
+void drawPlayer(Player *player)
+{
+	// NOTE: Should this be moved to update?
+	if(player->IsMoving == true)
+	{
+		// FIXME: Jumping animation if the player is jumping.
+		stopAnimation(&player->Animations[0]);
+		stopAnimation(&player->Animations[4]);
+
+		// FIXME: Change rendering origin for animations.
+		if(player->Animations[1].IsFinished == false)
+		{
+			playAnimation(&player->Animations[1], player->X, player->Y, player->Scale, player->IsFacingLeft);
+		}
+		else
+		{
+			playAnimation(&player->Animations[2], player->X, player->Y, player->Scale, player->IsFacingLeft);
+		}
+	}
+	else if(player->IsStopping == true)
+	{
+		stopAnimation(&player->Animations[0]);
+		stopAnimation(&player->Animations[1]);
+		stopAnimation(&player->Animations[2]);
+		playAnimation(&player->Animations[3], player->X, player->Y, player->Scale, player->IsFacingLeft);
+
+		// NOTE: Animation speed should be synced.
+		if(player->CurrentSpeed == 0.0f && player->Animations[3].IsFinished == true)
+		{
+			stopAnimation(&player->Animations[3]);
+			player->IsStopping = false;
+		}
+	}
+	else if(player->IsJumping == true)
+	{
+		stopAnimation(&player->Animations[0]);
+		stopAnimation(&player->Animations[1]);
+		stopAnimation(&player->Animations[2]);
+		stopAnimation(&player->Animations[3]);
+		stopAnimation(&player->Animations[4]);
+		playAnimation(&player->Animations[5], player->X, player->Y, player->Scale, player->IsFacingLeft);
+	}
+	else if(player->IsIdle == true)
+	{
+		playAnimation(&player->Animations[4], player->X, player->Y, player->Scale, player->IsFacingLeft);
+
+		if(player->Animations[4].IsFinished == true)
+		{
+			stopAnimation(&player->Animations[4]);
+			player->IdleTimer = 0;
+			player->IsIdle = false;
+		}
+	}
+	else if(player->IsAttacking == true)
+	{
+		stopAnimation(&player->Animations[0]);
+		stopAnimation(&player->Animations[2]);
+		playAnimation(&player->Animations[6], player->X, player->Y + 12.0f, player->Scale, player->IsFacingLeft);
+		startAnimation(&player->Attacks[0], player->IsFacingLeft ? player->X - 200.0f : player->X + 140.0f, player->Y - 20.0f, player->Scale, player->IsFacingLeft);
+
+		if(player->Animations[6].IsFinished == true)
+		{
+			stopAnimation(&player->Animations[6]);
+			player->IsAttacking = false;
+		}
+	}
+	else
+	{
+		stopAnimation(&player->Animations[1]);
+		stopAnimation(&player->Animations[2]);
+		stopAnimation(&player->Animations[5]);
+		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->IsFacingLeft);
+	}
+
+	if(player->Attacks[0].Started == true)
+	{
+		playStaticAnimation(&player->Attacks[0]);
+
+		if(player->Attacks[0].IsFinished == true)
+		{
+			stopAnimation(&player->Attacks[0]);
+		}
+	}
+
+	if(DEBUG == true)
+	{
+		drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
+		drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
+	}
 }

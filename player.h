@@ -4,11 +4,11 @@
 #include <math.h>
 
 #include "globals.h"
+// NOTE: Only for debugging.
+#include "util.h"
 #include "texture.h"
 #include "level.h"
 #include "animation.h"
-// NOTE: Only for debugging.
-#include "util.h"
 
 typedef struct
 {
@@ -36,6 +36,7 @@ typedef struct
 	GLfloat CurrentJumpSpeed;
 
 	bool *KeyStates;
+	// NOTE: Better name?
 	bool IsFacingLeft;
 
 	Uint32 IdleTimer;
@@ -49,8 +50,8 @@ typedef struct
 
 void initPlayer(Player *player);
 void loadPlayer(Player *player, const char *playerTexture);
-void drawPlayer(Player *player);
 void handlePlayerEvent(Player *player, SDL_Event *event);
 void updatePlayer(Player *player, Level *level);
+void drawPlayer(Player *player);
 
 #endif
