@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 	setTextureShader(&font4.FontTexture, texShader);
 
 	ParticleSystem pSys;
-	initParticleSystem(&pSys, SCREEN_WIDTH - 25.0f, 250.0f, 400.0f, 50);
+	initParticleSystem(&pSys, level.Width * BLOCK_SIZE - 25.0f, level.Height * BLOCK_SIZE - 400.0f - BLOCK_SIZE - 25.0f, 400.0f, 50);
 	setParticleTTL(&pSys, 0);
 	srand(time(NULL));
 
@@ -340,7 +340,6 @@ int main(int argc, char **argv)
 		drawLevelVBO(&level);
 		//drawTexture(&background, 0.0f, 0.0f, NULL, 0.0f, 4.0f, false);
 		debugParticleSystem(&pSys);
-		drawText(&font2, SCREEN_WIDTH - 100.0f, 230.0f, "Portal to the Wind Dimension", 0.0f, 0.0f, 1.0f);
 		updateParticleSystem(&pSys);
 
 		if(MULTIPLAYER == true && playerInit == true)

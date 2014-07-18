@@ -7,8 +7,7 @@
 
 typedef struct
 {
-	// TODO: Move ParticleTexture to ParticleSystem.
-	Texture ParticleTexture;
+	unsigned int TextureID;
 
 	GLfloat X;
 	GLfloat Y;
@@ -23,11 +22,13 @@ typedef struct
 	// NOTE: RectangleF instead?
 	GLfloat X;
 	GLfloat Y;
+	// NOTE: This is currently only height.
 	GLfloat WH;
 
 	// NOTE: How many particles do I really need?
 	unsigned int NumberOfParticles;
 
+	Texture *ParticleTextures;
 	Particle *Particles;
 
 } ParticleSystem;
@@ -37,6 +38,6 @@ void initParticle(Particle *particle, GLfloat x, GLfloat y, GLfloat speedX);
 void setParticleTTL(ParticleSystem *particleSystem, unsigned int ttl);
 void debugParticleSystem(ParticleSystem *particleSystem);
 void updateParticleSystem(ParticleSystem *particleSystem);
-void drawParticle(Particle *particle);
+void drawParticle(ParticleSystem *particleSystem, Particle *particle);
 
 #endif

@@ -10,10 +10,19 @@ void initParticleSystem(ParticleSystem *particleSystem, GLfloat x, GLfloat y, GL
 
 	particleSystem->Particles = (Particle *)malloc(particleNumber * sizeof(Particle));
 
+	particleSystem->ParticleTextures = (Texture *)malloc(1 * sizeof(Texture));
+
+	for(int i = 0; i < 1; i++)
+	{
+		initTexture(&particleSystem->ParticleTextures[0]);
+		loadTexture(&particleSystem->ParticleTextures[0], "images/leaf.png");
+	}
+
 	for(int i = 0; i < particleNumber; i++)
 	{
 		// NOTE: What about scale?
 		GLfloat particleY = rand() % (int)wh + y;
+		// NOTE: The speed of groups of particles seems exactly the same.
 		GLfloat speedX = (float)rand() / (float)RAND_MAX * 500.0f + 10.0f;
 		initParticle(&particleSystem->Particles[i], x, particleY, -speedX);
 	}
@@ -21,8 +30,7 @@ void initParticleSystem(ParticleSystem *particleSystem, GLfloat x, GLfloat y, GL
 
 void initParticle(Particle *particle, GLfloat x, GLfloat y, GLfloat speedX)
 {
-	initTexture(&particle->ParticleTexture);
-	loadTexture(&particle->ParticleTexture, "images/leaf.png");
+	particle->TextureID = 0;
 
 	particle->X = x;
 	particle->Y = y;
@@ -58,14 +66,14 @@ void updateParticleSystem(ParticleSystem *particleSystem)
 			}
 			else
 			{
-				drawParticle(&particleSystem->Particles[i]);
 				particleSystem->Particles[i].X += particleSystem->Particles[i].SpeedX * DELTA_TICKS;
+				drawParticle(particleSystem, &particleSystem->Particles[i]);
 			}
 		}
 	}
 }
 
-void drawParticle(Particle *particle)
+void drawParticle(ParticleSystem *particleSystem, Particle *particle)
 {
-	drawTexture(&particle->ParticleTexture, particle->X, particle->Y, NULL, 0.0f, 4.0f, false);
+	drawTexture(&particleSystem->ParticleTextures[particle->TextureID], particle->X, particle->Y, NULL, 0.0f, 4.0f, false);
 }
