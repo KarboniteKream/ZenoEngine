@@ -17,10 +17,10 @@ void loadLevel(Level *level, const char *filename)
 	char levelFilename[256] = {'\0'};
 	char textureFilename[256] = {'\0'};
 
-	sprintf(levelFilename, "levels/%s.map", filename);
+	snprintf(levelFilename, 256, "levels/%s.map", filename);
 	// FIXME: What about levels with same textures (regarding filename)?
 	// NOTE: Should be resolved with moving metadata.
-	sprintf(textureFilename, "images/%s-%d.png", filename, BLOCK_SIZE);
+	snprintf(textureFilename, 256, "images/%s-%d.png", filename, BLOCK_SIZE);
 
 	// Move metadata to .dat files.
 	level->Width = 60;
@@ -115,7 +115,7 @@ void saveLevel(Level *level, const char *filename)
 
 	// FIXME: What about levels with same textures (regarding filename)?
 	// NOTE: Should be resolved with moving metadata.
-	sprintf(levelFilename, "levels/%s.map", filename);
+	snprintf(levelFilename, 256, "levels/%s.map", filename);
 
 	FILE *levelFile = fopen(levelFilename, "wb");
 

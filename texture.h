@@ -5,6 +5,7 @@
 
 typedef struct
 {
+	// NOTE: Should I add coordinates?
 	GLuint ID;
 	GLuint VBO;
 

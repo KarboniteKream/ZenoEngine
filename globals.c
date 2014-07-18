@@ -43,11 +43,11 @@ void printLog(int type, const char *summary, const char *details)
 	switch(type)
 	{
 		case 0:
-			sprintf(message, "OK: %s %s", summary, (details == NULL) ? "" : details);
+			snprintf(message, 256, "OK: %s %s", summary, (details == NULL) ? "" : details);
 		break;
 
 		case 1:
-			sprintf(message, "ERROR: %s %s", summary, (details == NULL) ? "" : details);
+			snprintf(message, 256, "ERROR: %s %s", summary, (details == NULL) ? "" : details);
 		break;
 	}
 

@@ -10,10 +10,11 @@
 #include "animation.h"
 #include "particle.h"
 
-// NOTE: The arguments are unused.
 // TODO: Add proper error checking and reporting.
 // TODO: Add error reporting with return values of functions (loadTexture()).
 // TODO: Automatically call init*() with load*().
+// TODO: Use stack instead of heap where applicable.
+// TODO: Improve scaling handling in calculations!
 int main(int argc, char **argv)
 {
 	// TEMP: Supress a warning.
@@ -267,6 +268,20 @@ int main(int argc, char **argv)
 			}
 			else
 			{
+				if(event.type == SDL_MOUSEBUTTONDOWN)
+				{
+					if(event.button.button == SDL_BUTTON_LEFT)
+					{
+
+					}
+					else if(event.button.button == SDL_BUTTON_RIGHT)
+					{
+						char pos[32];
+						snprintf(pos, 32, "%.0f, %.0f", mouseX, mouseY);
+						printLog(0, pos, "");
+					}
+				}
+
 				handlePlayerEvent(&player, &event);
 			}
 		}
@@ -345,11 +360,11 @@ int main(int argc, char **argv)
 		// TODO: Check if a rebuild is necessary.
 		if(editor == true)
 		{
-			sprintf(engineInformation, "%s (EDITOR)", NAME_VERSION);
+			snprintf(engineInformation, 256, "%s (EDITOR)", NAME_VERSION);
 		}
 		else
 		{
-			sprintf(engineInformation, "%s (F1 - Log, F2 - Editor, F12 - Screenshot)", NAME_VERSION);
+			snprintf(engineInformation, 256, "%s (F1 - Log, F2 - Editor, F12 - Screenshot)", NAME_VERSION);
 		}
 
 		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
@@ -375,12 +390,15 @@ int main(int argc, char **argv)
 		// FIXME: Timer doesn't work properly on all platforms.
 		char renderTimeString[32];
 		renderTime = SDL_GetPerformanceCounter() - renderTime;
-		sprintf(renderTimeString, "FPS: %d (%.0f us)", fps, (float)(renderTime) / SDL_GetPerformanceFrequency() * 1000000.0f);
+		snprintf(renderTimeString, 32, "FPS: %d (%.0f us)", fps, (float)(renderTime) / SDL_GetPerformanceFrequency() * 1000000.0f);
 		drawText(&font2, 7.0f, 27.0f, renderTimeString, 0.0f, 0.0f, 0.0f);
 
 		SDL_GL_SwapWindow(window);
 
 		frames++;
+
+		// TODO: Implement an optional frame limiter. [Final Build]
+		// SDL_Delay(16);
 
 		if(SDL_GetTicks() - fpsTimer >= 1000)
 		{
@@ -391,7 +409,7 @@ int main(int argc, char **argv)
 
 		if(MULTIPLAYER == true && SDL_GetTicks() - packetTimer >= 10)
 		{
-			sprintf((char *)PACKET->data, "%.0f %.0f", player.X, player.Y);
+			snprintf((char *)PACKET->data, PACKET->maxlen, "%.0f %.0f", player.X, player.Y);
 			PACKET->len = strlen((char *)PACKET->data) + 1;
 			SDLNet_UDP_Send(SOCKET, 0, PACKET);
 			packetTimer = SDL_GetTicks();
