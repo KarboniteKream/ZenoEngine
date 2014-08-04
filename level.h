@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "texture.h"
 
+// TODO: Add namespace.
 #define LAYOUT 0
 #define PROPERTIES 1
 #define COLLIDABLE 1

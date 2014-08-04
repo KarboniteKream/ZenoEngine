@@ -15,13 +15,13 @@
 // TODO: Add error reporting with return values of functions (loadTexture()).
 // TODO: Automatically call init*() with load*().
 // TODO: Use stack instead of heap where applicable.
-// TODO: Improve scaling handling in calculations!
+// TODO: Improve scale handling in calculations.
 int main(int argc, char **argv)
 {
 	// TEMP: Supress a warning.
 	if(argc > 1)
 	{
-		printLog(0, "ARGS:", argv[1]);
+		printLog(0, "Arguments:", argv[1]);
 	}
 
 	SDL_Window *window = NULL;
@@ -31,13 +31,6 @@ int main(int argc, char **argv)
 	Level level;
 	initLevel(&level);
 	loadLevel(&level, "level1");
-
-	// TODO: Load assets from a file into array (e.g. array of textures) using IDs -> Engine.
-	Font font2, font4;
-	initFont(&font2);
-	initFont(&font4);
-	loadFont(&font2, "data/font2.dat");
-	loadFont(&font4, "data/font4.dat");
 
 	Player player;
 	initPlayer(&player);
@@ -61,8 +54,16 @@ int main(int argc, char **argv)
 	texCoords = glGetAttribLocation(texShader, "TexCoord");
 	texColor = glGetUniformLocation(texShader, "TextureColor");
 
-	setTextureShader(&font2.FontTexture, texShader);
-	setTextureShader(&font4.FontTexture, texShader);
+	// TODO: Load assets from a file into array (e.g. array of textures) using IDs -> Engine.
+	Font fonts;
+	initFont(&fonts, 2);
+	loadFont(&fonts, FONT_NORMAL, "data/font2.dat");
+	loadFont(&fonts, FONT_LARGE, "data/font4.dat");
+
+	// NOTE: This is used to color the font.
+	// TODO: Move to font.c.
+	setTextureShader(&fonts.Textures[0], texShader);
+	setTextureShader(&fonts.Textures[1], texShader);
 
 	ParticleSystem pSys;
 	initParticleSystem(&pSys, level.Width * BLOCK_SIZE - 25.0f, level.Height * BLOCK_SIZE - 400.0f - BLOCK_SIZE - 25.0f, 400.0f, 250);
@@ -83,7 +84,7 @@ int main(int argc, char **argv)
 	uint8_t editorBlock = 0;
 
 	int frames = 0, fps = 0;
-	char engineInformation[256] = {'\0'};
+	char engineInformation[256];
 
 	Uint32 fpsTimer = SDL_GetTicks();
 	Uint32 packetTimer = SDL_GetTicks();
@@ -283,7 +284,7 @@ int main(int argc, char **argv)
 					{
 						char pos[32];
 						snprintf(pos, 32, "%.0f, %.0f", mouseX, mouseY);
-						printLog(0, pos, "");
+						printLog(2, pos, NULL);
 					}
 				}
 
@@ -373,7 +374,13 @@ int main(int argc, char **argv)
 			snprintf(engineInformation, 256, "%s (F1 - Log, F2 - Editor, F12 - Screenshot)", NAME_VERSION);
 		}
 
-		drawText(&font2, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
+		drawText(&fonts, FONT_NORMAL, 7.0f, 5.0f, engineInformation, 0.0f, 0.0f, 0.0f);
+
+		// FIXME: Timer doesn't work properly on all platforms?
+		char renderTimeString[32];
+		renderTime = SDL_GetPerformanceCounter() - renderTime;
+		snprintf(renderTimeString, 32, "FPS: %d (%.0f us)", fps, (float)(renderTime) / SDL_GetPerformanceFrequency() * 1000000.0f);
+		drawText(&fonts, FONT_NORMAL, 7.0f, 27.0f, renderTimeString, 0.0f, 0.0f, 0.0f);
 
 		if(console == true)
 		{
@@ -381,23 +388,17 @@ int main(int argc, char **argv)
 
 			for(int i = logIndex - 1; i >= 0 && 25.0f * i >= 0.0f; i--)
 			{
-				drawText(&font2, 7.0f, 22.0f * i, logs[i], 1.0f, 0.0f, 1.0f);
+				drawText(&fonts, FONT_NORMAL, 7.0f, 22.0f * i, logs[i], 1.0f, 0.0f, 1.0f);
 			}
 
 			drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 			drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
-			drawText(&font4, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
-			drawText(&font4, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
+			drawText(&fonts, FONT_LARGE, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0.0f, 0.0f, 0.0f);
+			drawText(&fonts, FONT_LARGE, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0.0f, 0.0f, 0.0f);
 
 			// TODO: Command history.
 		}
-
-		// FIXME: Timer doesn't work properly on all platforms.
-		char renderTimeString[32];
-		renderTime = SDL_GetPerformanceCounter() - renderTime;
-		snprintf(renderTimeString, 32, "FPS: %d (%.0f us)", fps, (float)(renderTime) / SDL_GetPerformanceFrequency() * 1000000.0f);
-		drawText(&font2, 7.0f, 27.0f, renderTimeString, 0.0f, 0.0f, 0.0f);
 
 		SDL_GL_SwapWindow(window);
 

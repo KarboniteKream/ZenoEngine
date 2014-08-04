@@ -6,18 +6,22 @@
 #include "globals.h"
 #include "texture.h"
 
+#define FONT_NORMAL 0
+#define FONT_LARGE 1
+
 // TODO: Combine all fonts.
 // NOTE: Should this be a linked list?
 typedef struct
 {
-	Texture FontTexture;
-	RectangleF *Clips;
+	uint8_t Num;
 
-	uint8_t Height;
+	Texture *Textures;
+	RectangleF **Clips;
+	uint8_t *Height;
 } Font;
 
-void initFont(Font *font);
-void loadFont(Font *font, const char* filename);
-void drawText(Font *font, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b);
+void initFont(Font *font, uint8_t num);
+void loadFont(Font *font, uint8_t index, const char* filename);
+void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b);
 
 #endif

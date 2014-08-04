@@ -48,15 +48,17 @@ void printLog(int type, const char *summary, const char *details)
 
 		case 1:
 			snprintf(message, 256, "ERROR: %s %s", summary, (details == NULL) ? "" : details);
+			fprintf(stderr, "%s\n", message);
+			strcpy(logs[logIndex++], message);
+		break;
+
+		case 2:
+			snprintf(message, 256, "%s %s", summary, (details == NULL) ? "" : details);
 			strcpy(logs[logIndex++], message);
 		break;
 	}
 
-	if(type == 1)
-	{
-		printf("%s\n", message);
-	}
-
+	// TODO: Open file only once.
 	FILE *logFile = fopen("log.txt", "a");
 
 	if(logFile != NULL)
@@ -67,6 +69,7 @@ void printLog(int type, const char *summary, const char *details)
 	fclose(logFile);
 }
 
+// TODO: Rename and move to a separate namespace.
 FILE *openFile(const char *filename, const char *mode)
 {
 	char *path = SDL_GetBasePath();
