@@ -48,10 +48,9 @@ void printLog(int type, const char *summary, const char *details)
 
 		case 1:
 			snprintf(message, 256, "ERROR: %s %s", summary, (details == NULL) ? "" : details);
+			strcpy(logs[logIndex++], message);
 		break;
 	}
-
-	strcpy(logs[logIndex++], message);
 
 	if(type == 1)
 	{

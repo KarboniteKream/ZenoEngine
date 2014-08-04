@@ -1,6 +1,7 @@
 CC = clang
 CFLAGS = -std=c99 -Wall -Wextra
-VALGRIND = valgrind-log.txt
+VALGRIND = log_valgrind.txt
+ASAN = log_asan.txt
 EXE = ZenoEngine
 
 ifeq ($(OS), Windows_NT)
@@ -18,18 +19,12 @@ endif
 
 OBJECTS = main.o util.o globals.o texture.o level.o player.o font.o animation.o particle.o entity.o
 
-.PHONY: tools
+.PHONY: tools clean valgrind asan
 
 zeno: $(OBJECTS)
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $(EXE)
 
-tools:
-	@$(MAKE) -C tools --no-print-directory
-
-all: zeno tools
-
-release:
-	@$(MAKE) clean --no-print-directory
+release: clean
 	@cp -r data/ bin/
 	@cp -r images/ bin/
 	@cp -r levels/ bin/
@@ -44,6 +39,26 @@ endif
 
 	@mv $(EXE) bin/
 	@ln -s bin/$(EXE) .
+
+tools:
+	@$(MAKE) -C tools --no-print-directory
+
+clean:
+	@rm -rf *.o *.dll $(EXE){,.exe} $(VALGRIND) errors.txt
+	@rm -rf bin/*
+	@$(MAKE) -C tools clean --no-print-directory
+
+valgrind: clean
+	@+$(MAKE) CFLAGS="$(CFLAGS) -g" zeno --no-print-directory
+	@echo -e "\nRunning Valgrind..."
+	@valgrind --track-origins=yes --leak-check=full ./$(EXE) &> $(VALGRIND)
+	@echo "Log saved as $(VALGRIND)."
+
+asan: clean
+	@+$(MAKE) CFLAGS="$(CFLAGS) -O3 -g -fsanitize=address -fno-omit-frame-pointer" LDFLAGS="$(LDFLAGS) -g -fsanitize=address" zeno --no-print-directory
+	@echo -e "\nRunning AddressSanitizer..."
+	@./$(EXE) &> $(ASAN)
+	@echo "Log saved as $(ASAN)."
 
 main.o: main.c util.h globals.h texture.h level.h player.h font.h particle.h entity.h
 	$(CC) $(CFLAGS) -c main.c
@@ -74,15 +89,3 @@ particle.o: particle.c particle.h globals.h texture.h
 
 entity.o: entity.c entity.h util.h globals.h texture.h level.h
 	$(CC) $(CFLAGS) -c entity.c
-
-clean:
-	@rm -rf *.o *.dll $(EXE){,.exe} $(VALGRIND) errors.txt
-	@rm -rf bin/*
-	@$(MAKE) -C tools clean --no-print-directory
-
-check:
-	@$(MAKE) clean --no-print-directory
-	@+$(MAKE) CFLAGS="$(CFLAGS) -g" zeno --no-print-directory
-	@echo -e "\nRunning valgrind..."
-	@valgrind --track-origins=yes ./$(EXE) > $(VALGRIND) 2>&1
-	@echo "Log saved as $(VALGRIND)."
