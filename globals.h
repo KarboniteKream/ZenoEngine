@@ -19,13 +19,6 @@
 #define CAMERA_SPEED 600.0f
 #define EDITOR_EDGE 25.0f
 
-// TODO: Remove?
-#define LAYOUT 0
-#define PROPERTIES 1
-#define COLLIDABLE 1
-#define SLOPE_LEFT 2
-#define SLOPE_RIGHT 3
-
 extern float DELTA_TICKS;
 extern GLuint BOUND_TEXTURE;
 
