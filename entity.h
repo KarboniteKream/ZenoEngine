@@ -21,9 +21,8 @@ typedef struct
 	GLfloat Angle;
 	GLfloat AngleSpeed;
 
+	int State;
 	int Health;
-
-	int i;
 } Entity;
 
 // NOTE: Should this be combined?

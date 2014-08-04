@@ -17,9 +17,8 @@ void initEntity(Entity *entity)
 	entity->X = 0.0f;
 	entity->Y = 0.0f;
 
+	entity->State = 0;
 	entity->Health = 0;
-
-	entity->i = 0;
 }
 
 void loadEntity(Entity *entity, const char *textureFilename, GLfloat x, GLfloat y)
@@ -37,8 +36,8 @@ void loadEntity(Entity *entity, const char *textureFilename, GLfloat x, GLfloat 
 	entity->X = x;
 	entity->Y = y;
 
+	entity->State = 0;
 	entity->Health = 100;
-	entity->i = 0;
 }
 
 void startEntity(Entity *entity)
@@ -46,13 +45,13 @@ void startEntity(Entity *entity)
 	entity->AngleSpeed = 5.0f;
 	entity->MaxAngle = 22.5f;
 
-	if(entity->i == 0)
+	if(entity->State == 0)
 	{
-		entity->i = 1;
+		entity->State = 1;
 	}
 	else
 	{
-		entity->i = 0;
+		entity->State = 0;
 	}
 }
 
@@ -83,7 +82,7 @@ void drawEntity(Entity *entity)
 	glRotatef(entity->MaxAngle * sin(entity->Angle), 0.0f, 0.0f, 1.0f);
 	glTranslatef(-(entity->X + entity->EntityTextures[0].Width / 2 * 4), -(entity->Y + entity->EntityTextures[0].Height * 4), 0.0f);
 
-	drawTexture(&entity->EntityTextures[entity->i], entity->X, entity->Y, NULL, 0.0f, 4.0f, false);
+	drawTexture(&entity->EntityTextures[entity->State], entity->X, entity->Y, NULL, 0.0f, 4.0f, false);
 
 	if(DEBUG == true)
 	{
