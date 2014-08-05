@@ -19,12 +19,12 @@ typedef struct
 
 // TODO: Implement freeTexture().
 void initTexture(Texture *texture);
-void initVBO(Texture *texture, VertexData *vertexData, GLuint num);
-void loadTexture(Texture *texture, const char *filename);
-void setTextureShader(Texture *texture, GLuint shaderProgram);
+void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint num);
+void loadTexture(Texture *texture, const char *filename, GLuint shaderProgram);
 void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale, bool flip);
 void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat scale);
-void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfloat r, GLfloat g, GLfloat b);
+void drawTextureWithVBO(Texture *texture, VertexData **vertexData, GLsizei num, uint32_t color);
+void drawTextureWithStaticVBO(Texture *texture, GLsizei num);
 GLuint nextPOT(GLuint number);
 
 #endif

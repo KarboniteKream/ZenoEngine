@@ -40,7 +40,7 @@ void initPlayer(Player *player)
 // TODO: Use a data file instead of playerTexture.
 void loadPlayer(Player *player, const char *playerTexture)
 {
-	loadTexture(&player->PlayerTexture, playerTexture);
+	loadTexture(&player->PlayerTexture, playerTexture, 0);
 
 	// TODO: Free player->Animations.
 	player->Animations = (Animation *)malloc(7 * sizeof(Animation));
@@ -460,7 +460,7 @@ void drawPlayer(Player *player)
 
 	if(DEBUG == true)
 	{
-		drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
-		drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 1.0f, 1.0f, 1.0f, 1.0f);
+		drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 0xFFFFFF00);
+		drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 0xFFFFFFFF);
 	}
 }

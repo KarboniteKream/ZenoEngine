@@ -69,32 +69,32 @@ valgrind: clean
 	@valgrind --track-origins=yes --leak-check=full ./$(EXE) &> $(VALGRIND)
 	@echo "Log saved as $(VALGRIND)."
 
-animation.o: animation.c animation.h globals.h texture.h
+animation.o: animation.h animation.c globals.h texture.h
 	$(CC) $(CFLAGS) -c animation.c
 
-entity.o: entity.c entity.h util.h globals.h texture.h level.h
+entity.o: entity.h entity.c globals.h level.h texture.h util.h
 	$(CC) $(CFLAGS) -c entity.c
 
-font.o: font.c font.h globals.h texture.h
+font.o: font.h font.c globals.h texture.h
 	$(CC) $(CFLAGS) -c font.c
 
-globals.o: globals.c globals.h
+globals.o: globals.h globals.c
 	$(CC) $(CFLAGS) -c globals.c
 
-level.o: level.c level.h globals.h texture.h
+level.o: globals.h level.h level.c texture.h
 	$(CC) $(CFLAGS) -c level.c
 
-main.o: main.c util.h globals.h texture.h level.h player.h font.h particle.h entity.h
+main.o: entity.h font.h globals.h level.h main.c particle.h player.h texture.h util.h
 	$(CC) $(CFLAGS) -c main.c
 
-particle.o: particle.c particle.h globals.h texture.h
+particle.o: globals.h particle.h particle.c texture.h
 	$(CC) $(CFLAGS) -c particle.c
 
-player.o: player.c player.h globals.h util.h texture.h level.h animation.h
+player.o: animation.h globals.h level.h player.h player.c texture.h util.h
 	$(CC) $(CFLAGS) -c player.c
 
-texture.o: texture.c texture.h globals.h
+texture.o: globals.h texture.h texture.c
 	$(CC) $(CFLAGS) -c texture.c
 
-util.o: util.c globals.h level.h
+util.o: globals.h level.h util.h util.c
 	$(CC) $(CFLAGS) -c util.c

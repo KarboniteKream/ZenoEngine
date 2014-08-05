@@ -23,8 +23,8 @@ void initEntity(Entity *entity)
 
 void loadEntity(Entity *entity, const char *textureFilename, GLfloat x, GLfloat y)
 {
-	loadTexture(&entity->EntityTextures[0], textureFilename);
-	loadTexture(&entity->EntityTextures[1], "images/scarecrowDamaged.png");
+	loadTexture(&entity->EntityTextures[0], textureFilename, 0);
+	loadTexture(&entity->EntityTextures[1], "images/scarecrowDamaged.png", 0);
 
 	// NOTE: Is this bad practice?
 	entity->BoundingBox = (RectangleF){0.0f, 0.0f, entity->EntityTextures[0].Width, entity->EntityTextures[0].Height};
@@ -86,7 +86,7 @@ void drawEntity(Entity *entity)
 
 	if(DEBUG == true)
 	{
-		drawRectangle(entity->X + entity->BoundingBox.X * 4, entity->Y + entity->BoundingBox.Y * 4, entity->BoundingBox.W * 4, entity->BoundingBox.H * 4, 1.0f, 1.0f, 1.0f, 1.0f);
+		drawRectangle(entity->X + entity->BoundingBox.X * 4, entity->Y + entity->BoundingBox.Y * 4, entity->BoundingBox.W * 4, entity->BoundingBox.H * 4, 0xFFFFFFFF);
 	}
 
 	glPopMatrix();

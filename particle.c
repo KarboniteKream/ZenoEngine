@@ -15,7 +15,7 @@ void initParticleSystem(ParticleSystem *particleSystem, GLfloat x, GLfloat y, GL
 	for(int i = 0; i < 1; i++)
 	{
 		initTexture(&particleSystem->ParticleTextures[0]);
-		loadTexture(&particleSystem->ParticleTextures[0], "images/leaf.png");
+		loadTexture(&particleSystem->ParticleTextures[0], "images/leaf.png", 0);
 	}
 
 	for(int i = 0; i < particleNumber; i++)
@@ -51,7 +51,7 @@ void setParticleTTL(ParticleSystem *particleSystem, unsigned int ttl)
 
 void debugParticleSystem(ParticleSystem *particleSystem)
 {
-	drawRectangle(particleSystem->X, particleSystem->Y, 5.0f, particleSystem->WH, 1.0f, 1.0f, 1.0f, 1.0f);
+	drawRectangle(particleSystem->X, particleSystem->Y, 5.0f, particleSystem->WH, 0xFFFFFFFF);
 }
 
 void updateParticleSystem(ParticleSystem *particleSystem)

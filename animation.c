@@ -25,7 +25,7 @@ void initAnimation(Animation *animation)
 
 void loadAnimation(Animation *animation, const char *animationTexture, int totalFrames, int framesPerRow, int framesPerColumn, float animationSpeed)
 {
-	loadTexture(&animation->AnimationTexture, animationTexture);
+	loadTexture(&animation->AnimationTexture, animationTexture, 0);
 
 	animation->TotalFrames = totalFrames;
 	animation->FramesPerRow = framesPerRow;

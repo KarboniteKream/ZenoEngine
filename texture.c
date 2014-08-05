@@ -13,7 +13,7 @@ void initTexture(Texture *texture)
 	texture->TexHeight = 0;
 }
 
-void initVBO(Texture *texture, VertexData *vertexData, GLuint num)
+void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint num)
 {
 	glGenBuffers(1, &texture->VBO);
 
@@ -22,7 +22,7 @@ void initVBO(Texture *texture, VertexData *vertexData, GLuint num)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void loadTexture(Texture *texture, const char *filename)
+void loadTexture(Texture *texture, const char *filename, GLuint shaderProgram)
 {
 	printLog(0, "Loading texture", filename);
 
@@ -78,6 +78,11 @@ void loadTexture(Texture *texture, const char *filename)
 
 	SDL_FreeSurface(image);
 
+	if(shaderProgram > 0)
+	{
+		texture->ShaderProgram = shaderProgram;
+	}
+
 	if(glGetError() != GL_NO_ERROR)
 	{
 		// TODO: Call printLog().
@@ -87,12 +92,6 @@ void loadTexture(Texture *texture, const char *filename)
 	}
 
 	printLog(0, "OK!", filename);
-}
-
-// NOTE: Should this be set in loadTexture()?
-void setTextureShader(Texture *texture, GLuint shaderProgram)
-{
-	texture->ShaderProgram = shaderProgram;
 }
 
 // NOTE: Should I rename clip to rectangle?
@@ -252,7 +251,7 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GL
 	}
 }
 
-void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfloat r, GLfloat g, GLfloat b)
+void drawTextureWithVBO(Texture *texture, VertexData **vertexData, GLsizei num, uint32_t color)
 {
 	if(BOUND_TEXTURE != texture->ID)
 	{
@@ -261,13 +260,12 @@ void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfl
 	}
 
 	glUseProgram(texture->ShaderProgram);
-	glUniform4f(texColor, r, g, b, 1.0f);
+	glUniform4f(texColor, ((color >> 24) & 0xFF) / 255.0, ((color >> 16) & 0xFF) / 255.0, ((color >> 8) & 0xFF) / 255.0, 1.0f);
 
 	glEnableVertexAttribArray(texPos);
 	glEnableVertexAttribArray(texCoords);
 
 	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
-	// NOTE: GL_STREAM_DRAW or GL_DYNAMIC_DRAW?
 	glBufferData(GL_ARRAY_BUFFER, num * sizeof(VertexData), *vertexData, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(texPos, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
 	glVertexAttribPointer(texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
@@ -278,6 +276,32 @@ void drawTextureWithVBO(Texture *texture, VertexData **vertexData, int num, GLfl
 	glDisableVertexAttribArray(texPos);
 
 	glUseProgram(0);
+}
+
+// NOTE: If this function is only used in level, move it there.
+void drawTextureWithStaticVBO(Texture *texture, GLsizei num)
+{
+	glEnable(GL_TEXTURE_2D);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if(BOUND_TEXTURE != texture->ID)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture->ID);
+		BOUND_TEXTURE = texture->ID;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, texture->VBO);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, S));
+	glVertexPointer(2, GL_FLOAT, sizeof(VertexData), (GLvoid *)offsetof(VertexData, X));
+	glDrawArrays(GL_QUADS, 0, num);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glDisable(GL_TEXTURE_2D);
 }
 
 GLuint nextPOT(GLuint number)

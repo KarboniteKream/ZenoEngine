@@ -10,11 +10,13 @@ void initFont(Font *font, uint8_t num)
 
 	for(uint8_t i = 0; i < font->Num; i++)
 	{
+		initTexture(&font->Textures[i]);
 		font->Clips[i] = NULL;
+		font->Height[i] = 0;
 	}
 }
 
-void loadFont(Font *font, uint8_t index, const char* filename)
+void loadFont(Font *font, uint8_t index, const char* filename, GLuint shaderProgram)
 {
 	printLog(0, "Loading font", filename);
 
@@ -32,8 +34,7 @@ void loadFont(Font *font, uint8_t index, const char* filename)
 		// TODO: Replace sizeof() with actual size of data in file.
 		fread(&filenameLength, sizeof(filenameLength), 1, fontFile);
 		fread(textureFilename, sizeof(char), filenameLength, fontFile);
-		initTexture(&font->Textures[index]);
-		loadTexture(&font->Textures[index], textureFilename);
+		loadTexture(&font->Textures[index], textureFilename, shaderProgram);
 
 		fread(&font->Height[index], sizeof(uint8_t), 1, fontFile);
 		fread(&num, sizeof(num), 1, fontFile);
@@ -78,8 +79,7 @@ void loadFont(Font *font, uint8_t index, const char* filename)
 	}
 }
 
-// TODO: Pass RGB as hexadecimal.
-void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b)
+void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, uint32_t color)
 {
 	// TODO: Compare index to font->Num, use fallback font.
 	VertexData *vertexData = (VertexData *)malloc(4 * strlen(text) * sizeof(VertexData));
@@ -130,7 +130,7 @@ void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text,
 		}
 	}
 
-	drawTextureWithVBO(&font->Textures[index], &vertexData, num, r, g, b);
+	drawTextureWithVBO(&font->Textures[index], &vertexData, num, color);
 
 	free(vertexData);
 }

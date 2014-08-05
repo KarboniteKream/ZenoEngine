@@ -9,8 +9,7 @@
 #define FONT_NORMAL 0
 #define FONT_LARGE 1
 
-// TODO: Combine all fonts.
-// NOTE: Should this be a linked list?
+// NOTE: Should this be an array of structs?
 typedef struct
 {
 	uint8_t Num;
@@ -21,7 +20,7 @@ typedef struct
 } Font;
 
 void initFont(Font *font, uint8_t num);
-void loadFont(Font *font, uint8_t index, const char* filename);
-void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, GLfloat r, GLfloat g, GLfloat b);
+void loadFont(Font *font, uint8_t index, const char* filename, GLuint shaderProgram);
+void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, uint32_t color);
 
 #endif
