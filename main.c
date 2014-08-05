@@ -16,6 +16,7 @@
 // TODO: Automatically call init*() with load*().
 // TODO: Use stack instead of heap where applicable.
 // TODO: Improve scale handling in calculations.
+// TODO: Use smaller data types where possible.
 int main(int argc, char **argv)
 {
 	// TEMP: Supress a warning.
@@ -81,6 +82,7 @@ int main(int argc, char **argv)
 	int frames = 0, fps = 0;
 	char engineInformation[256] = {'\0'};
 
+	// TODO: Change to stdint.
 	Uint32 fpsTimer = SDL_GetTicks();
 	Uint32 packetTimer = SDL_GetTicks();
 	Uint32 currentTime = SDL_GetTicks();
@@ -371,6 +373,16 @@ int main(int argc, char **argv)
 		}
 
 		drawText(&fonts, FONT_NORMAL, 7.0f, 5.0f, engineInformation, 0x00000000);
+
+		char combo[player.MaxComboLength + 1];
+		for(int i = 0; i < player.MaxComboLength; i++)
+		{
+			combo[i] = player.Combo[i] == -1 ? 'X' : player.Combo[i] + 48;
+		}
+		combo[player.MaxComboLength] = '\0';
+		drawText(&fonts, FONT_LARGE, 100.0f, 60.0f, combo, 0x00000000);
+		drawText(&fonts, FONT_LARGE, 100.0f, 110.0f, player.ComboString, 0x00000000);
+		drawCombo(&player);
 
 		// FIXME: Timer doesn't work properly on all platforms?
 		char renderTimeString[32];

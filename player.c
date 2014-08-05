@@ -35,6 +35,14 @@ void initPlayer(Player *player)
 	player->IsIdle = false;
 
 	player->IsAttacking = false;
+
+	player->ComboTextures = NULL;
+	player->MaxComboLength = 0;
+	player->Combo = NULL;
+	player->ComboIndex = 0;
+	player->ComboString[0] = '\0';
+	player->ComboStringIndex = 0;
+	player->ComboTime = 0;
 }
 
 // TODO: Use a data file instead of playerTexture.
@@ -102,6 +110,32 @@ void loadPlayer(Player *player, const char *playerTexture)
 	player->IsIdle = false;
 
 	player->IsAttacking = false;
+
+	player->ComboTextures = (Texture *)malloc(4 * sizeof(Texture));
+
+	for(int i = 0; i < 4; i++)
+	{
+		initTexture(&player->ComboTextures[i]);
+	}
+
+	loadTexture(&player->ComboTextures[0], "images/combo/u.png", 0);
+	loadTexture(&player->ComboTextures[1], "images/combo/l.png", 0);
+	loadTexture(&player->ComboTextures[2], "images/combo/d.png", 0);
+	loadTexture(&player->ComboTextures[3], "images/combo/r.png", 0);
+
+	player->MaxComboLength = 14;
+
+	player->Combo = (int8_t *)malloc(player->MaxComboLength * sizeof(int8_t));
+
+	for(int i = 0; i < player->MaxComboLength; i++)
+	{
+		player->Combo[i] = -1;
+	}
+
+	player->ComboIndex = 0;
+	player->ComboString[0] = '\0';
+	player->ComboStringIndex = 0;
+	player->ComboTime = 0;
 }
 
 void handlePlayerEvent(Player *player, SDL_Event *event)
@@ -171,19 +205,27 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 				}
 			break;
 
-			case SDLK_j:
-				player->Health -= 4;
-				if(player->Health < 0)
+			case SDLK_r:
+				if(event->key.repeat == 0 && keyState == true)
 				{
-					player->Health = 0;
+					player->Health += 8;
 				}
-			break;
 
-			case SDLK_k:
-				player->Health += 4;
 				if(player->Health > player->MaxHealth)
 				{
 					player->Health = player->MaxHealth;
+				}
+			break;
+
+			case SDLK_f:
+				if(event->key.repeat == 0 && keyState == true)
+				{
+					player->Health -= 8;
+				}
+
+				if(player->Health < 0)
+				{
+					player->Health = 0;
 				}
 			break;
 
@@ -200,10 +242,59 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 			break;
 		}
 	}
+
+	if(event->type == SDL_KEYDOWN && event->key.repeat == 0)
+	{
+		switch(event->key.keysym.sym)
+		{
+			case SDLK_w:
+				player->ComboTime = SDL_GetTicks();
+				player->ComboString[player->ComboStringIndex++] = 'W';
+				player->ComboString[player->ComboStringIndex] = '\0';
+				player->Combo[player->ComboIndex] = 0;
+				player->ComboIndex++;
+				player->ComboIndex = player->ComboIndex % player->MaxComboLength;
+			break;
+
+			case SDLK_a:
+				player->ComboTime = SDL_GetTicks();
+				player->ComboString[player->ComboStringIndex++] = 'A';
+				player->ComboString[player->ComboStringIndex] = '\0';
+				player->Combo[player->ComboIndex] = 1;
+				player->ComboIndex++;
+				player->ComboIndex = player->ComboIndex % player->MaxComboLength;
+			break;
+
+			case SDLK_s:
+				player->ComboTime = SDL_GetTicks();
+				player->ComboString[player->ComboStringIndex++] = 'S';
+				player->ComboString[player->ComboStringIndex] = '\0';
+				player->Combo[player->ComboIndex] = 2;
+				player->ComboIndex++;
+				player->ComboIndex = player->ComboIndex % player->MaxComboLength;
+			break;
+
+			case SDLK_d:
+				player->ComboTime = SDL_GetTicks();
+				player->ComboString[player->ComboStringIndex++] = 'D';
+				player->ComboString[player->ComboStringIndex] = '\0';
+				player->Combo[player->ComboIndex] = 3;
+				player->ComboIndex++;
+				player->ComboIndex = player->ComboIndex % player->MaxComboLength;
+			break;
+		}
+	}
 }
 
 void updatePlayer(Player *player, Level *level)
 {
+	if(SDL_GetTicks() - player->ComboTime > 500 && player->ComboTime != 0)
+	{
+		player->ComboString[0] = '\0';
+		player->ComboTime = 0;
+		player->ComboStringIndex = 0;
+	}
+
 	player->X += player->CurrentSpeed * DELTA_TICKS;
 
 	// NOTE: This is necessary only if the level is not surrounded by walls.
@@ -463,4 +554,20 @@ void drawPlayer(Player *player)
 		drawEmptyRectangle(player->X, player->Y, player->PlayerTexture.Width * player->Scale, player->PlayerTexture.Height * player->Scale, 1.0f, 0xFFFFFF00);
 		drawRectangle(player->X + (player->BoundingBox.X * player->Scale), player->Y + (player->BoundingBox.Y * player->Scale), player->BoundingBox.W * player->Scale, player->BoundingBox.H * player->Scale, 0xFFFFFFFF);
 	}
+}
+
+void drawCombo(Player *player)
+{
+	uint8_t i = player->ComboIndex;
+	uint8_t position = 0;
+
+	do
+	{
+		if(player->Combo[i] != -1)
+		{
+			drawTexture(&player->ComboTextures[player->Combo[i]], 10.0f, 60.0f + (position++ * 40.0f), NULL, 0.0f, 2.0f, false);
+		}
+
+		i = (i + 1) % player->MaxComboLength;
+	} while(i != player->ComboIndex);
 }

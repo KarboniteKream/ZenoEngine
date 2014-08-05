@@ -44,6 +44,14 @@ typedef struct
 
 	bool IsAttacking;
 
+	Texture *ComboTextures;
+	uint8_t MaxComboLength;
+	int8_t *Combo;
+	uint8_t ComboIndex;
+	char ComboString[32];
+	uint8_t ComboStringIndex;
+	uint32_t ComboTime;
+
 	// TODO: Store control scheme in an array.
 	// TODO: Add enumerators.
 } Player;
@@ -53,5 +61,6 @@ void loadPlayer(Player *player, const char *playerTexture);
 void handlePlayerEvent(Player *player, SDL_Event *event);
 void updatePlayer(Player *player, Level *level);
 void drawPlayer(Player *player);
+void drawCombo(Player *player);
 
 #endif
