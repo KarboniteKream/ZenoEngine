@@ -119,7 +119,13 @@ void executeCommand(Level *level, char *command)
 	{
 		index++;
 		length++;
-		commandArray = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
+		char **temp = (char **)realloc(commandArray, (index + 1) * sizeof(char *));
+
+		if(temp != NULL)
+		{
+			commandArray = temp;
+		}
+
 		commandArray[index] = strtok(NULL, " ");
 	}
 
@@ -272,10 +278,16 @@ void loadShader(GLuint *shaderProgram, const char *vsFilename, const char *fsFil
 	if(vsFile == NULL)
 	{
 		printLog(1, "Unable to open vertex shader:", vsFilename);
+
+		if(fsFile != NULL)
+		{
+			fclose(fsFile);
+		}
 	}
 	else if(fsFile == NULL)
 	{
 		printLog(1, "Unable to open fragment shader:", fsFilename);
+		fclose(vsFile);
 	}
 	else
 	{

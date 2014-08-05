@@ -64,9 +64,8 @@ void printLog(int type, const char *summary, const char *details)
 	if(logFile != NULL)
 	{
 		fprintf(logFile, "%s\n", message);
+		fclose(logFile);
 	}
-
-	fclose(logFile);
 }
 
 // TODO: Rename and move to a separate namespace.

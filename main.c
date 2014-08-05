@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 				*/
 
 				// NOTE: Is it necessary to convert to char *?
-				sscanf((char *)PACKET->data, "%f %f", &players[0].X, &players[0].Y);
+				sscanf((char *)PACKET->data, "%5f %5f", &players[0].X, &players[0].Y);
 			}
 		}
 

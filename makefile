@@ -23,23 +23,11 @@ endif
 # TODO: Put .o files in a separate directory.
 OBJECTS = animation.o entity.o font.o globals.o level.o main.o particle.o player.o texture.o util.o
 
-.PHONY: asan clean tools valgrind
+.PHONY: asan clean cppcheck tools valgrind
 
 # TODO: Copy files to bin/ and make a symbolic link to the executable.
 zeno: $(OBJECTS)
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $(EXE)
-
-asan: clean
-	@+$(MAKE) CFLAGS="$(CFLAGS) -O3 -g -fsanitize=address -fno-omit-frame-pointer" LDFLAGS="$(LDFLAGS) -g -fsanitize=address" zeno --no-print-directory
-
-	@echo -e "\nRunning AddressSanitizer..."
-	@./$(EXE) &> $(ASAN)
-	@echo "Log saved as $(ASAN)."
-
-clean:
-	@rm -rf *.o *.dll $(EXE){,.exe} $(LOG) $(ASAN) $(VALGRIND)
-	@rm -rf bin/
-	@$(MAKE) -C tools clean --no-print-directory
 
 # TODO: Automatically rebuild font files.
 release: clean
@@ -58,6 +46,21 @@ endif
 
 	@mv $(EXE) bin/
 	@ln -s bin/$(EXE) .
+
+asan: clean
+	@+$(MAKE) CFLAGS="$(CFLAGS) -O3 -g -fsanitize=address -fno-omit-frame-pointer" LDFLAGS="$(LDFLAGS) -g -fsanitize=address" zeno --no-print-directory
+
+	@echo -e "\nRunning AddressSanitizer..."
+	@./$(EXE) &> $(ASAN)
+	@echo "Log saved as $(ASAN)."
+
+clean:
+	@rm -rf *.o *.dll $(EXE){,.exe} $(LOG) $(ASAN) $(VALGRIND)
+	@rm -rf bin/
+	@$(MAKE) -C tools clean --no-print-directory
+
+cppcheck:
+	@cppcheck . --enable=all --suppress=missingIncludeSystem --inconclusive --std=c99 --verbose
 
 tools:
 	@$(MAKE) -C tools --no-print-directory
