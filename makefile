@@ -25,7 +25,7 @@ OBJECTS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(wildcard $(SRCDIR)/*.c))
 
 zeno: $(OBJECTS)
 	@mkdir -p screenshots
-	@$(CC) $(LDFLAGS) $(OBJECTS) -o $(NAME)
+	@$(CC) $(OBJECTS) $(LDFLAGS) -o $(NAME)
 
 # TODO: Automatically rebuild font files.
 release: clean
@@ -34,7 +34,7 @@ release: clean
 	@rm bin/data/*.txt
 
 ifeq ($(OS), Windows_NT)
-	@cp dll/ bin/
+	@cp -r dll/ bin/
 endif
 
 	@$(MAKE) CFLAGS="$(CFLAGS) -O3" LDFLAGS="$(LDFLAGS) -s" zeno --no-print-directory
