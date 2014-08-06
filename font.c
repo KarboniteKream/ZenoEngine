@@ -79,7 +79,7 @@ void loadFont(Font *font, uint8_t index, const char* filename, GLuint shaderProg
 	}
 }
 
-void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, uint32_t color)
+void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, uint32_t rgb_color)
 {
 	// TODO: Compare index to font->Num, use fallback font.
 	VertexData *vertexData = (VertexData *)malloc(4 * strlen(text) * sizeof(VertexData));
@@ -130,7 +130,7 @@ void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text,
 		}
 	}
 
-	drawTextureWithVBO(&font->Textures[index], &vertexData, num, color);
+	drawTextureWithVBO(&font->Textures[index], &vertexData, num, rgb_color);
 
 	free(vertexData);
 }

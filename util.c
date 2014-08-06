@@ -407,10 +407,10 @@ void printInfoLog(GLuint shaderProgram)
 	free(infoLog);
 }
 
-void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, uint32_t color)
+void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, uint32_t rgb_color, GLfloat alpha)
 {
 	glUseProgram(shaderProgram);
-	glUniform4f(colorLocation, ((color >> 24) & 0xFF) / 255.0, ((color >> 16) & 0xFF) / 255.0, ((color >> 8) & 0xFF) / 255.0, (color & 0xFF) / 255.0);
+	glUniform4f(colorLocation, ((rgb_color >> 16) & 0xFF) / 255.0, ((rgb_color >> 8) & 0xFF) / 255.0, (rgb_color & 0xFF) / 255.0, alpha);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -436,10 +436,10 @@ void drawRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, uint32_t color)
 	glUseProgram(0);
 }
 
-void drawEmptyRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat lineWidth, uint32_t color)
+void drawEmptyRectangle(GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat lineWidth, uint32_t rgb_color)
 {
 	glUseProgram(shaderProgram);
-	glUniform4f(colorLocation, ((color >> 24) & 0xFF) / 255.0, ((color >> 16) & 0xFF) / 255.0, ((color >> 8) & 0xFF) / 255.0, 1.0f);
+	glUniform4f(colorLocation, ((rgb_color >> 16) & 0xFF) / 255.0, ((rgb_color >> 8) & 0xFF) / 255.0, (rgb_color & 0xFF) / 255.0, 1.0f);
 
 	glLineWidth(lineWidth);
 

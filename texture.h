@@ -23,7 +23,7 @@ void initStaticVBO(Texture *texture, VertexData *vertexData, GLuint num);
 void loadTexture(Texture *texture, const char *filename, GLuint shaderProgram);
 void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale, bool flip);
 void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat scale);
-void drawTextureWithVBO(Texture *texture, VertexData **vertexData, GLsizei num, uint32_t color);
+void drawTextureWithVBO(Texture *texture, VertexData **vertexData, GLsizei num, uint32_t rgb_color);
 void drawTextureWithStaticVBO(Texture *texture, GLsizei num);
 GLuint nextPOT(GLuint number);
 

@@ -251,7 +251,7 @@ void drawTextureVBO(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GL
 	}
 }
 
-void drawTextureWithVBO(Texture *texture, VertexData **vertexData, GLsizei num, uint32_t color)
+void drawTextureWithVBO(Texture *texture, VertexData **vertexData, GLsizei num, uint32_t rgb_color)
 {
 	if(BOUND_TEXTURE != texture->ID)
 	{
@@ -260,7 +260,7 @@ void drawTextureWithVBO(Texture *texture, VertexData **vertexData, GLsizei num, 
 	}
 
 	glUseProgram(texture->ShaderProgram);
-	glUniform4f(texColor, ((color >> 24) & 0xFF) / 255.0, ((color >> 16) & 0xFF) / 255.0, ((color >> 8) & 0xFF) / 255.0, 1.0f);
+	glUniform4f(texColor, ((rgb_color >> 16) & 0xFF) / 255.0, ((rgb_color >> 8) & 0xFF) / 255.0, (rgb_color & 0xFF) / 255.0, 1.0f);
 
 	glEnableVertexAttribArray(texPos);
 	glEnableVertexAttribArray(texCoords);

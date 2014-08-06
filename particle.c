@@ -51,7 +51,7 @@ void setParticleTTL(ParticleSystem *particleSystem, unsigned int ttl)
 
 void debugParticleSystem(ParticleSystem *particleSystem)
 {
-	drawRectangle(particleSystem->X, particleSystem->Y, 5.0f, particleSystem->WH, 0xFFFFFFFF);
+	drawRectangle(particleSystem->X, particleSystem->Y, 5.0f, particleSystem->WH, 0xFFFFFF, 1.0f);
 }
 
 void updateParticleSystem(ParticleSystem *particleSystem)

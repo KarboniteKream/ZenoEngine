@@ -359,8 +359,8 @@ int main(int argc, char **argv)
 
 		drawTexture(&interfaceTexture, 16.0f, SCREEN_HEIGHT - 16.0f - 64.0f, NULL, 0.0f, 1.0f, false);
 
-		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 0xFF0000FF);
-		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 32.0f, 31.0f, 2.0f, 0x00FF0000);
+		drawRectangle(20.0f, SCREEN_HEIGHT - 76.0f, player.Health, 23.0f, 0xFF0000, 1.0f);
+		drawEmptyRectangle(146.0f + (player.SelectedSkill - 1) * 32.0f + player.SelectedSkill * 2.0f, SCREEN_HEIGHT - 47.0f, 32.0f, 31.0f, 2.0f, 0x00FF00);
 
 		// TODO: Check if a rebuild is necessary.
 		if(editor == true)
@@ -372,7 +372,7 @@ int main(int argc, char **argv)
 			snprintf(engineInformation, 256, "%s (F1 - Log, F2 - Editor, F12 - Screenshot)", NAME_VERSION);
 		}
 
-		drawText(&fonts, FONT_NORMAL, 7.0f, 5.0f, engineInformation, 0x00000000);
+		drawText(&fonts, FONT_NORMAL, 7.0f, 5.0f, engineInformation, 0x000000);
 
 		char combo[player.MaxComboLength + 1];
 		for(int i = 0; i < player.MaxComboLength; i++)
@@ -380,30 +380,30 @@ int main(int argc, char **argv)
 			combo[i] = player.Combo[i] == -1 ? 'X' : player.Combo[i] + 48;
 		}
 		combo[player.MaxComboLength] = '\0';
-		drawText(&fonts, FONT_LARGE, 100.0f, 60.0f, combo, 0x00000000);
-		drawText(&fonts, FONT_LARGE, 100.0f, 110.0f, player.ComboString, 0x00000000);
+		drawText(&fonts, FONT_LARGE, 100.0f, 60.0f, combo, 0x000000);
+		drawText(&fonts, FONT_LARGE, 100.0f, 110.0f, player.ComboString, 0x000000);
 		drawCombo(&player);
 
 		// FIXME: Timer doesn't work properly on all platforms?
 		char renderTimeString[32];
 		renderTime = SDL_GetPerformanceCounter() - renderTime;
 		snprintf(renderTimeString, 32, "FPS: %d (%.0f us)", fps, (float)(renderTime) / SDL_GetPerformanceFrequency() * 1000000.0f);
-		drawText(&fonts, FONT_NORMAL, 7.0f, 27.0f, renderTimeString, 0x00000000);
+		drawText(&fonts, FONT_NORMAL, 7.0f, 27.0f, renderTimeString, 0x000000);
 
 		if(console == true)
 		{
-			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 400.0f, 0x000000E6);
+			drawRectangle(0.0f, 0.0f, SCREEN_WIDTH, 400.0f, 0x000000, 0.9f);
 
 			for(int i = logIndex - 1; i >= 0 && 25.0f * i >= 0.0f; i--)
 			{
-				drawText(&fonts, FONT_NORMAL, 7.0f, 22.0f * i, logs[i], 0xFF00FF00);
+				drawText(&fonts, FONT_NORMAL, 7.0f, 22.0f * i, logs[i], 0xFF00FF);
 			}
 
-			drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 0xFFFFFFFF);
-			drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 2.0f, 0x00000000);
+			drawRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 0xFFFFFF, 1.0f);
+			drawEmptyRectangle(15.0f, SCREEN_HEIGHT - 60.0f, SCREEN_WIDTH - 30.0f, 45.0f, 2.0f, 0x000000);
 
-			drawText(&fonts, FONT_LARGE, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0x00000000);
-			drawText(&fonts, FONT_LARGE, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0x00000000);
+			drawText(&fonts, FONT_LARGE, 22.0f, SCREEN_HEIGHT - 56.0f, "$ ", 0x000000);
+			drawText(&fonts, FONT_LARGE, 55.0f, SCREEN_HEIGHT - 58.0f, command, 0x000000);
 
 			// TODO: Command history.
 		}

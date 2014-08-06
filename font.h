@@ -21,6 +21,6 @@ typedef struct
 
 void initFont(Font *font, uint8_t num);
 void loadFont(Font *font, uint8_t index, const char* filename, GLuint shaderProgram);
-void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, uint32_t color);
+void drawText(Font *font, uint8_t index, GLfloat x, GLfloat y, const char* text, uint32_t rgb_color);
 
 #endif

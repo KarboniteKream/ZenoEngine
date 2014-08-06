@@ -86,7 +86,7 @@ void drawEntity(Entity *entity)
 
 	if(DEBUG == true)
 	{
-		drawRectangle(entity->X + entity->BoundingBox.X * 4, entity->Y + entity->BoundingBox.Y * 4, entity->BoundingBox.W * 4, entity->BoundingBox.H * 4, 0xFFFFFFFF);
+		drawRectangle(entity->X + entity->BoundingBox.X * 4, entity->Y + entity->BoundingBox.Y * 4, entity->BoundingBox.W * 4, entity->BoundingBox.H * 4, 0xFFFFFF, 1.0f);
 	}
 
 	glPopMatrix();
