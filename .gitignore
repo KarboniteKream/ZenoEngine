@@ -1,15 +1,14 @@
 bin/
+obj/
 screenshots/
 
 *.db
 *.dll
-*.exe
-*.o
 
 tools/font-converter
 tools/transpose-level
-log.txt
-log_asan.txt
-log_valgrind.txt
+
+log*.txt
 ZenoEngine
+ZenoEngine.exe
 
