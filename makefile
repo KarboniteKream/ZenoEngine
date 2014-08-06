@@ -77,6 +77,8 @@ $(OBJDIR)/player.o: $(addprefix $(SRCDIR)/,player.c animation.h globals.h level.
 $(OBJDIR)/texture.o: $(addprefix $(SRCDIR)/,texture.c globals.h texture.h)
 $(OBJDIR)/util.o: $(addprefix $(SRCDIR)/,util.c globals.h level.h util.h)
 
-$(OBJECTS):
-	@mkdir -p $(OBJDIR)
+$(OBJECTS): | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR) :
+	@mkdir $(OBJDIR)
