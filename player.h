@@ -10,6 +10,15 @@
 #include "level.h"
 #include "animation.h"
 
+#define UP 1
+#define DOWN 2
+#define LEFT 4
+#define RIGHT 8
+#define UP_LEFT 16
+#define UP_RIGHT 32
+#define DOWN_LEFT 64
+#define DOWN_RIGHT 128
+
 typedef struct
 {
 	Texture PlayerTexture;
@@ -51,6 +60,8 @@ typedef struct
 	char ComboString[32];
 	uint8_t ComboStringIndex;
 	uint32_t ComboTime;
+	uint32_t ComboTicks;
+	uint8_t ComboDirection;
 
 	// TODO: Store control scheme in an array.
 	// TODO: Add enumerators.
