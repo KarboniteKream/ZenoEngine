@@ -13,13 +13,13 @@ VALGRIND = log_valgrind.txt
 ifeq ($(OS), Windows_NT)
 	CC = gcc
 	LDFLAGS = -lm -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lOpenGL32
-else ifeq ($(shell uname -s), Linux)
+else ifeq ($(shell uname), Linux)
 	LDFLAGS = -lm -lSDL2 -lSDL2_image -lSDL2_net -lGL
 else
 	LDFLAGS = -lm -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -framework OpenGL
 endif
 
-OBJECTS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(wildcard $(SRCDIR)/*.c))
+OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
 
 .PHONY: asan clean cppcheck tools valgrind
 
@@ -66,16 +66,16 @@ valgrind: clean
 	@valgrind --track-origins=yes --leak-check=full ./$(NAME) &> $(VALGRIND)
 	@echo "Log saved as $(VALGRIND)."
 
-$(OBJDIR)/animation.o: $(addprefix $(SRCDIR)/,animation.c animation.h globals.h texture.h)
-$(OBJDIR)/entity.o: $(addprefix $(SRCDIR)/,entity.c entity.h globals.h level.h texture.h util.h)
-$(OBJDIR)/font.o: $(addprefix $(SRCDIR)/,font.c font.h globals.h texture.h)
-$(OBJDIR)/globals.o: $(addprefix $(SRCDIR)/,globals.c globals.h)
-$(OBJDIR)/level.o: $(addprefix $(SRCDIR)/,level.c globals.h level.h texture.h)
-$(OBJDIR)/main.o: $(addprefix $(SRCDIR)/,main.c entity.h font.h globals.h level.h particle.h player.h texture.h util.h)
-$(OBJDIR)/particle.o: $(addprefix $(SRCDIR)/,particle.c globals.h particle.h texture.h)
-$(OBJDIR)/player.o: $(addprefix $(SRCDIR)/,player.c animation.h globals.h level.h player.h texture.h util.h)
-$(OBJDIR)/texture.o: $(addprefix $(SRCDIR)/,texture.c globals.h texture.h)
-$(OBJDIR)/util.o: $(addprefix $(SRCDIR)/,util.c globals.h level.h util.h)
+$(OBJDIR)/animation.o: $(addprefix $(SRCDIR)/, animation.c animation.h globals.h texture.h)
+$(OBJDIR)/entity.o: $(addprefix $(SRCDIR)/, entity.c entity.h globals.h level.h texture.h util.h)
+$(OBJDIR)/font.o: $(addprefix $(SRCDIR)/, font.c font.h globals.h texture.h)
+$(OBJDIR)/globals.o: $(addprefix $(SRCDIR)/, globals.c globals.h)
+$(OBJDIR)/level.o: $(addprefix $(SRCDIR)/, level.c globals.h level.h texture.h)
+$(OBJDIR)/main.o: $(addprefix $(SRCDIR)/, main.c entity.h font.h globals.h level.h particle.h player.h texture.h util.h)
+$(OBJDIR)/particle.o: $(addprefix $(SRCDIR)/, particle.c globals.h particle.h texture.h)
+$(OBJDIR)/player.o: $(addprefix $(SRCDIR)/, player.c animation.h globals.h level.h player.h texture.h util.h)
+$(OBJDIR)/texture.o: $(addprefix $(SRCDIR)/, texture.c globals.h texture.h)
+$(OBJDIR)/util.o: $(addprefix $(SRCDIR)/, util.c globals.h level.h util.h)
 
 $(OBJECTS): | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
