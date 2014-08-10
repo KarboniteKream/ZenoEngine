@@ -45,6 +45,7 @@ void initPlayer(Player *player)
 	player->ComboTime = 0;
 	player->ComboTicks = 0;
 	player->ComboDirection = 0;
+	player->LastEvent.type = SDL_FIRSTEVENT;
 }
 
 // TODO: Use a data file instead of playerTexture.
@@ -144,9 +145,10 @@ void loadPlayer(Player *player, const char *playerTexture)
 	player->ComboTime = SDL_GetTicks();
 	player->ComboTicks = SDL_GetTicks();
 	player->ComboDirection = 0;
+	player->LastEvent.type = SDL_FIRSTEVENT;
 }
 
-void handlePlayerEvent(Player *player, SDL_Event *event)
+void handlePlayerInput(Player *player, SDL_Event *event)
 {
 	if(event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
 	{
@@ -167,9 +169,17 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 			break;
 
 			case SDLK_s:
-				if(event->key.repeat == 0 && isKeyDown == true)
+				if(event->key.repeat == 0)
 				{
-					player->ComboDirection |= DOWN;
+					if(isKeyDown == true)
+					{
+						player->ComboDirection |= DOWN;
+						player->LastEvent = *event;
+					}
+					else
+					{
+						// Stop crouching.
+					}
 				}
 			break;
 
@@ -230,7 +240,12 @@ void handlePlayerEvent(Player *player, SDL_Event *event)
 
 					if(isKeyDown == true)
 					{
-						player->ComboDirection |= RIGHT;
+						// if(player->LastEvent.key.keysym.sym == SDLK_s)
+						{
+							player->ComboDirection |= RIGHT;
+						}
+
+						player->LastEvent = *event;
 					}
 				}
 			break;
@@ -283,7 +298,8 @@ void updatePlayer(Player *player, Level *level)
 		player->ComboStringIndex = 0;
 	}
 
-	if(SDL_GetTicks() - player->ComboTicks >= 16)
+	// TODO: Will this be removed/modified when proper input detection is finished?
+	if(SDL_GetTicks() - player->ComboTicks >= 50)
 	{
 		player->ComboTicks = SDL_GetTicks();
 
@@ -325,39 +341,13 @@ void updatePlayer(Player *player, Level *level)
 		}
 		else if((player->ComboDirection & LEFT) > 0)
 		{
-			if((player->ComboDirection & UP) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'Q';
-				player->Combo[player->ComboIndex] = 4;
-			}
-			else if((player->ComboDirection & DOWN) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'Z';
-				player->Combo[player->ComboIndex] = 6;
-			}
-			else
-			{
-				player->ComboString[player->ComboStringIndex] = 'A';
-				player->Combo[player->ComboIndex] = 2;
-			}
+			player->ComboString[player->ComboStringIndex] = 'A';
+			player->Combo[player->ComboIndex] = 2;
 		}
 		else if((player->ComboDirection & RIGHT) > 0)
 		{
-			if((player->ComboDirection & UP) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'E';
-				player->Combo[player->ComboIndex] = 5;
-			}
-			else if((player->ComboDirection & DOWN) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'C';
-				player->Combo[player->ComboIndex] = 7;
-			}
-			else
-			{
-				player->ComboString[player->ComboStringIndex] = 'D';
-				player->Combo[player->ComboIndex] = 3;
-			}
+			player->ComboString[player->ComboStringIndex] = 'D';
+			player->Combo[player->ComboIndex] = 3;
 		}
 
 		if(player->ComboDirection > 0)

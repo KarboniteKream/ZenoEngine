@@ -49,12 +49,13 @@ void printLog(int type, const char *summary, const char *details)
 		case 1:
 			snprintf(message, 256, "ERROR: %s %s", summary, (details == NULL) ? "" : details);
 			fprintf(stderr, "%s\n", message);
-			strcpy(logs[logIndex++], message);
+			// TODO: NULL-terminate the string in case of overflow.
+			strncpy(logs[logIndex++], message, 256);
 		break;
 
 		case 2:
 			snprintf(message, 256, "%s %s", summary, (details == NULL) ? "" : details);
-			strcpy(logs[logIndex++], message);
+			strncpy(logs[logIndex++], message, 256);
 		break;
 	}
 
@@ -72,6 +73,7 @@ void printLog(int type, const char *summary, const char *details)
 FILE *openFile(const char *filename, const char *mode)
 {
 	char *path = SDL_GetBasePath();
+	// TODO: Replace with strncat(), watch for overflow.
 	strcat(path, filename);
 
 	printLog(0, "Opening file", filename);

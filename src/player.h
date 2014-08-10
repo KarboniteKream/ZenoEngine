@@ -62,6 +62,7 @@ typedef struct
 	uint32_t ComboTime;
 	uint32_t ComboTicks;
 	uint8_t ComboDirection;
+	SDL_Event LastEvent;
 
 	// TODO: Store control scheme in an array.
 	// TODO: Add enumerators.
@@ -69,7 +70,7 @@ typedef struct
 
 void initPlayer(Player *player);
 void loadPlayer(Player *player, const char *playerTexture);
-void handlePlayerEvent(Player *player, SDL_Event *event);
+void handlePlayerInput(Player *player, SDL_Event *event);
 void updatePlayer(Player *player, Level *level);
 void drawPlayer(Player *player);
 void drawCombo(Player *player);

@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 				/*
 				// NOTE: Is there a faster way?
 				char temp[PACKET->len];
-				strcpy(temp, (char *)PACKET->data);
+				strncpy(temp, (char *)PACKET->data, PACKET->len);
 
 				char **commandArray = (char **)malloc(sizeof(char *));
 				int index = 0, length = 0;
@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 					}
 				}
 
-				handlePlayerEvent(&player, &event);
+				handlePlayerInput(&player, &event);
 			}
 		}
 

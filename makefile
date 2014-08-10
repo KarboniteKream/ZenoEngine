@@ -80,5 +80,5 @@ $(OBJDIR)/util.o: $(addprefix $(SRCDIR)/,util.c globals.h level.h util.h)
 $(OBJECTS): | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR) :
+$(OBJDIR):
 	@mkdir $(OBJDIR)
