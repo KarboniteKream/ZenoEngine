@@ -82,14 +82,13 @@ int main(int argc, char **argv)
 	int frames = 0, fps = 0;
 	char engineInformation[256] = {'\0'};
 
-	// TODO: Change to stdint.
-	Uint32 fpsTimer = SDL_GetTicks();
-	Uint32 packetTimer = SDL_GetTicks();
-	Uint32 currentTime = SDL_GetTicks();
+	uint32_t fpsTimer = SDL_GetTicks();
+	uint32_t packetTimer = SDL_GetTicks();
+	uint32_t currentTime = SDL_GetTicks();
 
 	while(quitGame == false)
 	{
-		Uint32 previousTime = currentTime;
+		uint32_t previousTime = currentTime;
 		currentTime = SDL_GetTicks();
 		DELTA_TICKS = (currentTime - previousTime) / 1000.0f;
 
@@ -334,7 +333,7 @@ int main(int argc, char **argv)
 			cameraY = level.Height * BLOCK_SIZE - SCREEN_HEIGHT;
 		}
 
-		Uint64 renderTime = SDL_GetPerformanceCounter();
+		uint64_t renderTime = SDL_GetPerformanceCounter();
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();

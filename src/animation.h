@@ -16,7 +16,7 @@ typedef struct
 	float AnimationSpeed;
 
 	bool Started;
-	Uint32 FrameStartTime;
+	uint32_t FrameStartTime;
 
 	bool IsFinished;
 	bool IsLastFrame;

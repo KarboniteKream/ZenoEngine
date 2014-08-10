@@ -48,7 +48,7 @@ typedef struct
 	// NOTE: Better name?
 	bool IsFacingLeft;
 
-	Uint32 IdleTimer;
+	uint32_t IdleTimer;
 	bool IsIdle;
 
 	bool IsAttacking;
