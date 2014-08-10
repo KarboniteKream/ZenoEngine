@@ -34,7 +34,7 @@ release: clean
 	@rm bin/data/*.txt
 
 ifeq ($(OS), Windows_NT)
-	@cp -r dll/ bin/
+	@cp dll/* bin/
 endif
 
 	@$(MAKE) CFLAGS="$(CFLAGS) -O3" LDFLAGS="$(LDFLAGS) -s" zeno --no-print-directory
