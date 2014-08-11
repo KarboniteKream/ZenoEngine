@@ -1,4 +1,5 @@
 NAME = ZenoEngine
+ARCH ?= 64
 
 CC = clang
 CFLAGS = -std=c99 -Wall -Wextra
@@ -34,7 +35,7 @@ release: clean
 	@rm bin/data/*.txt
 
 ifeq ($(OS), Windows_NT)
-	@cp dll/* bin/
+	@cp extra/dll/win$(ARCH)/* bin/
 endif
 
 	@$(MAKE) CFLAGS="$(CFLAGS) -O3" LDFLAGS="$(LDFLAGS) -s" zeno --no-print-directory
@@ -49,8 +50,7 @@ asan: clean
 	@echo "Log saved as $(ASAN)."
 
 clean:
-	@rm -rf *.dll $(NAME){,.exe} $(LOG) $(ASAN) $(VALGRIND)
-	@rm -rf bin/ obj/
+	@rm -rf bin/ obj/ $(NAME){,.exe} $(LOG) $(ASAN) $(VALGRIND)
 	@$(MAKE) -C tools clean --no-print-directory
 
 cppcheck:

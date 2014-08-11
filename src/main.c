@@ -94,9 +94,9 @@ int main(int argc, char **argv)
 
 		// NOTE: This is used for multiplayer.
 		// NOTE: The game will not run properly below 30 FPS.
-		if(DELTA_TICKS > 0.034f)
+		if(DELTA_TICKS > 0.033f)
 		{
-			DELTA_TICKS = 0.034f;
+			DELTA_TICKS = 0.033f;
 		}
 
 		// FIXME: Execute only on first connect and a new player joining.
