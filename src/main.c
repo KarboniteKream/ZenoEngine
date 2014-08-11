@@ -373,15 +373,15 @@ int main(int argc, char **argv)
 
 		drawText(&fonts, FONT_NORMAL, 7.0f, 5.0f, engineInformation, 0x000000);
 
-		char combo[player.MaxComboLength + 1];
-		for(int i = 0; i < player.MaxComboLength; i++)
+		char input[player.MaxInputLength + 1];
+		for(int i = 0; i < player.MaxInputLength; i++)
 		{
-			combo[i] = player.Combo[i] == -1 ? 'X' : player.Combo[i] + 48;
+			input[i] = player.InputList[i] == -1 ? 'X' : player.InputList[i] + 48;
 		}
-		combo[player.MaxComboLength] = '\0';
-		drawText(&fonts, FONT_LARGE, 100.0f, 60.0f, combo, 0x000000);
-		drawText(&fonts, FONT_LARGE, 100.0f, 110.0f, player.ComboString, 0x000000);
-		drawCombo(&player);
+		input[player.MaxInputLength] = '\0';
+		drawText(&fonts, FONT_LARGE, 100.0f, 60.0f, input, 0x000000);
+		drawText(&fonts, FONT_LARGE, 100.0f, 110.0f, player.InputString, 0x000000);
+		drawPlayerInput(&player);
 
 		// FIXME: Timer doesn't work properly on all platforms?
 		char renderTimeString[32];

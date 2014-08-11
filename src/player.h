@@ -3,6 +3,7 @@
 
 #include <math.h>
 
+// TODO: Alphabetically sort includes.
 #include "globals.h"
 // NOTE: Only for debugging.
 #include "util.h"
@@ -14,10 +15,6 @@
 #define DOWN 2
 #define LEFT 4
 #define RIGHT 8
-#define UP_LEFT 16
-#define UP_RIGHT 32
-#define DOWN_LEFT 64
-#define DOWN_RIGHT 128
 
 typedef struct
 {
@@ -51,21 +48,25 @@ typedef struct
 	uint32_t IdleTimer;
 	bool IsIdle;
 
+	// TODO: Move states to a boolean array.
 	bool IsAttacking;
 
-	Texture *ComboTextures;
-	uint8_t MaxComboLength;
-	int8_t *Combo;
-	uint8_t ComboIndex;
-	char ComboString[32];
-	uint8_t ComboStringIndex;
-	uint32_t ComboTime;
-	uint32_t ComboTicks;
-	uint8_t ComboDirection;
-	SDL_Event LastEvent;
+	Texture *InputTextures;
+	uint8_t MaxInputLength;
+	int8_t *InputList;
+	uint8_t InputIndex;
+	uint32_t InputTicks;
+	uint8_t Input;
+	uint8_t KeyState;
+	// NOTE: Can combine with IsFacingLeft.
+	uint8_t LastDirection;
+
+	char InputString[32];
+	uint8_t InputStringIndex;
+	uint32_t InputStringTime;
 
 	// TODO: Store control scheme in an array.
-	// TODO: Add enumerators.
+	// TODO: Add enumerators for keys and combos/inputs.
 } Player;
 
 void initPlayer(Player *player);
@@ -73,6 +74,6 @@ void loadPlayer(Player *player, const char *playerTexture);
 void handlePlayerInput(Player *player, SDL_Event *event);
 void updatePlayer(Player *player, Level *level);
 void drawPlayer(Player *player);
-void drawCombo(Player *player);
+void drawPlayerInput(Player *player);
 
 #endif

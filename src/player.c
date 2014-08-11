@@ -36,16 +36,18 @@ void initPlayer(Player *player)
 
 	player->IsAttacking = false;
 
-	player->ComboTextures = NULL;
-	player->MaxComboLength = 0;
-	player->Combo = NULL;
-	player->ComboIndex = 0;
-	player->ComboString[0] = '\0';
-	player->ComboStringIndex = 0;
-	player->ComboTime = 0;
-	player->ComboTicks = 0;
-	player->ComboDirection = 0;
-	player->LastEvent.type = SDL_FIRSTEVENT;
+	player->InputTextures = NULL;
+	player->MaxInputLength = 0;
+	player->InputList = NULL;
+	player->InputIndex = 0;
+	player->InputTicks = 0;
+	player->Input = 0;
+	player->KeyState = 0;
+	player->LastDirection = 0;
+
+	player->InputString[0] = '\0';
+	player->InputStringIndex = 0;
+	player->InputStringTime = 0;
 }
 
 // TODO: Use a data file instead of playerTexture.
@@ -114,76 +116,135 @@ void loadPlayer(Player *player, const char *playerTexture)
 
 	player->IsAttacking = false;
 
-	player->ComboTextures = (Texture *)malloc(8 * sizeof(Texture));
+	player->InputTextures = (Texture *)malloc(8 * sizeof(Texture));
 
 	for(int i = 0; i < 8; i++)
 	{
-		initTexture(&player->ComboTextures[i]);
+		initTexture(&player->InputTextures[i]);
 	}
 
-	loadTexture(&player->ComboTextures[0], "images/combo/up.png", 0);
-	loadTexture(&player->ComboTextures[1], "images/combo/down.png", 0);
-	loadTexture(&player->ComboTextures[2], "images/combo/left.png", 0);
-	loadTexture(&player->ComboTextures[3], "images/combo/right.png", 0);
-	loadTexture(&player->ComboTextures[4], "images/combo/up_left.png", 0);
-	loadTexture(&player->ComboTextures[5], "images/combo/up_right.png", 0);
-	loadTexture(&player->ComboTextures[6], "images/combo/down_left.png", 0);
-	loadTexture(&player->ComboTextures[7], "images/combo/down_right.png", 0);
+	loadTexture(&player->InputTextures[0], "images/combo/up.png", 0);
+	loadTexture(&player->InputTextures[1], "images/combo/down.png", 0);
+	loadTexture(&player->InputTextures[2], "images/combo/left.png", 0);
+	loadTexture(&player->InputTextures[3], "images/combo/right.png", 0);
+	loadTexture(&player->InputTextures[4], "images/combo/up_left.png", 0);
+	loadTexture(&player->InputTextures[5], "images/combo/up_right.png", 0);
+	loadTexture(&player->InputTextures[6], "images/combo/down_left.png", 0);
+	loadTexture(&player->InputTextures[7], "images/combo/down_right.png", 0);
 
-	player->MaxComboLength = 14;
+	player->MaxInputLength = 14;
 
-	player->Combo = (int8_t *)malloc(player->MaxComboLength * sizeof(int8_t));
+	player->InputList = (int8_t *)malloc(player->MaxInputLength * sizeof(int8_t));
 
-	for(int i = 0; i < player->MaxComboLength; i++)
+	for(int i = 0; i < player->MaxInputLength; i++)
 	{
-		player->Combo[i] = -1;
+		player->InputList[i] = -1;
 	}
 
-	player->ComboIndex = 0;
-	player->ComboString[0] = '\0';
-	player->ComboStringIndex = 0;
-	player->ComboTime = SDL_GetTicks();
-	player->ComboTicks = SDL_GetTicks();
-	player->ComboDirection = 0;
-	player->LastEvent.type = SDL_FIRSTEVENT;
+	player->InputIndex = 0;
+	player->InputTicks = SDL_GetTicks();
+	player->Input = 0;
+	player->KeyState = 0;
+	player->LastDirection = 0;
+
+	player->InputString[0] = '\0';
+	player->InputStringIndex = 0;
+	player->InputStringTime = SDL_GetTicks();
 }
 
 void handlePlayerInput(Player *player, SDL_Event *event)
 {
 	if(event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
 	{
-		bool isKeyDown = (event->type == SDL_KEYDOWN) ? true : false;
+		bool isKeyDown = (event->type == SDL_KEYDOWN);
 
 		switch(event->key.keysym.sym)
 		{
-			case SDLK_w: case SDLK_SPACE:
+			case SDLK_w: case SDLK_UP: case SDLK_SPACE:
 				if(event->key.repeat == 0)
 				{
 					player->KeyStates[2] = isKeyDown;
 
 					if(isKeyDown == true)
 					{
-						player->ComboDirection |= UP;
+						// TODO: Move outside the if conditional using XOR.
+						player->KeyState |= UP;
+						player->Input |= UP;
+
+						if((player->KeyState & LEFT) > 0)
+						{
+							player->Input |= LEFT;
+						}
+						else if((player->KeyState & RIGHT) > 0)
+						{
+							player->Input |= RIGHT;
+						}
+					}
+					else
+					{
+						player->KeyState &= ~UP;
+						player->Input &= ~UP;
+
+						if((player->KeyState & LEFT) > 0)
+						{
+							player->Input |= LEFT;
+						}
+						else if((player->KeyState & RIGHT) > 0)
+						{
+							player->Input |= RIGHT;
+						}
+
+						if((player->KeyState & DOWN) > 0)
+						{
+							player->Input |= DOWN;
+						}
 					}
 				}
 			break;
 
-			case SDLK_s:
+			case SDLK_s: case SDLK_DOWN:
 				if(event->key.repeat == 0)
 				{
 					if(isKeyDown == true)
 					{
-						player->ComboDirection |= DOWN;
-						player->LastEvent = *event;
+						player->KeyState |= DOWN;
+
+						if((player->KeyState & UP) == 0)
+						{
+							player->Input |= DOWN;
+
+							if((player->KeyState & LEFT) > 0)
+							{
+								player->Input |= LEFT;
+							}
+							else if((player->KeyState & RIGHT) > 0)
+							{
+								player->Input |= RIGHT;
+							}
+						}
 					}
 					else
 					{
-						// Stop crouching.
+						player->KeyState &= ~DOWN;
+
+						if((player->KeyState & UP) == 0)
+						{
+							player->Input &= ~DOWN;
+
+							if((player->KeyState & LEFT) > 0)
+							{
+								player->Input |= LEFT;
+							}
+							else if((player->KeyState & RIGHT) > 0)
+							{
+								player->Input |= RIGHT;
+							}
+						}
 					}
 				}
 			break;
 
-			case SDLK_a:
+			case SDLK_a: case SDLK_LEFT:
 				if(event->key.repeat == 0)
 				{
 					player->KeyStates[0] = isKeyDown;
@@ -210,12 +271,51 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 
 					if(isKeyDown == true)
 					{
-						player->ComboDirection |= LEFT;
+						player->KeyState |= LEFT;
+						player->Input |= LEFT;
+						player->LastDirection = LEFT;
+
+						if((player->KeyState & UP) > 0)
+						{
+							player->Input |= UP;
+						}
+						else if((player->KeyState & DOWN) > 0)
+						{
+							player->Input |= DOWN;
+						}
+					}
+					else
+					{
+						player->KeyState &= ~LEFT;
+						player->Input &= ~LEFT;
+
+						if((player->KeyState & UP) > 0)
+						{
+							if((player->KeyState & RIGHT) == 0 || player->LastDirection == LEFT)
+							{
+								player->Input |= UP;
+							}
+						}
+						else if((player->KeyState & DOWN) > 0)
+						{
+							if((player->KeyState & RIGHT) == 0 || player->LastDirection == LEFT)
+							{
+								player->Input |= DOWN;
+							}
+						}
+
+						if((player->KeyState & RIGHT) > 0)
+						{
+							if(player->LastDirection == LEFT)
+							{
+								player->Input |= RIGHT;
+							}
+						}
 					}
 				}
 			break;
 
-			case SDLK_d:
+			case SDLK_d: case SDLK_RIGHT:
 				if(event->key.repeat == 0)
 				{
 					player->KeyStates[1] = isKeyDown;
@@ -240,12 +340,46 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 
 					if(isKeyDown == true)
 					{
-						// if(player->LastEvent.key.keysym.sym == SDLK_s)
+						player->KeyState |= RIGHT;
+						player->Input |= RIGHT;
+						player->LastDirection = RIGHT;
+
+						if((player->KeyState & UP) > 0)
 						{
-							player->ComboDirection |= RIGHT;
+							player->Input |= UP;
+						}
+						else if((player->KeyState & DOWN) > 0)
+						{
+							player->Input |= DOWN;
+						}
+					}
+					else
+					{
+						player->KeyState &= ~RIGHT;
+						player->Input &= ~RIGHT;
+
+						if((player->KeyState & UP) > 0)
+						{
+							if((player->KeyState & LEFT) == 0 || player->LastDirection == RIGHT)
+							{
+								player->Input |= UP;
+							}
+						}
+						else if((player->KeyState & DOWN) > 0)
+						{
+							if((player->KeyState & LEFT) == 0 || player->LastDirection == RIGHT)
+							{
+								player->Input |= DOWN;
+							}
 						}
 
-						player->LastEvent = *event;
+						if((player->KeyState & LEFT) > 0)
+						{
+							if(player->LastDirection == RIGHT)
+							{
+								player->Input |= LEFT;
+							}
+						}
 					}
 				}
 			break;
@@ -279,7 +413,7 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 				player->SelectedSkill = event->key.keysym.sym - 48;
 			break;
 
-			case SDLK_q:
+			case SDLK_j:
 				player->IsAttacking = true;
 			break;
 
@@ -291,75 +425,68 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 
 void updatePlayer(Player *player, Level *level)
 {
-	if(SDL_GetTicks() - player->ComboTime > 500)
+	if(SDL_GetTicks() - player->InputStringTime > 500)
 	{
-		player->ComboString[0] = '\0';
-		player->ComboTime = 0;
-		player->ComboStringIndex = 0;
+		player->InputString[0] = '\0';
+		player->InputStringTime = 0;
+		player->InputStringIndex = 0;
 	}
 
-	// TODO: Will this be removed/modified when proper input detection is finished?
-	if(SDL_GetTicks() - player->ComboTicks >= 50)
+	if(SDL_GetTicks() - player->InputTicks >= 16)
 	{
-		player->ComboTicks = SDL_GetTicks();
+		player->InputTicks = SDL_GetTicks();
 
-		if((player->ComboDirection & UP) > 0)
+		// TODO: XOR KeyState with Input.
+		if((player->Input & UP) > 0 && (player->Input & LEFT) > 0)
 		{
-			if((player->ComboDirection & LEFT) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'Q';
-				player->Combo[player->ComboIndex] = 4;
-			}
-			else if((player->ComboDirection & RIGHT) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'E';
-				player->Combo[player->ComboIndex] = 5;
-			}
-			else
-			{
-				player->ComboString[player->ComboStringIndex] = 'W';
-				player->Combo[player->ComboIndex] = 0;
-			}
+			player->InputString[player->InputStringIndex] = 'Q';
+			player->InputList[player->InputIndex] = 4;
 		}
-		else if((player->ComboDirection & DOWN) > 0)
+		else if((player->Input & UP) > 0 && (player->Input & RIGHT) > 0)
 		{
-			if((player->ComboDirection & LEFT) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'Z';
-				player->Combo[player->ComboIndex] = 6;
-			}
-			else if((player->ComboDirection & RIGHT) > 0)
-			{
-				player->ComboString[player->ComboStringIndex] = 'C';
-				player->Combo[player->ComboIndex] = 7;
-			}
-			else
-			{
-				player->ComboString[player->ComboStringIndex] = 'S';
-				player->Combo[player->ComboIndex] = 1;
-			}
+			player->InputString[player->InputStringIndex] = 'E';
+			player->InputList[player->InputIndex] = 5;
 		}
-		else if((player->ComboDirection & LEFT) > 0)
+		else if((player->Input & DOWN) > 0 && (player->Input & LEFT) > 0)
 		{
-			player->ComboString[player->ComboStringIndex] = 'A';
-			player->Combo[player->ComboIndex] = 2;
+			player->InputString[player->InputStringIndex] = 'Z';
+			player->InputList[player->InputIndex] = 6;
 		}
-		else if((player->ComboDirection & RIGHT) > 0)
+		else if((player->Input & DOWN) > 0 && (player->Input & RIGHT) > 0)
 		{
-			player->ComboString[player->ComboStringIndex] = 'D';
-			player->Combo[player->ComboIndex] = 3;
+			player->InputString[player->InputStringIndex] = 'C';
+			player->InputList[player->InputIndex] = 7;
+		}
+		else if((player->Input & UP) > 0)
+		{
+			player->InputString[player->InputStringIndex] = 'W';
+			player->InputList[player->InputIndex] = 0;
+		}
+		else if((player->Input & DOWN) > 0)
+		{
+			player->InputString[player->InputStringIndex] = 'S';
+			player->InputList[player->InputIndex] = 1;
+		}
+		else if((player->Input & LEFT) > 0)
+		{
+			player->InputString[player->InputStringIndex] = 'A';
+			player->InputList[player->InputIndex] = 2;
+		}
+		else if((player->Input & RIGHT) > 0)
+		{
+			player->InputString[player->InputStringIndex] = 'D';
+			player->InputList[player->InputIndex] = 3;
 		}
 
-		if(player->ComboDirection > 0)
+		if(player->Input > 0)
 		{
-			player->ComboTime = SDL_GetTicks();
-			player->ComboStringIndex++;
-			player->ComboString[player->ComboStringIndex] = '\0';
-			player->ComboIndex++;
-			player->ComboIndex = player->ComboIndex % player->MaxComboLength;
+			player->InputStringTime = SDL_GetTicks();
+			player->InputStringIndex++;
+			player->InputString[player->InputStringIndex] = '\0';
+			player->InputIndex++;
+			player->InputIndex = player->InputIndex % player->MaxInputLength;
+			player->Input = 0;
 		}
-
-		player->ComboDirection = 0;
 	}
 
 	player->X += player->CurrentSpeed * DELTA_TICKS;
@@ -623,18 +750,19 @@ void drawPlayer(Player *player)
 	}
 }
 
-void drawCombo(Player *player)
+void drawPlayerInput(Player *player)
 {
-	uint8_t i = player->ComboIndex;
+	// TODO: Draw in reverse order.
+	uint8_t i = player->InputIndex;
 	uint8_t position = 0;
 
 	do
 	{
-		if(player->Combo[i] != -1)
+		if(player->InputList[i] != -1)
 		{
-			drawTexture(&player->ComboTextures[player->Combo[i]], 10.0f, 60.0f + (position++ * 40.0f), NULL, 0.0f, 2.0f, false);
+			drawTexture(&player->InputTextures[player->InputList[i]], 10.0f, 60.0f + (position++ * 40.0f), NULL, 0.0f, 2.0f, false);
 		}
 
-		i = (i + 1) % player->MaxComboLength;
-	} while(i != player->ComboIndex);
+		i = (i + 1) % player->MaxInputLength;
+	} while(i != player->InputIndex);
 }
