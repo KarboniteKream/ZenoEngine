@@ -123,14 +123,14 @@ void loadPlayer(Player *player, const char *playerTexture)
 		initTexture(&player->InputTextures[i]);
 	}
 
-	loadTexture(&player->InputTextures[0], "images/combo/up.png", 0);
-	loadTexture(&player->InputTextures[1], "images/combo/down.png", 0);
-	loadTexture(&player->InputTextures[2], "images/combo/left.png", 0);
-	loadTexture(&player->InputTextures[3], "images/combo/right.png", 0);
-	loadTexture(&player->InputTextures[4], "images/combo/up_left.png", 0);
-	loadTexture(&player->InputTextures[5], "images/combo/up_right.png", 0);
-	loadTexture(&player->InputTextures[6], "images/combo/down_left.png", 0);
-	loadTexture(&player->InputTextures[7], "images/combo/down_right.png", 0);
+	loadTexture(&player->InputTextures[0], "images/input/up.png", 0);
+	loadTexture(&player->InputTextures[1], "images/input/down.png", 0);
+	loadTexture(&player->InputTextures[2], "images/input/left.png", 0);
+	loadTexture(&player->InputTextures[3], "images/input/right.png", 0);
+	loadTexture(&player->InputTextures[4], "images/input/up_left.png", 0);
+	loadTexture(&player->InputTextures[5], "images/input/up_right.png", 0);
+	loadTexture(&player->InputTextures[6], "images/input/down_left.png", 0);
+	loadTexture(&player->InputTextures[7], "images/input/down_right.png", 0);
 
 	player->MaxInputLength = 14;
 
