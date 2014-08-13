@@ -69,6 +69,23 @@ int main(int argc, char **argv)
 	Player *players = NULL;
 	bool playerInit = false;
 
+	SDL_Joystick *gamepad = NULL;
+	int gamepadX = 0;
+	int gamepadY = 0;
+
+	if(SDL_NumJoysticks() > 0)
+	{
+		printLog(2, "Detected a game controller.", NULL);
+
+		// TODO: Close the controller.
+		gamepad = SDL_JoystickOpen(0);
+
+		if(gamepad == NULL)
+		{
+			printLog(1, "Unable to open a game controller.", NULL);
+		}
+	}
+
 	SDL_Event event;
 
 	bool quitGame = false;
@@ -183,6 +200,37 @@ int main(int argc, char **argv)
 					case SDLK_F12:
 						saveScreenshot();
 					break;
+				}
+			}
+			else if(event.type == SDL_JOYAXISMOTION)
+			{
+				// NOTE: The first controller.
+				if(event.jaxis.which == 0)
+				{
+					// NOTE: X axis.
+					if(event.jaxis.axis == 0)
+					{
+						if(abs(event.jaxis.value) > 4000)
+						{
+							gamepadX = event.jaxis.value;
+						}
+						else
+						{
+							gamepadX = 0;
+						}
+					}
+
+					if(event.jaxis.axis == 1)
+					{
+						if(abs(event.jaxis.value) > 4000)
+						{
+							gamepadY = event.jaxis.value;
+						}
+						else
+						{
+							gamepadY = 0;
+						}
+					}
 				}
 			}
 			else if(event.type == SDL_MOUSEMOTION)
@@ -373,15 +421,15 @@ int main(int argc, char **argv)
 
 		drawText(&fonts, FONT_NORMAL, 7.0f, 5.0f, engineInformation, 0x000000);
 
-		char input[player.MaxInputLength + 1];
-		for(int i = 0; i < player.MaxInputLength; i++)
-		{
-			input[i] = player.InputList[i] == -1 ? 'X' : player.InputList[i] + 48;
-		}
-		input[player.MaxInputLength] = '\0';
-		drawText(&fonts, FONT_LARGE, 100.0f, 60.0f, input, 0x000000);
-		drawText(&fonts, FONT_LARGE, 100.0f, 110.0f, player.InputString, 0x000000);
+		drawText(&fonts, FONT_LARGE, 100.0f, 60.0f, player.InputString, 0x000000);
 		drawPlayerInput(&player);
+
+		if(gamepad != NULL)
+		{
+			char gamepadData[32];
+			snprintf(gamepadData, 32, "X: %d\nY: %d", gamepadX, gamepadY);
+			drawText(&fonts, FONT_NORMAL, 100.0f, 110.0f, gamepadData, 0x000000);
+		}
 
 		// FIXME: Timer doesn't work properly on all platforms?
 		char renderTimeString[32];

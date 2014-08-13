@@ -3,7 +3,7 @@
 void initWindow(SDL_Window **window, const char *windowTitle)
 {
 	// TODO: Support for SDL_GetError() and SDLNet_GetError().
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) == -1)
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) == -1)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "An error has occurred while initializing SDL.", NULL);
 		exit(1);
