@@ -2,7 +2,7 @@ NAME = ZenoEngine
 ARCH ?= 64
 
 CC = clang
-CFLAGS = -std=c99 -Wall -Wextra
+CFLAGS = -std=c99 -Wall -Wextra -pedantic
 
 SRCDIR = src
 OBJDIR = obj
