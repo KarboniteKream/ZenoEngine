@@ -20,6 +20,7 @@ typedef struct
 
 	bool IsFinished;
 	bool IsLastFrame;
+	bool IsSkippable;
 
 	RectangleF Frame;
 
@@ -30,7 +31,7 @@ typedef struct
 } Animation;
 
 void initAnimation(Animation *animation);
-void loadAnimation(Animation *animation, const char *animationTexture, int totalFrames, int columns, int rows, float animationSpeed);
+void loadAnimation(Animation *animation, const char *animationTexture, int totalFrames, int columns, int rows, float animationSpeed, bool isSkippable);
 void playAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale, bool flip);
 void playStaticAnimation(Animation *animation);
 void startAnimation(Animation *animation, GLfloat x, GLfloat y, GLfloat scale, bool flip);

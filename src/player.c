@@ -4,7 +4,7 @@ void initPlayer(Player *player)
 {
 	initTexture(&player->PlayerTexture);
 	player->Animations = NULL;
-	player->Attacks = NULL;
+	player->AttackAnimations = NULL;
 
 	player->MaxHealth = 0;
 	player->Health = 0;
@@ -19,12 +19,15 @@ void initPlayer(Player *player)
 	player->BoundingBox.W = 0.0f;
 	player->BoundingBox.H = 0.0f;
 
-	player->IsMoving = false;
-	player->IsStopping = false;
+	player->State[RUNNING] = false;
+	player->State[STOPPING] = false;
+	player->State[JUMPING] = false;
+	player->State[ATTACKING] = false;
+	player->State[IDLE] = false;
+
 	player->Speed = 0.0f;
 	player->CurrentSpeed = 0.0f;
 
-	player->IsJumping = false;
 	player->JumpSpeed = 0.0f;
 	player->CurrentJumpSpeed = 0.0f;
 
@@ -32,9 +35,6 @@ void initPlayer(Player *player)
 	player->IsFacingLeft = false;
 
 	player->IdleTimer = 0;
-	player->IsIdle = false;
-
-	player->IsAttacking = false;
 
 	player->InputTextures = NULL;
 	player->MaxInputLength = 0;
@@ -48,6 +48,18 @@ void initPlayer(Player *player)
 	player->InputString[0] = '\0';
 	player->InputStringIndex = 0;
 	player->InputStringTime = 0;
+
+	player->AttackInput = false;
+	player->AttackID = 0;
+
+	// for(int i = 0; i < 4; i++)
+	// {
+	// 	player->Attacks[0][i] = 0;
+	// }
+
+	player->PrevAnimation = 0;
+	player->CurrAnimation = 0;
+	player->NextAnimation = 0;
 }
 
 // TODO: Use a data file instead of playerTexture.
@@ -63,23 +75,24 @@ void loadPlayer(Player *player, const char *playerTexture)
 		initAnimation(&player->Animations[i]);
 	}
 
-	loadAnimation(&player->Animations[0], "images/animationIdle.png", 2, 2, 1, 0.45f);
-	loadAnimation(&player->Animations[1], "images/animationStartRunning.png", 6, 3, 2, 0.05f);
-	loadAnimation(&player->Animations[2], "images/animationRunning.png", 12, 4, 3, 0.075f);
-	loadAnimation(&player->Animations[3], "images/animationStopping.png", 5, 3, 2, 0.1f);
-	loadAnimation(&player->Animations[4], "images/animationIdleWait.png", 11, 4, 3, 0.2f);
-	loadAnimation(&player->Animations[5], "images/animationJumping.png", 9, 3, 3, 0.075f);
-	loadAnimation(&player->Animations[6], "images/groundStrikePlayerAnimation.png", 8, 4, 2, 0.06f);
+	// TODO: Replace integer indices with defines.
+	loadAnimation(&player->Animations[0], "images/player/animationIdle.png", 2, 2, 1, 0.45f, true);
+	loadAnimation(&player->Animations[1], "images/player/animationStartRunning.png", 6, 3, 2, 0.05f, false);
+	loadAnimation(&player->Animations[2], "images/player/animationRunning.png", 12, 4, 3, 0.075f, true);
+	loadAnimation(&player->Animations[3], "images/player/animationStopping.png", 5, 3, 2, 0.1f, false);
+	loadAnimation(&player->Animations[4], "images/player/animationIdleWait.png", 11, 4, 3, 0.2f, true);
+	loadAnimation(&player->Animations[5], "images/player/animationJumping.png", 9, 3, 3, 0.075f, false);
+	loadAnimation(&player->Animations[6], "images/player/animationGroundStrike.png", 8, 4, 2, 0.06f, false);
 
-	// TODO: Free player->Attacks.
-	player->Attacks = (Animation *)malloc(7 * sizeof(Animation));
+	// TODO: Free player->AttackAnimations.
+	player->AttackAnimations = (Animation *)malloc(7 * sizeof(Animation));
 
 	for(int i = 0; i < 1; i++)
 	{
-		initAnimation(&player->Attacks[i]);
+		initAnimation(&player->AttackAnimations[i]);
 	}
 
-	loadAnimation(&player->Attacks[0], "images/groundStrikeAnimation.png", 12, 3, 4, 0.1f);
+	loadAnimation(&player->AttackAnimations[0], "images/attack/groundStrike.png", 12, 3, 4, 0.1f, false);
 
 	player->MaxHealth = player->Health = 56;
 	player->SelectedSkill = 1;
@@ -93,12 +106,14 @@ void loadPlayer(Player *player, const char *playerTexture)
 	player->BoundingBox.W = 15.0f;
 	player->BoundingBox.H = 22.0f;
 
-	player->IsMoving = false;
-	player->IsStopping = false;
+	player->State[RUNNING] = false;
+	player->State[STOPPING] = false;
+	player->State[JUMPING] = false;
+	player->State[ATTACKING] = false;
+
 	player->Speed = 400.0f;
 	player->CurrentSpeed = 0.0f;
 
-	player->IsJumping = false;
 	player->JumpSpeed = -600.0f;
 	player->CurrentJumpSpeed = 0.0f;
 
@@ -112,13 +127,11 @@ void loadPlayer(Player *player, const char *playerTexture)
 	player->IsFacingLeft = false;
 
 	player->IdleTimer = 0;
-	player->IsIdle = false;
+	player->State[IDLE] = false;
 
-	player->IsAttacking = false;
+	player->InputTextures = (Texture *)malloc(9 * sizeof(Texture));
 
-	player->InputTextures = (Texture *)malloc(8 * sizeof(Texture));
-
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < 9; i++)
 	{
 		initTexture(&player->InputTextures[i]);
 	}
@@ -131,6 +144,7 @@ void loadPlayer(Player *player, const char *playerTexture)
 	loadTexture(&player->InputTextures[5], "images/input/up_right.png", 0);
 	loadTexture(&player->InputTextures[6], "images/input/down_left.png", 0);
 	loadTexture(&player->InputTextures[7], "images/input/down_right.png", 0);
+	loadTexture(&player->InputTextures[8], "images/input/punch.png", 0);
 
 	player->MaxInputLength = 14;
 
@@ -150,6 +164,23 @@ void loadPlayer(Player *player, const char *playerTexture)
 	player->InputString[0] = '\0';
 	player->InputStringIndex = 0;
 	player->InputStringTime = SDL_GetTicks();
+
+	player->AttackInput = false;
+	player->AttackID = -1;
+
+	player->Attacks[0][0] = DOWN;
+	player->Attacks[0][1] = DOWN_RIGHT;
+	player->Attacks[0][2] = RIGHT;
+	player->Attacks[0][3] = PUNCH;
+
+	player->Attacks[1][0] = DOWN;
+	player->Attacks[1][1] = DOWN_LEFT;
+	player->Attacks[1][2] = LEFT;
+	player->Attacks[1][3] = PUNCH;
+
+	player->PrevAnimation = -1;
+	player->CurrAnimation = 0;
+	player->NextAnimation = -1;
 }
 
 void handlePlayerInput(Player *player, SDL_Event *event)
@@ -171,11 +202,11 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						player->KeyState |= UP;
 						player->Input |= UP;
 
-						if((player->KeyState & LEFT) > 0)
+						if((player->KeyState & LEFT) != 0)
 						{
 							player->Input |= LEFT;
 						}
-						else if((player->KeyState & RIGHT) > 0)
+						else if((player->KeyState & RIGHT) != 0)
 						{
 							player->Input |= RIGHT;
 						}
@@ -185,16 +216,16 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						player->KeyState &= ~UP;
 						player->Input &= ~UP;
 
-						if((player->KeyState & LEFT) > 0)
+						if((player->KeyState & LEFT) != 0)
 						{
 							player->Input |= LEFT;
 						}
-						else if((player->KeyState & RIGHT) > 0)
+						else if((player->KeyState & RIGHT) != 0)
 						{
 							player->Input |= RIGHT;
 						}
 
-						if((player->KeyState & DOWN) > 0)
+						if((player->KeyState & DOWN) != 0)
 						{
 							player->Input |= DOWN;
 						}
@@ -213,11 +244,11 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						{
 							player->Input |= DOWN;
 
-							if((player->KeyState & LEFT) > 0)
+							if((player->KeyState & LEFT) != 0)
 							{
 								player->Input |= LEFT;
 							}
-							else if((player->KeyState & RIGHT) > 0)
+							else if((player->KeyState & RIGHT) != 0)
 							{
 								player->Input |= RIGHT;
 							}
@@ -231,11 +262,11 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						{
 							player->Input &= ~DOWN;
 
-							if((player->KeyState & LEFT) > 0)
+							if((player->KeyState & LEFT) != 0)
 							{
 								player->Input |= LEFT;
 							}
-							else if((player->KeyState & RIGHT) > 0)
+							else if((player->KeyState & RIGHT) != 0)
 							{
 								player->Input |= RIGHT;
 							}
@@ -255,7 +286,7 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 					if(player->KeyStates[1] == true)
 					{
 						player->CurrentSpeed = isKeyDown == true ? -player->Speed : player->Speed;
-						player->IsMoving = true;
+						player->State[RUNNING] = true;
 						player->IsFacingLeft = isKeyDown;
 					}
 					else
@@ -265,8 +296,8 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 							player->CurrentSpeed = -player->Speed;
 						}
 
-						player->IsStopping = !isKeyDown;
-						player->IsMoving = isKeyDown;
+						player->State[RUNNING] = isKeyDown;
+						player->State[STOPPING] = !isKeyDown;
 					}
 
 					if(isKeyDown == true)
@@ -275,11 +306,11 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						player->Input |= LEFT;
 						player->LastDirection = LEFT;
 
-						if((player->KeyState & UP) > 0)
+						if((player->KeyState & UP) != 0)
 						{
 							player->Input |= UP;
 						}
-						else if((player->KeyState & DOWN) > 0)
+						else if((player->KeyState & DOWN) != 0)
 						{
 							player->Input |= DOWN;
 						}
@@ -289,14 +320,14 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						player->KeyState &= ~LEFT;
 						player->Input &= ~LEFT;
 
-						if((player->KeyState & UP) > 0)
+						if((player->KeyState & UP) != 0)
 						{
 							if((player->KeyState & RIGHT) == 0 || player->LastDirection == LEFT)
 							{
 								player->Input |= UP;
 							}
 						}
-						else if((player->KeyState & DOWN) > 0)
+						else if((player->KeyState & DOWN) != 0)
 						{
 							if((player->KeyState & RIGHT) == 0 || player->LastDirection == LEFT)
 							{
@@ -304,7 +335,7 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 							}
 						}
 
-						if((player->KeyState & RIGHT) > 0)
+						if((player->KeyState & RIGHT) != 0)
 						{
 							if(player->LastDirection == LEFT)
 							{
@@ -324,7 +355,7 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 					if(player->KeyStates[0] == true)
 					{
 						player->CurrentSpeed = isKeyDown ? player->Speed : -player->Speed;
-						player->IsMoving = true;
+						player->State[RUNNING] = true;
 						player->IsFacingLeft = !isKeyDown;
 					}
 					else
@@ -334,8 +365,8 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 							player->CurrentSpeed = player->Speed;
 						}
 
-						player->IsMoving = isKeyDown;
-						player->IsStopping = !isKeyDown;
+						player->State[RUNNING] = isKeyDown;
+						player->State[STOPPING] = !isKeyDown;
 					}
 
 					if(isKeyDown == true)
@@ -344,11 +375,11 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						player->Input |= RIGHT;
 						player->LastDirection = RIGHT;
 
-						if((player->KeyState & UP) > 0)
+						if((player->KeyState & UP) != 0)
 						{
 							player->Input |= UP;
 						}
-						else if((player->KeyState & DOWN) > 0)
+						else if((player->KeyState & DOWN) != 0)
 						{
 							player->Input |= DOWN;
 						}
@@ -358,14 +389,14 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 						player->KeyState &= ~RIGHT;
 						player->Input &= ~RIGHT;
 
-						if((player->KeyState & UP) > 0)
+						if((player->KeyState & UP) != 0)
 						{
 							if((player->KeyState & LEFT) == 0 || player->LastDirection == RIGHT)
 							{
 								player->Input |= UP;
 							}
 						}
-						else if((player->KeyState & DOWN) > 0)
+						else if((player->KeyState & DOWN) != 0)
 						{
 							if((player->KeyState & LEFT) == 0 || player->LastDirection == RIGHT)
 							{
@@ -373,7 +404,7 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 							}
 						}
 
-						if((player->KeyState & LEFT) > 0)
+						if((player->KeyState & LEFT) != 0)
 						{
 							if(player->LastDirection == RIGHT)
 							{
@@ -413,8 +444,28 @@ void handlePlayerInput(Player *player, SDL_Event *event)
 				player->SelectedSkill = event->key.keysym.sym - 48;
 			break;
 
-			case SDLK_j:
-				player->IsAttacking = true;
+			case SDLK_j: case SDLK_k: case SDLK_l: case SDLK_SEMICOLON:
+				if(event->key.repeat == 0 && isKeyDown == true)
+				{
+					// player->State[ATTACKING] = true;
+					player->AttackInput = true;
+					player->Input |= PUNCH;
+				}
+			break;
+
+			case SDLK_u: case SDLK_i: case SDLK_o: case SDLK_p:
+			break;
+
+			case SDLK_b:
+				player->NextAnimation = 2;
+			break;
+
+			case SDLK_n:
+				player->NextAnimation = 0;
+			break;
+
+			case SDLK_m:
+				player->NextAnimation = 1;
 			break;
 
 			default:
@@ -437,45 +488,53 @@ void updatePlayer(Player *player, Level *level)
 		player->InputTicks = SDL_GetTicks();
 
 		// TODO: XOR KeyState with Input.
-		if((player->Input & UP) > 0 && (player->Input & LEFT) > 0)
+		if((player->Input & UP) != 0 && (player->Input & LEFT) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'Q';
 			player->InputList[player->InputIndex] = 4;
 		}
-		else if((player->Input & UP) > 0 && (player->Input & RIGHT) > 0)
+		else if((player->Input & UP) != 0 && (player->Input & RIGHT) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'E';
 			player->InputList[player->InputIndex] = 5;
 		}
-		else if((player->Input & DOWN) > 0 && (player->Input & LEFT) > 0)
+		else if((player->Input & DOWN) != 0 && (player->Input & LEFT) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'Z';
 			player->InputList[player->InputIndex] = 6;
 		}
-		else if((player->Input & DOWN) > 0 && (player->Input & RIGHT) > 0)
+		else if((player->Input & DOWN) != 0 && (player->Input & RIGHT) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'C';
 			player->InputList[player->InputIndex] = 7;
 		}
-		else if((player->Input & UP) > 0)
+		else if((player->Input & UP) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'W';
 			player->InputList[player->InputIndex] = 0;
 		}
-		else if((player->Input & DOWN) > 0)
+		else if((player->Input & DOWN) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'S';
 			player->InputList[player->InputIndex] = 1;
 		}
-		else if((player->Input & LEFT) > 0)
+		else if((player->Input & LEFT) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'A';
 			player->InputList[player->InputIndex] = 2;
+
+			// player->CurrAnimation = 1;
+			// player->NextAnimation = 2;
 		}
-		else if((player->Input & RIGHT) > 0)
+		else if((player->Input & RIGHT) != 0)
 		{
 			player->InputString[player->InputStringIndex] = 'D';
 			player->InputList[player->InputIndex] = 3;
+		}
+		else if((player->Input & PUNCH) != 0)
+		{
+			player->InputString[player->InputStringIndex] = 'P';
+			player->InputList[player->InputIndex] = 8;
 		}
 
 		if(player->Input > 0)
@@ -486,6 +545,27 @@ void updatePlayer(Player *player, Level *level)
 			player->InputIndex++;
 			player->InputIndex = player->InputIndex % player->MaxInputLength;
 			player->Input = 0;
+		}
+
+		if(player->AttackInput == true)
+		{
+			bool match = false;
+
+			int len = strlen(player->InputString);
+			int idx = len - 4;
+
+			if(strcmp(&player->InputString[idx], "SCDP") == 0 || strcmp(&player->InputString[idx], "SZAP") == 0)
+			{
+				match = true;
+			}
+
+			if(match == true)
+			{
+				player->State[ATTACKING] = true;
+				// player->AttackID = INDEX;
+			}
+
+			player->AttackInput = false;
 		}
 	}
 
@@ -501,19 +581,19 @@ void updatePlayer(Player *player, Level *level)
 		player->X = level->Width * BLOCK_SIZE - player->PlayerTexture.Width * player->Scale - 0.25f;
 	}
 
-	if(player->IsIdle == true && player->CurrentSpeed != 0.0f)
+	if(player->State[IDLE] == true && player->CurrentSpeed != 0.0f)
 	{
-		stopAnimation(&player->Animations[4]);
+		// stopAnimation(&player->Animations[4]);
 		player->IdleTimer = 0;
-		player->IsIdle = false;
+		player->State[IDLE] = false;
 	}
 
-	if(SDL_GetTicks() - player->IdleTimer >= 10000 && player->IdleTimer != 0 && player->IsIdle == false)
+	if(SDL_GetTicks() - player->IdleTimer >= 10000 && player->IdleTimer != 0 && player->State[IDLE] == false)
 	{
-		player->IsIdle = true;
+		player->State[IDLE] = true;
 	}
 
-	if(player->IdleTimer == 0 && player->CurrentSpeed == 0.0f && player->IsIdle == false)
+	if(player->IdleTimer == 0 && player->CurrentSpeed == 0.0f && player->State[IDLE] == false)
 	{
 		player->IdleTimer = SDL_GetTicks();
 	}
@@ -577,7 +657,7 @@ void updatePlayer(Player *player, Level *level)
 		player->CurrentJumpSpeed = 0.0f;
 	}
 
-	if(player->IsJumping == true && player->CurrentJumpSpeed < 0.0f)
+	if(player->State[JUMPING] == true && player->CurrentJumpSpeed < 0.0f)
 	{
 		player->CurrentJumpSpeed += 1600.0f * DELTA_TICKS;
 	}
@@ -600,9 +680,9 @@ void updatePlayer(Player *player, Level *level)
 			{
 				player->Y = h * BLOCK_SIZE - ((player->BoundingBox.Y + player->BoundingBox.H) * player->Scale) - 0.25;
 
-				if(player->IsJumping == true)
+				if(player->State[JUMPING] == true)
 				{
-					player->IsJumping = false;
+					player->State[JUMPING] = false;
 				}
 
 				player->CurrentJumpSpeed = 0.0f;
@@ -634,7 +714,7 @@ void updatePlayer(Player *player, Level *level)
 		}
 	}
 
-	if(player->IsStopping == true)
+	if(player->State[STOPPING] == true)
 	{
 		player->CurrentSpeed *= 1.0f - (9.5f * DELTA_TICKS);
 
@@ -646,10 +726,11 @@ void updatePlayer(Player *player, Level *level)
 
 	if(player->KeyStates[2] == true)
 	{
-		if(player->IsJumping == false && player->CurrentJumpSpeed == 0.0f)
+		if(player->State[JUMPING] == false && player->CurrentJumpSpeed == 0.0f)
 		{
 			player->CurrentJumpSpeed = player->JumpSpeed;
-			player->IsJumping = true;
+			player->State[JUMPING] = true;
+			// NOTE: This prevents constant jumping?
 			player->KeyStates[2] = false;
 		}
 	}
@@ -657,91 +738,130 @@ void updatePlayer(Player *player, Level *level)
 	// TODO: Calculate center of the player.
 	cameraX = (int)(player->X + player->BoundingBox.X + (player->BoundingBox.W / 2)) - (SCREEN_WIDTH / 2);
 	cameraY = (int)(player->Y + player->BoundingBox.Y + (player->BoundingBox.H / 2)) - (SCREEN_HEIGHT / 2);
+
+	// if(player->State[JUMPING] == true && player->CurrAnimation != 5)
+	// {
+	// 	stopAnimation(&player->Animations[5]);
+	// 	player->CurrAnimation = 5;
+	// }
+
+	// if(player->State[ATTACKING] == true)
+	// {
+	// 	startAnimation(&player->AttackAnimations[0], player->IsFacingLeft ? player->X - 200.0f : player->X + 140.0f, player->Y - 20.0f, player->Scale, player->IsFacingLeft);
+	// }
+
+	if(player->State[RUNNING] == true)
+	{
+		// player->CurrAnimation = 1;
+		// player->NextAnimation = 2;
+	}
+	else
+	{
+		// player->CurrAnimation = 0;
+		// player->NextAnimation = 0;
+	}
+
+	if(player->Animations[player->CurrAnimation].IsFinished == true || player->Animations[player->CurrAnimation].IsSkippable == true)
+	{
+		if(player->NextAnimation == -1)
+		{
+			// stopAnimation(&player->Animations[player->CurrAnimation]);
+		}
+		else
+		{
+			stopAnimation(&player->Animations[player->NextAnimation]);
+			player->CurrAnimation = player->NextAnimation;
+			player->NextAnimation = -1;
+		}
+	}
 }
 
 void drawPlayer(Player *player)
 {
-	// NOTE: Should this be moved to update?
-	if(player->IsMoving == true)
-	{
-		// FIXME: Jumping animation if the player is jumping.
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[4]);
+	// // TODO: Move to updatePlayer().
+	// if(player->State[RUNNING] == true)
+	// {
+	// 	// FIXME: Jumping animation if the player is jumping.
+	// 	stopAnimation(&player->Animations[0]);
+	// 	stopAnimation(&player->Animations[4]);
 
-		// FIXME: Change rendering origin for animations.
-		if(player->Animations[1].IsFinished == false)
-		{
-			playAnimation(&player->Animations[1], player->X, player->Y, player->Scale, player->IsFacingLeft);
-		}
-		else
-		{
-			playAnimation(&player->Animations[2], player->X, player->Y, player->Scale, player->IsFacingLeft);
-		}
-	}
-	else if(player->IsStopping == true)
-	{
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[1]);
-		stopAnimation(&player->Animations[2]);
-		playAnimation(&player->Animations[3], player->X, player->Y, player->Scale, player->IsFacingLeft);
+	// 	// FIXME: Change rendering origin for animations.
+	// 	if(player->Animations[1].IsFinished == false)
+	// 	{
+	// 		playAnimation(&player->Animations[1], player->X, player->Y, player->Scale, player->IsFacingLeft);
+	// 	}
+	// 	else
+	// 	{
+	// 		playAnimation(&player->Animations[2], player->X, player->Y, player->Scale, player->IsFacingLeft);
+	// 	}
+	// }
+	// else if(player->State[STOPPING] == true)
+	// {
+	// 	stopAnimation(&player->Animations[0]);
+	// 	stopAnimation(&player->Animations[1]);
+	// 	stopAnimation(&player->Animations[2]);
+	// 	playAnimation(&player->Animations[3], player->X, player->Y, player->Scale, player->IsFacingLeft);
 
-		// NOTE: Animation speed should be synced.
-		if(player->CurrentSpeed == 0.0f && player->Animations[3].IsFinished == true)
+	// 	// NOTE: Animation speed should be synced.
+	// 	if(player->CurrentSpeed == 0.0f && player->Animations[3].IsFinished == true)
+	// 	{
+	// 		stopAnimation(&player->Animations[3]);
+	// 		player->State[STOPPING] = false;
+	// 	}
+	// }
+	// else if(player->State[JUMPING] == true)
+	// {
+	// 	stopAnimation(&player->Animations[0]);
+	// 	stopAnimation(&player->Animations[1]);
+	// 	stopAnimation(&player->Animations[2]);
+	// 	stopAnimation(&player->Animations[3]);
+	// 	stopAnimation(&player->Animations[4]);
+	// 	playAnimation(&player->Animations[5], player->X, player->Y, player->Scale, player->IsFacingLeft);
+	// }
+	// else if(player->State[IDLE] == true)
+	// {
+	// 	playAnimation(&player->Animations[4], player->X, player->Y, player->Scale, player->IsFacingLeft);
+
+	// 	if(player->Animations[4].IsFinished == true)
+	// 	{
+	// 		stopAnimation(&player->Animations[4]);
+	// 		player->IdleTimer = 0;
+	// 		player->State[IDLE] = false;
+	// 	}
+	// }
+	// else if(player->State[ATTACKING] == true)
+	// {
+	// 	stopAnimation(&player->Animations[0]);
+	// 	stopAnimation(&player->Animations[2]);
+	// 	playAnimation(&player->Animations[6], player->X, player->Y + 12.0f, player->Scale, player->IsFacingLeft);
+	// 	startAnimation(&player->AttackAnimations[0], player->IsFacingLeft ? player->X - 200.0f : player->X + 140.0f, player->Y - 20.0f, player->Scale, player->IsFacingLeft);
+
+	// 	if(player->Animations[6].IsFinished == true)
+	// 	{
+	// 		stopAnimation(&player->Animations[6]);
+	// 		player->State[ATTACKING] = false;
+	// 		player->AttackID = -1;
+	// 	}
+	// }
+	// else
+	// {
+	// 	stopAnimation(&player->Animations[1]);
+	// 	stopAnimation(&player->Animations[2]);
+	// 	stopAnimation(&player->Animations[5]);
+	// 	playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->IsFacingLeft);
+	// }
+
+	if(player->AttackAnimations[0].Started == true)
+	{
+		playStaticAnimation(&player->AttackAnimations[0]);
+
+		if(player->AttackAnimations[0].IsFinished == true)
 		{
-			stopAnimation(&player->Animations[3]);
-			player->IsStopping = false;
+			stopAnimation(&player->AttackAnimations[0]);
 		}
 	}
-	else if(player->IsJumping == true)
-	{
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[1]);
-		stopAnimation(&player->Animations[2]);
-		stopAnimation(&player->Animations[3]);
-		stopAnimation(&player->Animations[4]);
-		playAnimation(&player->Animations[5], player->X, player->Y, player->Scale, player->IsFacingLeft);
-	}
-	else if(player->IsIdle == true)
-	{
-		playAnimation(&player->Animations[4], player->X, player->Y, player->Scale, player->IsFacingLeft);
 
-		if(player->Animations[4].IsFinished == true)
-		{
-			stopAnimation(&player->Animations[4]);
-			player->IdleTimer = 0;
-			player->IsIdle = false;
-		}
-	}
-	else if(player->IsAttacking == true)
-	{
-		stopAnimation(&player->Animations[0]);
-		stopAnimation(&player->Animations[2]);
-		playAnimation(&player->Animations[6], player->X, player->Y + 12.0f, player->Scale, player->IsFacingLeft);
-		startAnimation(&player->Attacks[0], player->IsFacingLeft ? player->X - 200.0f : player->X + 140.0f, player->Y - 20.0f, player->Scale, player->IsFacingLeft);
-
-		if(player->Animations[6].IsFinished == true)
-		{
-			stopAnimation(&player->Animations[6]);
-			player->IsAttacking = false;
-		}
-	}
-	else
-	{
-		stopAnimation(&player->Animations[1]);
-		stopAnimation(&player->Animations[2]);
-		stopAnimation(&player->Animations[5]);
-		playAnimation(&player->Animations[0], player->X, player->Y, player->Scale, player->IsFacingLeft);
-	}
-
-	if(player->Attacks[0].Started == true)
-	{
-		playStaticAnimation(&player->Attacks[0]);
-
-		if(player->Attacks[0].IsFinished == true)
-		{
-			stopAnimation(&player->Attacks[0]);
-		}
-	}
+	playAnimation(&player->Animations[player->CurrAnimation], player->X, player->Y, player->Scale, player->IsFacingLeft);
 
 	if(DEBUG == true)
 	{

@@ -96,6 +96,7 @@ void loadTexture(Texture *texture, const char *filename, GLuint shaderProgram)
 
 // NOTE: Should I rename clip to rectangle?
 // NOTE: Should clips be moved into texture itself?
+// NOTE: Angle can be calculated using atan2((double)yDir, (double)xDir) * (180.0 / M_PI);
 void drawTexture(Texture *texture, GLfloat x, GLfloat y, RectangleF *clip, GLfloat angle, GLfloat scale, bool flip)
 {
 	if(texture->ID != 0)

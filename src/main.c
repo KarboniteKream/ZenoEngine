@@ -202,37 +202,6 @@ int main(int argc, char **argv)
 					break;
 				}
 			}
-			else if(event.type == SDL_JOYAXISMOTION)
-			{
-				// NOTE: The first controller.
-				if(event.jaxis.which == 0)
-				{
-					// NOTE: X axis.
-					if(event.jaxis.axis == 0)
-					{
-						if(abs(event.jaxis.value) > 4000)
-						{
-							gamepadX = event.jaxis.value;
-						}
-						else
-						{
-							gamepadX = 0;
-						}
-					}
-
-					if(event.jaxis.axis == 1)
-					{
-						if(abs(event.jaxis.value) > 4000)
-						{
-							gamepadY = event.jaxis.value;
-						}
-						else
-						{
-							gamepadY = 0;
-						}
-					}
-				}
-			}
 			else if(event.type == SDL_MOUSEMOTION)
 			{
 				mouseX = event.motion.x;
@@ -330,6 +299,37 @@ int main(int argc, char **argv)
 						char pos[32];
 						snprintf(pos, 32, "%.0f, %.0f", mouseX, mouseY);
 						printLog(2, pos, NULL);
+					}
+				}
+				else if(event.type == SDL_JOYAXISMOTION)
+				{
+					// NOTE: The first controller.
+					if(event.jaxis.which == 0)
+					{
+						// NOTE: X axis.
+						if(event.jaxis.axis == 0)
+						{
+							if(abs(event.jaxis.value) > 4000)
+							{
+								gamepadX = event.jaxis.value;
+							}
+							else
+							{
+								gamepadX = 0;
+							}
+						}
+
+						if(event.jaxis.axis == 1)
+						{
+							if(abs(event.jaxis.value) > 4000)
+							{
+								gamepadY = event.jaxis.value;
+							}
+							else
+							{
+								gamepadY = 0;
+							}
+						}
 					}
 				}
 

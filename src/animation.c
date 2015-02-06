@@ -16,6 +16,7 @@ void initAnimation(Animation *animation)
 
 	animation->IsFinished = false;
 	animation->IsLastFrame = false;
+	animation->IsSkippable = false;
 
 	animation->Frame.X = 0.0f;
 	animation->Frame.Y = 0.0f;
@@ -23,7 +24,7 @@ void initAnimation(Animation *animation)
 	animation->Frame.H = 0.0f;
 }
 
-void loadAnimation(Animation *animation, const char *animationTexture, int totalFrames, int framesPerRow, int framesPerColumn, float animationSpeed)
+void loadAnimation(Animation *animation, const char *animationTexture, int totalFrames, int framesPerRow, int framesPerColumn, float animationSpeed, bool isSkippable)
 {
 	loadTexture(&animation->AnimationTexture, animationTexture, 0);
 
@@ -39,6 +40,7 @@ void loadAnimation(Animation *animation, const char *animationTexture, int total
 
 	animation->IsFinished = false;
 	animation->IsLastFrame = false;
+	animation->IsSkippable = isSkippable;
 
 	animation->Frame.X = 0.0f;
 	animation->Frame.Y = 0.0f;
